@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.collections.ObservableList?>
+<BorderPane id="mainBackground" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ventanacoches.TablaCochesController" >
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="navigation-bar">
+            <Button text="HOME" fx:id="homeButton"/> 
+            <Button text="GESTIÓN" fx:id="gestionButton"/> 
+            <Button text="CERRAR SESIÓN" fx:id="cerrarSesionButton"/> 
+        </HBox>
+    </top>
+    
+    <center>
+        <SplitPane orientation="HORIZONTAL">
+            <TableView fx:id="tableView" prefWidth="400" styleClass="table-view">
+                <columns>
+                    <TableColumn text="X" />
+                    <TableColumn text="Id_Vehiculo" />
+                    <TableColumn text="Modelo" />
+                    <TableColumn text="Potencia" />
+                    <TableColumn text="Color" />
+                    <TableColumn text="Marca" />
+                    <TableColumn text="Tipo Vehiculo" />
+                </columns>
+            </TableView>
+
+            <VBox spacing="10" alignment="CENTER" styleClass="form-pane">
+                <Label text="Modelo" styleClass="label"/>
+                <TextField fx:id="modeloField"/> 
+                <Label text="Potencia" styleClass="label"/>
+                <TextField fx:id="potenciaField"/> 
+                <Label text="Color" styleClass="label"/>
+                <TextField fx:id="colorField"/> 
+                <Label text="Marca" styleClass="label"/>
+                <TextField fx:id="marcaField"/> 
+                <Label text="Categoría:" styleClass="label" />
+                <ComboBox fx:id="categoryComboBox">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Opción 1" />
+                            <String fx:value="Opción 2" />
+                            <String fx:value="Opción 3" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
+
+            </VBox>
+        </SplitPane>
+    </center>
+    <bottom>
+        <HBox>
+            <Button text="DELETE" fx:id="deleteButton"/>
+            <Button text="REFRESH" fx:id="refreshButton"/>
+     
+            <HBox spacing="10" alignment="CENTER">
+                <Label text="Filtrar por fecha:" styleClass="label"/>
+                <DatePicker fx:id="datePickerFiltro" styleClass="date-picker"/>
+                <Button text="APLICAR" styleClass="button"/>
+            </HBox>
+
+            <Button text="PRINT" fx:id="printButton"/>
+        </HBox>
+    </bottom>
+</BorderPane>
