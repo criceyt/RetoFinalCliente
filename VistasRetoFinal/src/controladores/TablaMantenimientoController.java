@@ -46,8 +46,29 @@ public class TablaMantenimientoController implements Initializable {
     @FXML
     private MenuItem gestionMantenimientos;
 
-    
-    
+    // Abrir Perfil mediante una Imagen
+    @FXML
+    private void abrirPerfilBtn(javafx.scene.input.MouseEvent event) {
+        try {
+        // Se carga el FXML con la información de la vista
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/Perfil.fxml"));
+        Parent root = loader.load();
+
+        // Obtener el controlador
+        PerfilController controller = loader.getController();
+
+        // Obtener el Stage
+        Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
+        stage.setTitle("Perfil de Usuario");
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/css/Perfil.css").toExternalForm());
+        stage.setScene(scene);
+        stage.show();
+    } catch (IOException ex) {
+        Logger.getLogger(TablaProveedoresController.class.getName()).log(Level.SEVERE, null, ex);
+        new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+    }
+}
     
 
     @Override
@@ -56,7 +77,6 @@ public class TablaMantenimientoController implements Initializable {
         //Se añaden los listeners a todos los botones.
         solicitarMantenimientoBtn.setOnAction(this::abrirVentanaSolicitarMantenimiento);
         homeBtn.setOnAction(this::irAtras);
-        
         gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);

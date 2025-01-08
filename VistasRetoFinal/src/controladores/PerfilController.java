@@ -1,13 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
@@ -23,12 +20,13 @@ import javafx.scene.control.MenuItem;
 import javafx.stage.Stage;
 
 /**
+ * FXML Controller class
  *
- * @author urkiz
+ * @author urkizu
  */
-public class SolicitarMantenimientoController implements Initializable {
-// Elementos de la Ventana
+public class PerfilController implements Initializable {
 
+    // Elementos de la Ventana
     @FXML
     private Button homeBtn;
 
@@ -47,44 +45,43 @@ public class SolicitarMantenimientoController implements Initializable {
     @FXML
     private MenuItem gestionMantenimientos;
 
-    
     // Abrir perfil mediante ImageView
     @FXML
     private void abrirPerfilBtn(javafx.scene.input.MouseEvent event) {
         try {
-        // Se carga el FXML con la información de la vista
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/Perfil.fxml"));
-        Parent root = loader.load();
+            // Se carga el FXML con la información de la vista
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/Perfil.fxml"));
+            Parent root = loader.load();
 
-        // Obtener el controlador
-        PerfilController controller = loader.getController();
+            // Obtener el controlador
+            PerfilController controller = loader.getController();
 
-        // Obtener el Stage
-        Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
-        stage.setTitle("Perfil de Usuario");
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/css/Perfil.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
-    } catch (IOException ex) {
-        Logger.getLogger(TablaProveedoresController.class.getName()).log(Level.SEVERE, null, ex);
-        new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+            // Obtener el Stage
+            Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
+            stage.setTitle("Perfil de Usuario");
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/perfil.css").toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(TablaProveedoresController.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+        }
     }
-}
-    
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
         //Se añaden los listeners a todos los botones.
-        solicitarMantenimientoBtn.setOnAction(this::abrirVentanaSolicitarMantenimiento);
         homeBtn.setOnAction(this::irAtras);
+        solicitarMantenimientoBtn.setOnAction(this::abrirVentanaSolicitarMantenimiento);
         gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
 
         System.out.println("Ventana inicializada correctamente.");
     }
-
+    
     // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
         try {
@@ -213,5 +210,4 @@ public class SolicitarMantenimientoController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
-
 }

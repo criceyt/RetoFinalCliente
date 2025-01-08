@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.StackPane?>
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="489.0" prefWidth="794.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.TablaProveedoresController">
-    <!-- Barra Superior -->
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.collections.ObservableList?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.image.Image?>
+<BorderPane id="mainBackground" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.TablaProveedoresController" >
     <top>
         <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #5b1e1e; -fx-padding: 10;">
+            <!-- Imagen en la barra superior -->
+            <ImageView fx:id="abrirPerfilBtn" fitHeight="80" fitWidth="80" preserveRatio="true" onMouseClicked="#abrirPerfilBtn">
+                <image>
+                    <Image url="@/img/avatar.png" />
+                </image>
+            </ImageView>
             <Button fx:id="homeBtn" style="-fx-text-fill: white; -fx-font-weight: bold;" text="HOME" />
             <Button fx:id="solicitarMantenimientoBtn" style="-fx-text-fill: white; -fx-font-weight: bold;" text="SOLICITAR MANTENIMIENTO" />
             <MenuButton text="Gestionar" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: #d32f2f;">
@@ -29,56 +31,55 @@
             <Button fx:id="cerrarSesionBtn" style="-fx-text-fill: white; -fx-font-weight: bold;" text="CERRAR SESIÓN" />
         </HBox>
     </top>
-
-    <!-- Contenido Principal (Tabla a la izquierda) -->
+    
     <center>
-        <HBox>
-            <!-- VBox para organizar la tabla dentro del área central -->
-            <VBox spacing="10" style="-fx-padding: 10;" prefWidth="350">
-                <TableView fx:id="tableView" prefWidth="350" styleClass="table-view">
-                    <columns>
-                        <!-- Columna "X" -->
-                        <TableColumn fx:id="indexColumn" text="X" prefWidth="50"/>
-                        <!-- Otras columnas -->
-                        <TableColumn fx:id="idProveedorColumn" text="idProveedor" />
-                        <TableColumn fx:id="nombreColumn" text="Nombre" />
-                        <TableColumn fx:id="tipoColumn" text="Tipo" />
-                        <TableColumn fx:id="especialidadColumn" text="Especialidad" />
-                        <TableColumn fx:id="ultimaActividadColumn" text="Última Actividad" />
-                    </columns>
-                </TableView>
+        <SplitPane orientation="HORIZONTAL">
+            <TableView fx:id="tableView" prefWidth="350" styleClass="table-view">
+                <columns>
+                    <!-- Columna "X" -->
+                    <TableColumn fx:id="indexColumn" text="X" prefWidth="50"/>
+                    <!-- Otras columnas -->
+                    <TableColumn fx:id="idProveedorColumn" text="idProveedor" />
+                    <TableColumn fx:id="nombreColumn" text="Nombre" />
+                    <TableColumn fx:id="tipoColumn" text="Tipo" />
+                    <TableColumn fx:id="especialidadColumn" text="Especialidad" />
+                    <TableColumn fx:id="ultimaActividadColumn" text="Última Actividad" />
+                </columns>
+            </TableView>
 
-                <!-- Botones debajo de la tabla -->
-                <HBox alignment="CENTER" spacing="20" style="-fx-padding: 10;">
-                    <Button fx:id="refreshBtn" text="Refresh" style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
-                    <Button fx:id="deleteBtn" text="Delete" style="-fx-background-color: #F44336; -fx-text-fill: white;"/>
-                    <Button fx:id="saveBtn" text="Guardar" style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
-                </HBox>
+            <VBox spacing="10" alignment="CENTER" styleClass="form-pane">
+                <Label text="Alta de Proveedor" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #d32f2f; -fx-padding: 10;"/>
+                <Label text="Nombre" styleClass="label"/>
+                <TextField fx:id="Nombre"/> 
+                <Label text="Especialidad" styleClass="label"/>
+                <TextField fx:id="especialidadField"/> 
+                <Label text="Tipo" styleClass="label" />
+                <ComboBox fx:id="categoryComboBox">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Opción 1" />
+                            <String fx:value="Opción 2" />
+                            <String fx:value="Opción 3" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
+
             </VBox>
-
-            <!-- Mover el formulario entero hacia la derecha -->
-            <HBox style="-fx-padding: 10;" alignment="CENTER_RIGHT">
-                <VBox spacing="10" style="-fx-padding: 10; -fx-background-color: #f0f0f0; -fx-border-color: #d32f2f; -fx-border-width: 2; -fx-background-radius: 10;" prefWidth="400" maxWidth="400">
-                    <!-- Título encima del formulario -->
-                    <Label text="Alta de Proveedor" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #d32f2f; -fx-padding: 10;"/>
-
-                    <!-- Campos del formulario -->
-                    <Label text="Nombre:"/>
-                    <TextField fx:id="nombreField" prefWidth="250"/>
-
-                    <Label text="Especialidad:"/>
-                    <TextField fx:id="especialidadField" prefWidth="250"/>
-
-                    <Label text="Tipo:"/>
-                    <ComboBox fx:id="tipoComboBox" prefWidth="250"/>
-                    
-                    <!-- Botón para insertar -->
-                    <HBox alignment="CENTER_RIGHT" style="-fx-padding: 10;">
-                        <Button fx:id="submitButton" text="Insertar" style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
-                    </HBox>
-                </VBox>
+        </SplitPane>
+    </center>
+    <bottom>
+        <HBox>
+            <Button text="DELETE" fx:id="deleteButton"/>
+            <Button text="REFRESH" fx:id="refreshButton"/>
+     
+            <HBox alignment="CENTER" spacing="20" style="-fx-padding: 10;">
+                <Label text="Filtrar por fecha:" styleClass="label"/>
+                <DatePicker fx:id="datePickerFiltro" styleClass="date-picker"/>
+                <Button fx:id="saveBtn" text="Guardar" styleClass="button"/>
             </HBox>
 
+            <Button text="PRINT" fx:id="printButton"/>
         </HBox>
-    </center>
+    </bottom>
 </BorderPane>

@@ -31,8 +31,9 @@ public class ApplicationClient extends javafx.application.Application {
         Scene scene = new Scene(root);
         scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
 
-        stage.setWidth(900);
-        stage.setHeight(780);
+        stage.setWidth(1000);
+        stage.setHeight(800);
+        stage.setResizable(false);
 
         stage.setTitle("Ventana De Navegacion");
 

@@ -5,6 +5,7 @@
  */
 package controladores;
 
+import javafx.scene.input.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -14,13 +15,17 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 /**
@@ -47,9 +52,31 @@ public class NavegacionPrincipalController implements Initializable {
 
     @FXML
     private MenuItem gestionMantenimientos;
+    
+    
+    // Abrir perfil mediante ImageView
+    @FXML
+    private void abrirPerfilBtn(javafx.scene.input.MouseEvent event) {
+        try {
+        // Se carga el FXML con la información de la vista
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/Perfil.fxml"));
+        Parent root = loader.load();
 
-    
-    
+        // Obtener el controlador
+        PerfilController controller = loader.getController();
+
+        // Obtener el Stage
+        Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
+        stage.setTitle("Perfil de Usuario");
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/css/Perfil.css").toExternalForm());
+        stage.setScene(scene);
+        stage.show();
+    } catch (IOException ex) {
+        Logger.getLogger(TablaProveedoresController.class.getName()).log(Level.SEVERE, null, ex);
+        new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+    }
+}
     
 
     @Override
@@ -57,8 +84,6 @@ public class NavegacionPrincipalController implements Initializable {
         
         //Se añaden los listeners a todos los botones.
         solicitarMantenimientoBtn.setOnAction(this::abrirVentanaSolicitarMantenimiento);
-        
-        
         gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
@@ -69,7 +94,7 @@ public class NavegacionPrincipalController implements Initializable {
     
     // Abrir Ventana Gestion Proveedores
     private void abrirVentanaGestionProveedores(ActionEvent event) {
-         try {
+        try {
         // Se carga el FXML con la información de la vista
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TablaProveedores.fxml"));
         Parent root = loader.load();

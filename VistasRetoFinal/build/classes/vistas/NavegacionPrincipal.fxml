@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.image.Image?>
 
 <BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.NavegacionPrincipalController">
     <!-- Barra Superior -->
@@ -18,7 +19,7 @@
         <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #5b1e1e; -fx-padding: 10;">
             <Button fx:id="homeBtn" style="-fx-text-fill: white; -fx-font-weight: bold;" text="HOME" />
             <Button fx:id="solicitarMantenimientoBtn" style="-fx-text-fill: white; -fx-font-weight: bold;" text="SOLICITAR MANTENIMIENTO" />
-             <MenuButton text="Gestionar" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: #d32f2f;">
+            <MenuButton text="Gestionar" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: #d32f2f;">
                 <items>
                     <MenuItem fx:id="gestionVehiculos" text="Gestión de Vehículos"/>
                     <MenuItem fx:id="gestionProveedores" text="Gestión de Proveedores"/>
@@ -30,22 +31,30 @@
     </top>
 
     <!-- Panel Izquierdo -->
-    <left>
-        <VBox spacing="10" style="-fx-background-color: #2e1a1a; -fx-padding: 20; -fx-border-color: #004fff; -fx-border-width: 2; -fx-border-radius: 5;">
-            <ImageView fitHeight="50" fitWidth="50">
+<left>
+    <VBox spacing="10" style="-fx-background-color: #2e1a1a; -fx-padding: 20; -fx-border-color: #004fff; -fx-border-width: 2; -fx-border-radius: 5;">
+        <!-- Contenedor para centrar la imagen horizontalmente -->
+        <HBox alignment="CENTER" style="-fx-background-color: transparent;">
+            <!-- Imagen en la barra superior -->
+            <ImageView fx:id="abrirPerfilBtn" fitHeight="80" fitWidth="80" preserveRatio="true" onMouseClicked="#abrirPerfilBtn">
                 <image>
-                    
+                    <Image url="@/img/avatar.png" />
                 </image>
-            </ImageView> 
+            </ImageView>
+        </HBox>
 
-            <Button prefWidth="150" text="Opción 1" />
-            <Button prefWidth="150" text="Opción 2" />
-            <Button prefWidth="150" text="Opción 3" />
-            <Button prefWidth="150" text="Opción 4" />
-            <Button prefWidth="150" text="Opción 5" />
-            <Button prefWidth="150" text="Opción 6" />
-        </VBox>
-    </left>
+        <!-- Botones debajo de la imagen -->
+        <Button prefWidth="150" text="Opción 1" />
+        <Button prefWidth="150" text="Opción 2" />
+        <Button prefWidth="150" text="Opción 3" />
+        <Button prefWidth="150" text="Opción 4" />
+        <Button prefWidth="150" text="Opción 5" />
+        <Button prefWidth="150" text="Opción 6" />
+    </VBox>
+</left>
+
+
+
 
     <!-- Área Central -->
     <center>
@@ -66,17 +75,17 @@
                     <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="2" GridPane.rowIndex="1" />
                     <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                 </children>
-            <columnConstraints>
-               <ColumnConstraints />
-               <ColumnConstraints />
-               <ColumnConstraints />
-               <ColumnConstraints />
-               <ColumnConstraints />
-            </columnConstraints>
-            <rowConstraints>
-               <RowConstraints />
-               <RowConstraints />
-            </rowConstraints>
+                <columnConstraints>
+                    <ColumnConstraints />
+                    <ColumnConstraints />
+                    <ColumnConstraints />
+                    <ColumnConstraints />
+                    <ColumnConstraints />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints />
+                    <RowConstraints />
+                </rowConstraints>
             </GridPane>
         </VBox>
     </center>
