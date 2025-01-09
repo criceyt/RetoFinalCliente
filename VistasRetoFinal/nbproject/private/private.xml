@@ -2,17 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/2dam/Desktop/RetoFinalCliente/VistasRetoFinal/src/controladores/NavegacionPrincipalController.java</file>
-            <file>file:/C:/Users/2dam/Desktop/RetoFinalCliente/VistasRetoFinal/src/vistas/TablaMantenimiento.fxml</file>
-            <file>file:/C:/Users/2dam/Desktop/RetoFinalCliente/VistasRetoFinal/src/styles/style.css</file>
-            <file>file:/C:/Users/2dam/Desktop/RetoFinalCliente/VistasRetoFinal/src/controladores/ApplicationClient.java</file>
-            <file>file:/C:/Users/2dam/Desktop/RetoFinalCliente/VistasRetoFinal/src/css/CSSTabla.css</file>
-            <file>file:/C:/Users/2dam/Desktop/RetoFinalCliente/VistasRetoFinal/src/vistas/TablaVehiculos.fxml</file>
-            <file>file:/C:/Users/2dam/Desktop/RetoFinalCliente/VistasRetoFinal/src/vistas/Perfil.fxml</file>
-            <file>file:/C:/Users/2dam/Desktop/RetoFinalCliente/VistasRetoFinal/src/vistas/NavegacionPrincipal.fxml</file>
-            <file>file:/C:/Users/2dam/Desktop/RetoFinalCliente/VistasRetoFinal/src/controladores/SolicitarMantenimientoController.java</file>
-            <file>file:/C:/Users/2dam/Desktop/RetoFinalCliente/VistasRetoFinal/src/vistas/TablaProveedores.fxml</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

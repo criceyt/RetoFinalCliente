@@ -23,13 +23,6 @@
 
             <Button fx:id="homeBtn" style="-fx-text-fill: white; -fx-font-weight: bold;" text="HOME" />
             <Button fx:id="solicitarMantenimientoBtn" style="-fx-text-fill: white; -fx-font-weight: bold;" text="SOLICITAR MANTENIMIENTO" />
-            <MenuButton style="-fx-text-fill: white; -fx-font-weight: bold; -fx-background-color: #d32f2f;" text="Gestionar">
-                <items>
-                    <MenuItem fx:id="gestionVehiculos" text="Gestión de Vehículos" />
-                    <MenuItem fx:id="gestionProveedores" text="Gestión de Proveedores" />
-                    <MenuItem fx:id="gestionMantenimientos" text="Gestión de Mantenimientos" />
-                </items>
-            </MenuButton>
             <Button fx:id="cerrarSesionBtn" style="-fx-text-fill: white; -fx-font-weight: bold;" text="CERRAR SESIÓN" />
         </HBox>
     </top>

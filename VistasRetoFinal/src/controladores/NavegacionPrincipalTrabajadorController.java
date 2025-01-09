@@ -5,6 +5,7 @@
  */
 package controladores;
 
+import javafx.scene.input.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -14,20 +15,24 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 /**
- * FXML Controller class
  *
  * @author crice
  */
-public class TablaVehiculosController implements Initializable {
+public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     // Elementos de la Ventana
     @FXML
@@ -50,7 +55,6 @@ public class TablaVehiculosController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
 
         //Se añaden los listeners a todos los botones.
-        homeBtn.setOnAction(this::irAtras);
         gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
@@ -90,38 +94,6 @@ public class TablaVehiculosController implements Initializable {
         }
     }
 
-    // Boton HOME para volver atras
-    private void irAtras(ActionEvent event) {
-        try {
-            // Se carga el FXML con la información de la vista viewSignUp.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
-            Parent root = loader.load();
-
-            NavegacionPrincipalTrabajadorController controler = loader.getController();
-
-            // Obtener el Stage desde el nodo que disparó el evento.
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-
-            stage.setTitle("Navegacion Principal Trabajador");
-            // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-
-            // Se muestra en la ventana el Scene creado.
-            stage.setScene(scene);
-            stage.show();
-
-        } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(NavegacionPrincipalTrabajadorController.class
-                    .getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
-        }
-    }
-
     // Abrir Ventana Gestion Proveedores
     private void abrirVentanaGestionProveedores(ActionEvent event) {
         try {
@@ -139,10 +111,8 @@ public class TablaVehiculosController implements Initializable {
             scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
             stage.setScene(scene);
             stage.show();
-
         } catch (IOException ex) {
-            Logger.getLogger(TablaProveedoresController.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TablaProveedoresController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
@@ -164,10 +134,8 @@ public class TablaVehiculosController implements Initializable {
             scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
             stage.setScene(scene);
             stage.show();
-
         } catch (IOException ex) {
-            Logger.getLogger(TablaMantenimientoController.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
@@ -188,10 +156,8 @@ public class TablaVehiculosController implements Initializable {
             scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
             stage.setScene(scene);
             stage.show();
-
         } catch (IOException ex) {
-            Logger.getLogger(NavegacionPrincipalController.class
-                    .getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }

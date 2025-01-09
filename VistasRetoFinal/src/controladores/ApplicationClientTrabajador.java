@@ -16,7 +16,7 @@ import javafx.stage.WindowEvent;
  *
  * @author Ekain
  */
-public class ApplicationClient extends javafx.application.Application {
+public class ApplicationClientTrabajador extends javafx.application.Application {
 
     /**
      * Método que se llama al iniciar la aplicación.
@@ -26,16 +26,16 @@ public class ApplicationClient extends javafx.application.Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        Parent root = FXMLLoader.load(getClass().getResource("/vistas/SignInSignUp.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
 
         stage.setWidth(1000);
         stage.setHeight(800);
         stage.setResizable(false);
 
-        stage.setTitle("SignIn & SignUp");
+        stage.setTitle("Navegacion de Trabajador");
 
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/img/icono.png")));
         stage.setScene(scene);
