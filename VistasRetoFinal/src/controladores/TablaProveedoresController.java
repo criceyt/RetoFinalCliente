@@ -7,6 +7,7 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,7 +21,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import entidades.ProveedorBean;  // Asegúrate de que el paquete sea correcto
+import java.util.List;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 /**
  *
@@ -44,6 +53,24 @@ public class TablaProveedoresController implements Initializable {
     @FXML
     private MenuItem gestionMantenimientos;
 
+    @FXML
+    private TableView tableView;
+
+    @FXML
+    private TableColumn<ProveedorBean, Long> idProveedorColumn;
+
+    @FXML
+    private TableColumn<ProveedorBean, String> nombreColumn;
+
+    @FXML
+    private TableColumn<ProveedorBean, String> tipoColumn;
+
+    @FXML
+    private TableColumn<ProveedorBean, String> especialidadColumn;
+
+    @FXML
+    private TableColumn<ProveedorBean, Date> ultimaActividadColumn;
+
     // Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -56,6 +83,31 @@ public class TablaProveedoresController implements Initializable {
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
 
         System.out.println("Ventana inicializada correctamente.");
+
+        idProveedorColumn.setCellValueFactory(new PropertyValueFactory<>("idProveedor"));
+        nombreColumn.setCellValueFactory(new PropertyValueFactory<>("nombreProveedor"));
+        tipoColumn.setCellValueFactory(new PropertyValueFactory<>("tipoVehiculo"));
+        especialidadColumn.setCellValueFactory(new PropertyValueFactory<>("especialidad"));
+        ultimaActividadColumn.setCellValueFactory(new PropertyValueFactory<>("ultimaActividad"));
+
+        ObservableList proveedoresData = null;
+
+        // Crear una lista Obserbable de Proveedores para la Tabla
+        try {
+            // Intenta cargar los proveedores en la lista observable
+            proveedoresData = FXCollections.observableArrayList(FactoriaProveedores.getTablaProveedores());
+        } catch (Exception ex) {
+            // Captura cualquier otra excepción no esperada
+            Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, "Error inesperado al cargar los datos", ex);
+            new Alert(Alert.AlertType.ERROR, "Ocurrió un error inesperado. Por favor, contacta con el soporte técnico.", ButtonType.OK).showAndWait();
+        }
+
+        // Establece el modelo de datos de la tabla
+        tableView.setItems(proveedoresData);
+
+        //tableView.getSelectionModel().selectedItemProperty().addListener(this::seleccionarElementoTabla);
+        //private void seleccionarElementoTabla(ObservableValue observable, Object oldValue, Object newValue) {
+        //}
     }
 
     // Abrir Ventana SignIn & SignUp
