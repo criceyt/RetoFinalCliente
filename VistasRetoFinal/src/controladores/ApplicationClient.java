@@ -20,6 +20,7 @@ public class ApplicationClient extends javafx.application.Application {
 
     /**
      * Método que se llama al iniciar la aplicación.
+     *
      * @param stage El escenario principal de la aplicación.
      * @throws Exception si ocurre un error durante la carga del archivo FXML.
      */

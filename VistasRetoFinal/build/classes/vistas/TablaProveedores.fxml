@@ -43,16 +43,16 @@
             <VBox spacing="10" alignment="CENTER" styleClass="form-pane">
                 <Label text="Alta de Proveedor" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #d32f2f; -fx-padding: 10;"/>
                 <Label text="Nombre" styleClass="label"/>
-                <TextField fx:id="Nombre"/> 
+                <TextField fx:id="NombreField"/> 
                 <Label text="Especialidad" styleClass="label"/>
                 <TextField fx:id="especialidadField"/> 
                 <Label text="Tipo" styleClass="label" />
                 <ComboBox fx:id="categoryComboBox">
                     <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="Opción 1" />
-                            <String fx:value="Opción 2" />
-                            <String fx:value="Opción 3" />
+                        <FXCollections fx:id="enumVehiculos" fx:factory="observableArrayList">
+                            <String fx:value="COCHE" />
+                            <String fx:value="MOTO" />
+                            <String fx:value="CAMION" />
                         </FXCollections>
                     </items>
                 </ComboBox>

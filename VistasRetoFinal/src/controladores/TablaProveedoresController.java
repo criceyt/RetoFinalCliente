@@ -5,8 +5,11 @@
  */
 package controladores;
 
+import logica.ProveedorManagerFactory;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -25,11 +28,17 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
-import entidades.ProveedorBean;  // Asegúrate de que el paquete sea correcto
 import java.util.List;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
+import javax.ws.rs.core.GenericType;
+import logica.ProveedorManager;
+import modelo.Proveedor;
+import modelo.TipoVehiculo;
+import org.eclipse.persistence.jpa.jpql.parser.DateTime;
 
 /**
  *
@@ -57,25 +66,25 @@ public class TablaProveedoresController implements Initializable {
     private TableView tableView;
 
     @FXML
-    private TableColumn<ProveedorBean, Long> idProveedorColumn;
+    private TableColumn<Proveedor, Long> idProveedorColumn;
 
     @FXML
-    private TableColumn<ProveedorBean, String> nombreColumn;
+    private TableColumn<Proveedor, String> nombreColumn;
 
     @FXML
-    private TableColumn<ProveedorBean, String> tipoColumn;
+    private TableColumn<Proveedor, String> tipoColumn;
 
     @FXML
-    private TableColumn<ProveedorBean, String> especialidadColumn;
+    private TableColumn<Proveedor, String> especialidadColumn;
 
     @FXML
-    private TableColumn<ProveedorBean, Date> ultimaActividadColumn;
+    private TableColumn<Proveedor, Date> ultimaActividadColumn;
+    
 
-    // Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        //Se añaden los listeners a todos los botones.
+        // Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
         gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
@@ -84,30 +93,22 @@ public class TablaProveedoresController implements Initializable {
 
         System.out.println("Ventana inicializada correctamente.");
 
+        // Configuración de las columnas de la tabla.
         idProveedorColumn.setCellValueFactory(new PropertyValueFactory<>("idProveedor"));
         nombreColumn.setCellValueFactory(new PropertyValueFactory<>("nombreProveedor"));
         tipoColumn.setCellValueFactory(new PropertyValueFactory<>("tipoVehiculo"));
         especialidadColumn.setCellValueFactory(new PropertyValueFactory<>("especialidad"));
         ultimaActividadColumn.setCellValueFactory(new PropertyValueFactory<>("ultimaActividad"));
 
-        ObservableList proveedoresData = null;
+        // Obtener la lista de proveedores desde el servidor o el origen de datos
+        List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
+        });
 
-        // Crear una lista Obserbable de Proveedores para la Tabla
-        try {
-            // Intenta cargar los proveedores en la lista observable
-            proveedoresData = FXCollections.observableArrayList(FactoriaProveedores.getTablaProveedores());
-        } catch (Exception ex) {
-            // Captura cualquier otra excepción no esperada
-            Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, "Error inesperado al cargar los datos", ex);
-            new Alert(Alert.AlertType.ERROR, "Ocurrió un error inesperado. Por favor, contacta con el soporte técnico.", ButtonType.OK).showAndWait();
-        }
+        // Convertir la lista de proveedores en ObservableList para la TableView
+        ObservableList<Proveedor> proveedoresData = FXCollections.observableArrayList(proveedores);
 
-        // Establece el modelo de datos de la tabla
+        // Establecer los datos en la tabla
         tableView.setItems(proveedoresData);
-
-        //tableView.getSelectionModel().selectedItemProperty().addListener(this::seleccionarElementoTabla);
-        //private void seleccionarElementoTabla(ObservableValue observable, Object oldValue, Object newValue) {
-        //}
     }
 
     // Abrir Ventana SignIn & SignUp
