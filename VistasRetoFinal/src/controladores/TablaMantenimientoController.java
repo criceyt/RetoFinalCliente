@@ -7,9 +7,13 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -19,8 +23,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javax.ws.rs.core.GenericType;
+import logica.MantenimientoManagerFactory;
+import modelo.Mantenimiento;
 
 /**
  *
@@ -44,6 +56,40 @@ public class TablaMantenimientoController implements Initializable {
     @FXML
     private MenuItem gestionMantenimientos;
 
+    // Tabla y columnas
+    @FXML
+    private TableView<Mantenimiento> tableView;
+    @FXML
+    private TableColumn<Mantenimiento, Long> idMantenimientoColumn;
+    @FXML
+    private TableColumn<Mantenimiento, String> descripcionColumn;
+    @FXML
+    private TableColumn<Mantenimiento, String> dniColumn;
+    @FXML
+    private TableColumn<Mantenimiento, String> matriculaColumn;
+    @FXML
+    private TableColumn<Mantenimiento, String> marcaColumn;
+    @FXML
+    private TableColumn<Mantenimiento, String> modeloColumn;
+    @FXML
+    private TableColumn<Mantenimiento, Boolean> mantenimientoExitosoColumn;
+    @FXML
+    private TableColumn<Mantenimiento, Date> fechaFinalizacionColumn;
+
+    // Campos adicionales del formulario
+    @FXML
+    private TextField dniField;
+    @FXML
+    private TextField descripcionField;
+    @FXML
+    private TextField matriculaField;
+    @FXML
+    private TextField marcaField;
+    @FXML
+    private TextField modeloField;
+    @FXML
+    private DatePicker Finalizacion;
+    
     // Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -54,7 +100,22 @@ public class TablaMantenimientoController implements Initializable {
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
-
+        
+        /*
+        idMantenimientoColumn.setCellValueFactory(new PropertyValueFactory<>("idMantenimiento"));
+        descripcionColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
+        dniColumn.setCellValueFactory(new PropertyValueFactory<>("dni"));
+        matriculaColumn.setCellValueFactory(new PropertyValueFactory<>("matricula"));
+        marcaColumn.setCellValueFactory(new PropertyValueFactory<>("marca"));
+        modeloColumn.setCellValueFactory(new PropertyValueFactory<>("modelo"));
+        mantenimientoExitosoColumn.setCellValueFactory(new PropertyValueFactory<>("mantenimientoExitoso"));
+        fechaFinalizacionColumn.setCellValueFactory(new PropertyValueFactory<>("fechaFinalizacion"));
+        
+        //List<Mantenimiento> mantenimientos = MantenimientoManagerFactory.get().findAll_XML(new GenericType<List<Mantenimiento>>() {});
+        
+        //ObservableList<Mantenimiento> mantenimientosData = FXCollections.observableArrayList(mantenimientos);
+        //tableView.setItems(mantenimientosData);
+*/
     }
 
     // Abrir Ventana SignIn & SignUp

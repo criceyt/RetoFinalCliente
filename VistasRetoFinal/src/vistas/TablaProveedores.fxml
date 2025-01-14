@@ -29,9 +29,7 @@
         <SplitPane orientation="HORIZONTAL">
             <TableView fx:id="tableView" prefWidth="350" styleClass="table-view">
                 <columns>
-                    <!-- Columna "X" -->
-                    <TableColumn fx:id="indexColumn" text="X" prefWidth="50"/>
-                    <!-- Otras columnas -->
+                    <!-- Columnas -->
                     <TableColumn fx:id="idProveedorColumn" text="idProveedor" />
                     <TableColumn fx:id="nombreColumn" text="Nombre" />
                     <TableColumn fx:id="tipoColumn" text="Tipo" />

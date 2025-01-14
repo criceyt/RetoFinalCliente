@@ -38,7 +38,9 @@ import javax.ws.rs.core.GenericType;
 import logica.ProveedorManager;
 import modelo.Proveedor;
 import modelo.TipoVehiculo;
+import modelo.Vehiculo;
 import org.eclipse.persistence.jpa.jpql.parser.DateTime;
+import sun.font.TextLabel;
 
 /**
  *
@@ -49,6 +51,12 @@ public class TablaProveedoresController implements Initializable {
     // Elementos de la Ventana
     @FXML
     private Button homeBtn;
+
+    @FXML
+    private Button refreshButton;
+
+    @FXML
+    private Button saveBtn;
 
     @FXML
     private Button cerrarSesionBtn;
@@ -79,7 +87,18 @@ public class TablaProveedoresController implements Initializable {
 
     @FXML
     private TableColumn<Proveedor, Date> ultimaActividadColumn;
-    
+
+    @FXML
+    private TextField NombreField;
+
+    @FXML
+    private TextField especialidadField;
+
+    @FXML
+    private ComboBox<String> categoryComboBox;
+
+    @FXML
+    private Button deleteButton;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -90,6 +109,9 @@ public class TablaProveedoresController implements Initializable {
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
+        saveBtn.setOnAction(this::proveedorNuevo);
+        refreshButton.setOnAction(this::cargartDatosTabla);
+        deleteButton.setOnAction(this::borrarProveedor);
 
         System.out.println("Ventana inicializada correctamente.");
 
@@ -109,6 +131,56 @@ public class TablaProveedoresController implements Initializable {
 
         // Establecer los datos en la tabla
         tableView.setItems(proveedoresData);
+
+        // Borrado
+        deleteButton.setDisable(true);
+        // Listener para habilitar o deshabilitar el botón de borrado según la selección
+        tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Si hay un elemento seleccionado, habilitar el botón de borrado
+                deleteButton.setDisable(false);
+            } else {
+                // Si no hay elementos seleccionados, deshabilitar el botón de borrado
+                deleteButton.setDisable(true);
+            }
+        });
+    }
+
+    private void proveedorNuevo(ActionEvent event) {
+
+        String nombre = NombreField.getText();
+        String especilalidad = especialidadField.getText();
+        String TipoVehiculoString = categoryComboBox.getValue();
+
+        TipoVehiculo valor;
+
+        if (TipoVehiculoString.equals("MOTO")) {
+            valor = TipoVehiculo.MOTO;
+        } else if (TipoVehiculoString.equals("CAMION")) {
+            valor = TipoVehiculo.CAMION;
+        } else {
+            valor = TipoVehiculo.COCHE;
+        }
+
+        Proveedor proveedorNuevo = new Proveedor();
+        proveedorNuevo.setNombreProveedor(nombre);
+        proveedorNuevo.setEspecialidad(especilalidad);
+        proveedorNuevo.setTipoVehiculo(valor);
+
+        Date fechaHoy = new Date();
+        fechaHoy.getDate();
+        proveedorNuevo.setUltimaActividad(fechaHoy);
+
+        try {
+
+            ProveedorManagerFactory.get().create_XML(proveedorNuevo);
+
+        } catch (Exception ex) {
+            System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        }
+
+        tableView.refresh();
+
     }
 
     // Abrir Ventana SignIn & SignUp
@@ -238,6 +310,45 @@ public class TablaProveedoresController implements Initializable {
         } catch (IOException ex) {
             Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+        }
+    }
+
+    // Metodo del Boton Refresh para cargar los elementos en la tabla
+    private void cargartDatosTabla(ActionEvent event) {
+
+        // Liampia la tabla antes de introducir los Items
+        tableView.getItems().clear();
+
+        // Obtener la lista de proveedores desde el servidor o el origen de datos
+        List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
+        });
+
+        // Convertir la lista de proveedores en ObservableList para la TableView
+        ObservableList<Proveedor> proveedoresData = FXCollections.observableArrayList(proveedores);
+
+        // Establecer los datos en la tabla
+        tableView.setItems(proveedoresData);
+
+    }
+
+    // Metodo que borra al Proveedor de la tabla y de la base de datos
+    private void borrarProveedor(ActionEvent event) {
+
+        Proveedor proveedorSeleccionado = (Proveedor) tableView.getSelectionModel().getSelectedItem();
+
+        if (proveedorSeleccionado != null) {
+            // Aquí puedes llamar a otro método con el objeto seleccionado como parámetro
+            Long id = proveedorSeleccionado.getIdProveedor();
+            String idParseado = String.valueOf(id);
+            
+            ProveedorManagerFactory.get().remove(idParseado);
+            
+            tableView.refresh();
+        
+            
+        } else {
+            // Si no hay un elemento seleccionado, mostrar mensaje de advertencia o manejar el error
+            System.out.println("No se ha seleccionado un proveedor para borrar.");
         }
     }
 }
