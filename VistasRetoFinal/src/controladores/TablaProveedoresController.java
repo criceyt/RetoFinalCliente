@@ -337,18 +337,39 @@ public class TablaProveedoresController implements Initializable {
         Proveedor proveedorSeleccionado = (Proveedor) tableView.getSelectionModel().getSelectedItem();
 
         if (proveedorSeleccionado != null) {
-            // Aquí puedes llamar a otro método con el objeto seleccionado como parámetro
-            Long id = proveedorSeleccionado.getIdProveedor();
-            String idParseado = String.valueOf(id);
-            
-            ProveedorManagerFactory.get().remove(idParseado);
-            
-            tableView.refresh();
-        
-            
-        } else {
-            // Si no hay un elemento seleccionado, mostrar mensaje de advertencia o manejar el error
-            System.out.println("No se ha seleccionado un proveedor para borrar.");
+            // Crear la alerta de confirmación
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmación de Borrado");
+            alert.setHeaderText("¿Estás seguro de que deseas borrar este Proveedor?");
+            alert.setContentText("Esta acción no se puede deshacer.");
+
+            // Mostrar la alerta y esperar la respuesta del usuario
+            alert.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    // Si el usuario hace clic en "OK", borrar el mantenimiento
+                    Long id = proveedorSeleccionado.getIdProveedor();
+                    String idParseado = String.valueOf(id);
+
+                    // Llamada al método para borrar el mantenimiento
+                    ProveedorManagerFactory.get().remove(idParseado);
+
+                    // Obtener la lista de proveedores desde el servidor o el origen de datos
+                    List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
+                    });
+
+                    // Convertir la lista de proveedores en ObservableList para la TableView
+                    ObservableList<Proveedor> proveedoresData = FXCollections.observableArrayList(proveedores);
+
+                    // Establecer los datos en la tabla
+                    tableView.setItems(proveedoresData);
+
+                    // Mostrar mensaje de éxito
+                    //new Alert(Alert.AlertType.INFORMATION, "Mantenimiento eliminado correctamente.", ButtonType.OK).showAndWait();
+                } else {
+                    // Si el usuario cancela, no hacer nada
+                    System.out.println("Borrado cancelado.");
+                }
+            });
         }
     }
 }

@@ -1,24 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package modelo;
 
 import java.io.Serializable;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 
-
 /**
  *
  * @author gorka
  */
-
 @XmlRootElement
 public class Mantenimiento implements Serializable {
+
     private static final long serialVersionUID = 1L;
-    
+
     // Atributos
     private Long idMantenimiento;
     private String descripcion;
@@ -26,9 +20,8 @@ public class Mantenimiento implements Serializable {
     private boolean mantenimientoExitoso;
 
     private Vehiculo vehiculo;
-    
+
     // getters and setters
-    
     public Long getIdMantenimiento() {
         return idMantenimiento;
     }
@@ -36,37 +29,58 @@ public class Mantenimiento implements Serializable {
     public void setIdMantenimiento(Long idMantenimiento) {
         this.idMantenimiento = idMantenimiento;
     }
-    
+
     public String getDescripcion() {
         return descripcion;
     }
-    
+
     public void setDescripcion(String descripcion) {
         this.descripcion = descripcion;
     }
-    
+
     public Boolean isMantenimientoExitoso() {
         return mantenimientoExitoso;
     }
-    
+
     public void setMantenimientoExitoso(Boolean mantenimientoExitoso) {
         this.mantenimientoExitoso = mantenimientoExitoso;
     }
-    
-     public Date getFechaFinalizacion() {
+
+    public Date getFechaFinalizacion() {
         return fechaFinalizacion;
     }
-    
+
     public void setFechaFinalizacion(Date fechaFinalizacion) {
         this.fechaFinalizacion = fechaFinalizacion;
     }
-    
+
     public Vehiculo getVehiculo() {
         return vehiculo;
     }
-    
+
     public void setVehiculo(Vehiculo vehiculo) {
         this.vehiculo = vehiculo;
+    }
+
+    /**
+     * Getter adicional para obtener directamente el ID del vehículo asociado en
+     * la tabla. Devuelve null si no hay un vehículo asociado.
+     */
+    public Long getIdVehiculo() {
+        return vehiculo != null ? vehiculo.getIdVehiculo() : null;
+    }
+
+    /**
+     * Setter adicional para establecer directamente el ID del vehículo asociado
+     * en la tabla. Crea un nuevo objeto Vehiculo si no existe previamente.
+     *
+     * @param idVehiculo El ID del vehículo a establecer.
+     */
+    public void setIdVehiculo(Long idVehiculo) {
+        if (vehiculo == null) {
+            vehiculo = new Vehiculo();
+        }
+        vehiculo.setIdVehiculo(idVehiculo);
     }
 
     @Override
@@ -93,5 +107,5 @@ public class Mantenimiento implements Serializable {
     public String toString() {
         return "G3.crud.entities.Mantenimiento[ idMantenimiento=" + idMantenimiento + " ]";
     }
-    
+
 }

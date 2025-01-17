@@ -27,15 +27,17 @@
     
     <center>
         <SplitPane orientation="HORIZONTAL">
-            <TableView fx:id="tableView" prefWidth="400" styleClass="table-view">
+            <TableView fx:id="tableViewVehiculo" prefWidth="400" styleClass="table-view">
                 <columns>
-                    <TableColumn text="X" />
-                    <TableColumn text="Id_Vehiculo" />
-                    <TableColumn text="Modelo" />
-                    <TableColumn text="Potencia" />
-                    <TableColumn text="Color" />
-                    <TableColumn text="Marca" />
-                    <TableColumn text="Tipo Vehiculo" />
+                    <TableColumn fx:id="idVehiculoColum" text="Id_Vehiculo"/>
+                    <TableColumn fx:id="modeloColum" text="Modelo"/>
+                    <TableColumn fx:id="marcaColum" text="Marca"/>
+                    <TableColumn fx:id="colorColum" text="Color"/>
+                    <TableColumn fx:id="potenciaColum" text="Potencia"/>
+                    <TableColumn fx:id="kmColum" text="Kilometro"/>
+                    <TableColumn fx:id="precioColum" text="Precio"/>
+                    <TableColumn fx:id="fechaAltaColum" text="fechaAlta"/>
+                    <TableColumn fx:id="tipoColum" text="tipoVehiculo" />
                 </columns>
             </TableView>
 

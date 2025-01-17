@@ -14,7 +14,7 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement
 public class Vehiculo implements Serializable {
 
-
+    // Atributos
     private Long idVehiculo;
     private String marca;
     private String modelo;
@@ -25,6 +25,10 @@ public class Vehiculo implements Serializable {
 
     private Date fechaAlta;
     private String tipoVehiculo;
+    
+    // Constructor
+
+    
 
 
     private Set<Mantenimiento> mantenimientos;
