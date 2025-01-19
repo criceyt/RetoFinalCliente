@@ -2,6 +2,9 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import static java.time.temporal.TemporalQueries.localDate;
+import java.util.Date;
+import java.util.List;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -28,6 +31,12 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javax.ws.rs.core.GenericType;
+import logica.PersonaManagerFactory;
+import logica.UsuarioManager;
+import logica.UsuarioManagerFactory;
+import modelo.Persona;
+import modelo.Usuario;
 
 public class SignController implements Initializable {
 
@@ -110,6 +119,7 @@ public class SignController implements Initializable {
     // Atributos
     private ContextMenu contextMenu;
     private boolean isDarkTheme = true;
+    private boolean datosCorrectos = true;
 
     // Metodo Initialize
     @Override
@@ -221,36 +231,112 @@ public class SignController implements Initializable {
     // Meotodo al Pulsar el Boton
     @FXML
     private void inicioSesionBtn(ActionEvent event) {
-        try {
-            // Se carga el FXML con la información de la vista viewSignUp.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
-            Parent root = loader.load();
 
-            NavegacionPrincipalController controler = loader.getController();
+        boolean usuarioEncontrado = false;
 
-            // Obtener el Stage desde el nodo que disparó el evento.
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+        // Recoger datos de SignIn
+        String login = usernameField.getText();
+        String password = passwordField.getText();
 
-            stage.setTitle("Navegacion Principal");
-            // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-            // Se muestra en la ventana el Scene creado.
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+        // Obtener la lista de usuarios desde el servidor o el origen de datos
+        List<Usuario> usuarios = UsuarioManagerFactory.get().findAll_XML(new GenericType<List<Usuario>>() {
+        });
+        
+
+
+
+        // Recorrer la lista para ver si existe usuario con ese password
+        for (Usuario u : usuarios) {
+            if (u.getEmail().equalsIgnoreCase(login) && u.getContrasena().equalsIgnoreCase(password)) {
+                usuarioEncontrado = true;
+            }
+        }
+        
+        if (usuarioEncontrado) {
+
+            try {
+                // Se carga el FXML con la información de la vista viewSignUp.
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
+                Parent root = loader.load();
+
+                NavegacionPrincipalController controler = loader.getController();
+
+                // Obtener el Stage desde el nodo que disparó el evento.
+                Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+                stage.setTitle("Navegacion Principal");
+                // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+                // Se muestra en la ventana el Scene creado.
+                stage.setScene(scene);
+                stage.show();
+            } catch (IOException ex) {
+                // Si salta una IOException significa que ha habido algún 
+                // problema al cargar el FXML o al intentar llamar a la nueva 
+                // ventana, por lo que se mostrará un Alert con el mensaje 
+                // "Error en la sincronización de ventanas, intentalo más tarde".
+                Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
+                new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+            }
+
+        } else {
+            System.out.println("ERROR en el Login");
+            new Alert(Alert.AlertType.ERROR, "Error, El Usuario o no existe o no coincide el Login y la Password", ButtonType.OK).showAndWait();
         }
     }
 
     // Meotodo al Pulsar el Boton
     @FXML
     private void registroBtn() {
+
+        if (datosCorrectos) {
+
+            // Sacamos todos los datos y los metemos en variables
+            String nombreApellido = nombreyApellidoField.getText();
+            String dni = dniField.getText();
+            String email = emailField.getText();
+            String direccion = direccionField.getText();
+            // Tel
+            String telefonoStr = telefonoField.getText();
+            Integer telefono = Integer.parseInt(telefonoStr);
+            // CP
+            String codigoPostalStr = codigoPostalField.getText();
+            Integer codigoPostal = Integer.parseInt(codigoPostalStr);
+
+            String password = registerPasswordField.getText();
+            boolean esPremium = activoCheckBox.isSelected();
+            Date fechaRegistro = new Date();
+
+            Usuario usuarioNuevo = new Usuario();
+
+            // Insertar los datos recogidos en el usuario Nuevo
+            usuarioNuevo.setNombreCompleto(nombreApellido);
+            usuarioNuevo.setDni(dni);
+            usuarioNuevo.setEmail(email);
+            usuarioNuevo.setDireccion(direccion);
+            usuarioNuevo.setTelefono(telefono);
+            usuarioNuevo.setCodigoPostal(codigoPostal);
+            usuarioNuevo.setContrasena(password);
+            usuarioNuevo.setFechaRegistro(fechaRegistro);
+            usuarioNuevo.setPremium(esPremium);
+
+            // Mandar el Usuario al Server
+            UsuarioManagerFactory.get().create_XML(usuarioNuevo);
+
+        } else {
+            // Crear un alert para indicar que los datos no son correctos
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Error en el Registro");
+            alert.setHeaderText(null);
+            alert.setContentText("Introduzca bien los datos en los Campos de ROJO\n"
+                    + "Los formatos introducidos no son correctos\n"
+                    + "Correo: Debe de tener Formato de Correo\n"
+                    + "Contraseñas: Las contraseñas deben de ser Iguales y deben de tener más de 8 caracteres y al menos una Mayúscula");
+
+            // Mostrar el alert
+            alert.showAndWait();
+        }
 
     }
 
@@ -389,8 +475,8 @@ public class SignController implements Initializable {
 
     // Validacion de Correo Electronico
     private boolean esCorreoValido(String email) {
-    String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
-    return email.matches(regex);
+        String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$";
+        return email.matches(regex);
     }
 
     // Validacion de que el Telefono sean 9 Numeros
@@ -412,13 +498,16 @@ public class SignController implements Initializable {
         if (field == emailField) {
             if (field.getText().isEmpty() || !esCorreoValido(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
+                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
+
             }
         }
         if (field == nombreyApellidoField || !validarSoloLetrasNombre(field.getText())) {
             if (field.getText().isEmpty()) {
                 field.setStyle("-fx-border-color: red;");
+                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
             }
@@ -426,6 +515,7 @@ public class SignController implements Initializable {
         if (field == telefonoField || !esTelefonoCorrecto(field.getText())) {
             if (field.getText().isEmpty()) {
                 field.setStyle("-fx-border-color: red;");
+                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
             }
@@ -433,6 +523,7 @@ public class SignController implements Initializable {
         if (field == dniField) {
             if (field.getText().isEmpty() || !validarDni(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
+                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
             }
@@ -441,6 +532,7 @@ public class SignController implements Initializable {
         if (field == codigoPostalField) {
             if (field.getText().isEmpty() || !esPostalCorrecto(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
+                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
             }
@@ -448,6 +540,7 @@ public class SignController implements Initializable {
         if (field == direccionField) {
             if (field.getText().isEmpty() || !validarDireccion(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
+                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
             }

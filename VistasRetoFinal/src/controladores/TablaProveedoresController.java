@@ -144,6 +144,7 @@ public class TablaProveedoresController implements Initializable {
                 deleteButton.setDisable(true);
             }
         });
+        
     }
 
     private void proveedorNuevo(ActionEvent event) {

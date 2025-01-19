@@ -42,7 +42,7 @@
                 <TextField fx:id="nombreyApellidoField" promptText="Nombre y Apellidos" styleClass="text-field" />
                 
                 <Label text="DNI/NIF (*)" styleClass="label" />
-                <TextField fx:id="dniField" promptText="Ciudad" styleClass="text-field" />
+                <TextField fx:id="dniField" promptText="DNI" styleClass="text-field" />
                 
                 <Label text="Correo Electrónico (*)" styleClass="label" />
                 <TextField fx:id="emailField" promptText="Correo Electrónico" styleClass="text-field" />
