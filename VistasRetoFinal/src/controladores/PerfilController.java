@@ -16,8 +16,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import modelo.Usuario;
 
 /**
  * FXML Controller class
@@ -39,6 +42,39 @@ public class PerfilController implements Initializable {
     @FXML
     private Button volverBtn;
     
+    @FXML
+    private TextField textFieldDni;
+    
+    @FXML
+    private TextField textFieldEmail;
+    
+    @FXML
+    private TextField textFieldNombre;
+    
+    @FXML
+    private TextField textFieldTelefono;
+    
+    @FXML
+    private TextField textFieldDireccion;
+    
+    @FXML
+    private TextField textFieldCodigoPostal;
+    
+    @FXML
+    private TextField textFieldFechaRegistro;
+    
+    @FXML
+    private CheckBox chkTerms;
+    
+    // Atributos
+    //private Usuario usuario;
+    
+    
+    // Set para Recoger el Usuario desde la otra Ventana
+     //public void setUsuario(Usuario usuario) {
+    //    this.usuario = usuario;
+    //}
+    
     // Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -48,6 +84,8 @@ public class PerfilController implements Initializable {
         solicitarMantenimientoBtn.setOnAction(this::abrirVentanaSolicitarMantenimiento);
         volverBtn.setOnAction(this::irAtras);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
+        
+        //textFieldDni.setText(usuario.getDni());
 
         System.out.println("Ventana inicializada correctamente.");
     }

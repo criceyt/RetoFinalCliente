@@ -36,6 +36,7 @@ import logica.PersonaManagerFactory;
 import logica.UsuarioManager;
 import logica.UsuarioManagerFactory;
 import modelo.Persona;
+import modelo.Trabajador;
 import modelo.Usuario;
 
 public class SignController implements Initializable {
@@ -232,35 +233,26 @@ public class SignController implements Initializable {
     @FXML
     private void inicioSesionBtn(ActionEvent event) {
 
-        boolean usuarioEncontrado = false;
-
         // Recoger datos de SignIn
         String login = usernameField.getText();
-        String password = passwordField.getText();
+        String contrasena = passwordField.getText();
 
-        // Obtener la lista de usuarios desde el servidor o el origen de datos
-        List<Usuario> usuarios = UsuarioManagerFactory.get().findAll_XML(new GenericType<List<Usuario>>() {
-        });
-        
+        // PROBLEMA: LA CONSULTA AL SERVER SOLO PUEDE DEVOLVER PERSONA
+        try {
 
+            Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
 
+            if (personaLogIn instanceof Usuario) {
 
-        // Recorrer la lista para ver si existe usuario con ese password
-        for (Usuario u : usuarios) {
-            if (u.getEmail().equalsIgnoreCase(login) && u.getContrasena().equalsIgnoreCase(password)) {
-                usuarioEncontrado = true;
-            }
-        }
-        
-        if (usuarioEncontrado) {
-
-            try {
                 // Se carga el FXML con la información de la vista viewSignUp.
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
                 Parent root = loader.load();
 
-                NavegacionPrincipalController controler = loader.getController();
-
+                NavegacionPrincipalController controller = loader.getController();
+                //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                // Llevar el Usuario a Navegacion Principal
+                //controller.setUsuario((Usuario) personaLogIn);
+                //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
                 // Obtener el Stage desde el nodo que disparó el evento.
                 Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
@@ -271,18 +263,34 @@ public class SignController implements Initializable {
                 // Se muestra en la ventana el Scene creado.
                 stage.setScene(scene);
                 stage.show();
-            } catch (IOException ex) {
-                // Si salta una IOException significa que ha habido algún 
-                // problema al cargar el FXML o al intentar llamar a la nueva 
-                // ventana, por lo que se mostrará un Alert con el mensaje 
-                // "Error en la sincronización de ventanas, intentalo más tarde".
-                Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
-                new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+
+            } else {
+
+                // Se carga el FXML con la información de la vista viewSignUp.
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
+                Parent root = loader.load();
+
+                NavegacionPrincipalTrabajadorController controler = loader.getController();
+
+                // Obtener el Stage desde el nodo que disparó el evento.
+                Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+                stage.setTitle("Navegacion Principal Trabajador");
+                // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+                Scene scene = new Scene(root);
+                scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+                // Se muestra en la ventana el Scene creado.
+                stage.setScene(scene);
+                stage.show();
             }
 
-        } else {
-            System.out.println("ERROR en el Login");
-            new Alert(Alert.AlertType.ERROR, "Error, El Usuario o no existe o no coincide el Login y la Password", ButtonType.OK).showAndWait();
+        } catch (IOException ex) {
+            // Si salta una IOException significa que ha habido algún 
+            // problema al cargar el FXML o al intentar llamar a la nueva 
+            // ventana, por lo que se mostrará un Alert con el mensaje 
+            // "Error en la sincronización de ventanas, intentalo más tarde".
+            Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 

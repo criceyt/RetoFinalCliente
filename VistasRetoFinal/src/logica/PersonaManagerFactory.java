@@ -12,6 +12,7 @@ import entidades.PersonaRestFull;
  * @author urkiz
  */
 public class PersonaManagerFactory {
+    
     private static PersonaManager personaManager;
 
     public static PersonaManager get() {

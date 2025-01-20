@@ -11,12 +11,8 @@ import javax.ws.rs.WebApplicationException;
  *
  * @author urkiz
  */
-public interface PersonaManager {
+public interface TrabajadorManager {
     
-    public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException;
-
-    public String countREST() throws WebApplicationException;
-
     public void edit_XML(Object requestEntity, String id) throws WebApplicationException;
 
     //public void edit_JSON(Object requestEntity, String id) throws ClientErrorException {
