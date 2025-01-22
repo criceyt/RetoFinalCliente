@@ -238,68 +238,77 @@ public class SignController implements Initializable {
         String login = usernameField.getText();
         String contrasena = passwordField.getText();
         
-        // Llevar la Password y el login al server para que retorne una 
-        Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
+        if (login.isEmpty() || contrasena.isEmpty()) {
+            // Alerta que indica que los datos no son correctos
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Datos Vacios");
+            alert.setHeaderText("Campos Incorrectos");
+            alert.setContentText("Ni el campo Login ni el Campo Contraseña pueden estar vacios");
+            alert.showAndWait();
+        } else {
 
-        // PROBLEMA: LA CONSULTA AL SERVER SOLO PUEDE DEVOLVER PERSONA
-        try {
-            
-            System.out.println(personaLogIn.isEsUsuario());
-            System.out.println(personaLogIn.getTelefono());
-            //System.out.println(personaLogIn.isEsUsuario());
+            // Llevar la Password y el login al server para que retorne una 
+            Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
 
-            if (personaLogIn instanceof Usuario) {
-                
-                SessionManager.setUsuario((Usuario) personaLogIn);
-                
-                // Se carga el FXML con la información de la vista viewSignUp.
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
-                Parent root = loader.load();
+            try {
 
-                NavegacionPrincipalController controller = loader.getController();
-                //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-                // Llevar el Usuario a Navegacion Principal
-                //controller.setUsuario((Usuario) personaLogIn);
-                //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-                // Obtener el Stage desde el nodo que disparó el evento.
-                Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                // Si la Persona es Usuario entra en este metido Sino va al Otro
+                if (personaLogIn instanceof Usuario) {
 
-                stage.setTitle("Navegacion Principal");
-                // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-                Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-                // Se muestra en la ventana el Scene creado.
-                stage.setScene(scene);
-                stage.show();
+                    SessionManager.setUsuario((Usuario) personaLogIn);
 
-            } else {
+                    // Se carga el FXML con la información de la vista viewSignUp.
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
+                    Parent root = loader.load();
 
-                // Se carga el FXML con la información de la vista viewSignUp.
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
-                Parent root = loader.load();
+                    NavegacionPrincipalController controller = loader.getController();
+                    //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                    // Llevar el Usuario a Navegacion Principal
+                    //controller.setUsuario((Usuario) personaLogIn);
+                    //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+                    // Obtener el Stage desde el nodo que disparó el evento.
+                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
-                NavegacionPrincipalTrabajadorController controler = loader.getController();
+                    stage.setTitle("Navegacion Principal");
+                    // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+                    // Se muestra en la ventana el Scene creado.
+                    stage.setScene(scene);
+                    stage.show();
 
-                // Obtener el Stage desde el nodo que disparó el evento.
-                Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                } else if (personaLogIn instanceof Trabajador) {
 
-                stage.setTitle("Navegacion Principal Trabajador");
-                // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-                Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-                // Se muestra en la ventana el Scene creado.
-                stage.setScene(scene);
-                stage.show();
+                    // Se carga el FXML con la información de la vista viewSignUp.
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
+                    Parent root = loader.load();
+
+                    NavegacionPrincipalTrabajadorController controler = loader.getController();
+
+                    // Obtener el Stage desde el nodo que disparó el evento.
+                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+                    stage.setTitle("Navegacion Principal Trabajador");
+                    // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+                    // Se muestra en la ventana el Scene creado.
+                    stage.setScene(scene);
+                    stage.show();
+                } else {
+                    new Alert(Alert.AlertType.ERROR, "ERROR: No estas registrado ni como Usuario ni como Tarbajador", ButtonType.OK).showAndWait();
+                }
+
+            } catch (IOException ex) {
+                // Si salta una IOException significa que ha habido algún 
+                // problema al cargar el FXML o al intentar llamar a la nueva 
+                // ventana, por lo que se mostrará un Alert con el mensaje 
+                // "Error en la sincronización de ventanas, intentalo más tarde".
+                Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
+                new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
             }
-
-        } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
+
     }
 
     // Meotodo al Pulsar el Boton
@@ -336,10 +345,21 @@ public class SignController implements Initializable {
             usuarioNuevo.setContrasena(password);
             usuarioNuevo.setFechaRegistro(fechaRegistro);
             usuarioNuevo.setPremium(esPremium);
-            usuarioNuevo.setEsUsuario(true);
 
             // Mandar el Usuario al Server
             UsuarioManagerFactory.get().create_XML(usuarioNuevo);
+
+            // Panel informativo de éxito
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("¡Te has registrado!");
+            alert.setHeaderText(null);
+            alert.setContentText("Bienvenido a Nuestro Concesionario ¡Inicia Sesion y no te Pierdas nada!");
+
+            // Mostrar el alert
+            alert.showAndWait();
+
+            registerPane.setVisible(false);
+            loginPane.setVisible(true);
 
         } else {
             // Crear un alert para indicar que los datos no son correctos
@@ -482,7 +502,7 @@ public class SignController implements Initializable {
     /////////////////////////////////////////  VALIDACIONES DE REGISTRO  ///////////////////////////////////////////////////////////////
     // Validacion para que solo Pueda introducir Letras
     public boolean validarSoloLetrasNombre(String nombreyApellidos) {
-        return nombreyApellidos.matches("[a-zA-Z]+");
+        return nombreyApellidos.matches("[a-zA-Z\\s]+");  // Permite letras y espacios
     }
 
     // Validacion para que solo Pueda introducir Letras
@@ -503,7 +523,7 @@ public class SignController implements Initializable {
 
     // Validacion para que solo Pueda introducir Letras y Numeros (Caracteres especiones no (&$#"@))
     public boolean validarDireccion(String direccion) {
-        return direccion.matches("[a-zA-Z][0-9]");
+        return direccion.matches("[a-zA-Z0-9\\s,.-]+");
     }
 
     // Validacion de que el codigo Postal sean 5 Numeros
@@ -512,37 +532,44 @@ public class SignController implements Initializable {
     }
 
     private void validateField(TextField field) {
+
         if (field == emailField) {
             if (field.getText().isEmpty() || !esCorreoValido(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
                 datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
-
+                datosCorrectos = true;
             }
         }
+
         if (field == nombreyApellidoField || !validarSoloLetrasNombre(field.getText())) {
             if (field.getText().isEmpty()) {
                 field.setStyle("-fx-border-color: red;");
                 datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
+                datosCorrectos = true;
             }
         }
+
         if (field == telefonoField || !esTelefonoCorrecto(field.getText())) {
             if (field.getText().isEmpty()) {
                 field.setStyle("-fx-border-color: red;");
                 datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
+                datosCorrectos = true;
             }
         }
+
         if (field == dniField) {
             if (field.getText().isEmpty() || !validarDni(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
                 datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
+                datosCorrectos = true;
             }
         }
 
@@ -552,15 +579,19 @@ public class SignController implements Initializable {
                 datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
+                datosCorrectos = true;
             }
         }
-        /*if (field == direccionField) {
+
+        if (field == direccionField) {
             if (field.getText().isEmpty() || !validarDireccion(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
                 datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
+                datosCorrectos = true;
             }
-        }*/
+        }
     }
+
 }

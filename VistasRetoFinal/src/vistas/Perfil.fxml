@@ -47,7 +47,7 @@
                       AnchorPane.leftAnchor="50" AnchorPane.topAnchor="50" AnchorPane.rightAnchor="150" AnchorPane.bottomAnchor="50">
                     <children>
                         <!-- Título -->
-                        <Label text="Formulario de Registro" styleClass="title-label" />
+                        <Label text="Bienvenid@ a Tu Perfil" styleClass="title-label" />
 
                         <!-- Contenedor del formulario -->
                         <GridPane hgap="10" vgap="10" alignment="CENTER" maxWidth="600">
@@ -95,7 +95,7 @@
                         <HBox spacing="20" alignment="CENTER">
                             <children>
                                 <Button fx:id="volverBtn" text="Volver" />
-                                <Button text="Guardar" />
+                                <Button fx:id="guardarBtn" text="Guardar" />
                             </children>
                         </HBox>
                     </children>

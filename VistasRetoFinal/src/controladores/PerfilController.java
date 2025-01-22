@@ -2,6 +2,7 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.ResourceBundle;
@@ -22,6 +23,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import logica.SessionManager;
+import logica.UsuarioManagerFactory;
 import modelo.Usuario;
 
 /**
@@ -43,6 +45,9 @@ public class PerfilController implements Initializable {
 
     @FXML
     private Button volverBtn;
+
+    @FXML
+    private Button guardarBtn;
 
     @FXML
     private TextField textFieldDni;
@@ -68,45 +73,75 @@ public class PerfilController implements Initializable {
     @FXML
     private CheckBox chkTerms;
 
-
-    
     // Atributo para Cargar los datos del Usuario
     private Usuario usuario;
-    
-    
+    private boolean datosCorrectos;
+
     // Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
+        textFieldNombre.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                validateField(textFieldNombre);
+            }
+        });
+
+        textFieldDireccion.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                validateField(textFieldDireccion);
+            }
+        });
+
+        textFieldTelefono.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                validateField(textFieldTelefono);
+            }
+        });
+
+        textFieldCodigoPostal.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
+                validateField(textFieldCodigoPostal);
+            }
+        });
+        
         //Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
         solicitarMantenimientoBtn.setOnAction(this::abrirVentanaSolicitarMantenimiento);
         volverBtn.setOnAction(this::irAtras);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
+        guardarBtn.setOnAction(this::guardarDatosUsuario);
 
         // Acceder al usuario desde SessionManager
         this.usuario = SessionManager.getUsuario();
-        
-        
+
+        // Deshabilitar campos DNI, Email y Fecha Registro
+        textFieldDni.setDisable(true);
+        textFieldEmail.setDisable(true);
+        textFieldFechaRegistro.setDisable(true);
+
         // Metemos todos los datos del Usuario en su sitios correspondiente
         textFieldDni.setText(usuario.getDni());
         textFieldEmail.setText(usuario.getEmail());
         textFieldNombre.setText(usuario.getNombreCompleto());
         textFieldDireccion.setText(usuario.getDireccion());
-        
+
         // Este integer necesita un Parseo
-        int telefonoInt = usuario.getTelefono(); 
+        int telefonoInt = usuario.getTelefono();
         textFieldTelefono.setText(String.valueOf(telefonoInt));
-        
-        int codigoPostalInt = usuario.getTelefono(); 
+
+        int codigoPostalInt = usuario.getCodigoPostal();
         textFieldCodigoPostal.setText(String.valueOf(codigoPostalInt));
-        
+
         // Parseo de la fecha
-        Date fechaString = usuario.getFechaRegistro(); 
-        textFieldFechaRegistro.setText(String.valueOf(fechaString));
-        
+        Date fechaString = usuario.getFechaRegistro();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String fechaFormateada = sdf.format(fechaString);
+        textFieldFechaRegistro.setText(String.valueOf(fechaFormateada));
+
         // ComboBox
         chkTerms.setSelected(usuario.isPremium());
+
         
 
         System.out.println("Ventana inicializada correctamente.");
@@ -227,4 +262,132 @@ public class PerfilController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
+
+    // Guardar los datos que ha introducido el Usuario para Modificar sus datos
+    private void guardarDatosUsuario(ActionEvent event) {
+
+        if (datosCorrectos == true) {
+            // Obtener los nuevos valores desde los campos de texto
+            String nuevoNombre = textFieldNombre.getText();
+            String nuevaDireccion = textFieldDireccion.getText();
+            String nuevoTelefono = textFieldTelefono.getText();
+            String nuevoCodigoPostal = textFieldCodigoPostal.getText();
+            boolean isPremiumNuevo = chkTerms.isSelected();
+
+            // Si alguno de los datos son nuevos cambiamos los datos
+            if (!nuevoNombre.equalsIgnoreCase(usuario.getNombreCompleto()) || !nuevaDireccion.equalsIgnoreCase(usuario.getDireccion()) || !nuevoTelefono.equalsIgnoreCase(String.valueOf(usuario.getTelefono())) || !nuevoCodigoPostal.equalsIgnoreCase(String.valueOf(usuario.getCodigoPostal()))) {
+
+                usuario.setNombreCompleto(nuevoNombre);
+                usuario.setDireccion(nuevaDireccion);
+
+                int telefono = Integer.parseInt(nuevoTelefono);
+                usuario.setTelefono(telefono);
+
+                int codigoPostal = Integer.parseInt(nuevoCodigoPostal);
+                usuario.setCodigoPostal(codigoPostal);
+
+                usuario.setPremium(isPremiumNuevo);
+
+                // Parseamos a string el idPersona que queremos modificar
+                String idUsuario = String.valueOf(usuario.getIdPersona());
+
+                // Llevamos al usuario modificado ala base de datos
+                UsuarioManagerFactory.get().edit_XML(usuario, idUsuario);
+
+                // Panel informativo de éxito
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("¡Perfil Modificado!");
+                alert.setHeaderText(null);
+                alert.setContentText("Tu Perfil ha sido Modificado con Exito");
+
+                // Mostrar el alert
+                alert.showAndWait();
+
+            } else {
+                // Alerta de que no ha cambiado nada
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Sin Cambios");
+                alert.setHeaderText(null);
+                alert.setContentText("No se ha modificado ningún dato. Por favor, realiza algún cambio.");
+                alert.showAndWait();
+            }
+
+        } else {
+            // Alerta que indica que los datos no son correctos
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Datos Incorrectos");
+            alert.setHeaderText("Campos Incorrectos");
+            alert.setContentText("Por favor, revisa los campos en rojo y asegúrate de que los datos son correctos.");
+            alert.showAndWait();
+        }
+    }
+
+    /////////////////////////////////////////  VALIDACIONES DE REGISTRO  ///////////////////////////////////////////////////////////////
+    // Validacion para que solo Pueda introducir Letras
+    public boolean validarSoloLetrasNombre(String nombreyApellidos) {
+        return nombreyApellidos.matches("[a-zA-Z]+");
+    }
+
+    // Validacion de que el Telefono sean 9 Numeros
+    private boolean esTelefonoCorrecto(String telefono) {
+        return telefono.matches("\\d{9}");
+    }
+
+    // Validacion para que solo Pueda introducir Letras y Numeros (Caracteres especiones no (&$#"@))
+    public boolean validarDireccion(String direccion) {
+        return direccion.matches("[a-zA-Z0-9\\s,.-]+");
+    }
+
+    // Validacion de que el codigo Postal sean 5 Numeros
+    private boolean esPostalCorrecto(String codigoPostal) {
+        return codigoPostal.matches("\\d{5}");
+    }
+
+    private void validateField(TextField field) {
+        boolean validacionCorrecta = true;
+
+        // Validación para Nombre
+        if (field == textFieldNombre) {
+            if (field.getText().isEmpty() || !validarSoloLetrasNombre(field.getText())) {
+                field.setStyle("-fx-border-color: red;");
+                validacionCorrecta = false;
+            } else {
+                field.setStyle("-fx-border-color: transparent;");
+            }
+        }
+
+        // Validación para Teléfono
+        if (field == textFieldTelefono) {
+            if (field.getText().isEmpty() || !esTelefonoCorrecto(field.getText())) {
+                field.setStyle("-fx-border-color: red;");
+                validacionCorrecta = false;
+            } else {
+                field.setStyle("-fx-border-color: transparent;");
+            }
+        }
+
+        // Validación para Código Postal
+        if (field == textFieldCodigoPostal) {
+            if (field.getText().isEmpty() || !esPostalCorrecto(field.getText())) {
+                field.setStyle("-fx-border-color: red;");
+                validacionCorrecta = false;
+            } else {
+                field.setStyle("-fx-border-color: transparent;");
+            }
+        }
+
+        // Validación para Dirección
+        if (field == textFieldDireccion) {
+            if (field.getText().isEmpty() || !validarDireccion(field.getText())) {
+                field.setStyle("-fx-border-color: red;");
+                validacionCorrecta = false;
+            } else {
+                field.setStyle("-fx-border-color: transparent;");
+            }
+        }
+
+        // Establecer si los datos son correctos o no
+        datosCorrectos = validacionCorrecta;
+    }
+
 }

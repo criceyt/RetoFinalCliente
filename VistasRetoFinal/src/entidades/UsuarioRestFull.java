@@ -36,7 +36,7 @@ public class UsuarioRestFull implements UsuarioManager {
 
     public UsuarioRestFull() {
         client = javax.ws.rs.client.ClientBuilder.newClient();
-        webTarget = client.target(BASE_URI).path("modelo.usuario");
+        webTarget = client.target(BASE_URI).path("usuario");
     }
 
     public String countREST() throws WebApplicationException {
@@ -84,6 +84,7 @@ public class UsuarioRestFull implements UsuarioManager {
     }
 
     public void create_XML(Object requestEntity) throws WebApplicationException {
+        System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
         webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_XML).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_XML));
     }
 

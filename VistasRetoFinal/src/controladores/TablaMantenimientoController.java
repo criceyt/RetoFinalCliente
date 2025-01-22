@@ -159,7 +159,7 @@ public class TablaMantenimientoController implements Initializable {
             Stage stage = (Stage) homeBtn.getScene().getWindow();
             stage.setTitle("Navegación Principal Trabajador");
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {

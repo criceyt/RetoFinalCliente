@@ -29,7 +29,7 @@ public class ApplicationClientTrabajador extends javafx.application.Application 
         Parent root = FXMLLoader.load(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
 
         Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
         stage.setWidth(1000);
         stage.setHeight(800);

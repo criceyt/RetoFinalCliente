@@ -30,7 +30,6 @@ public class Persona implements Serializable {
     private Integer telefono;
     private String direccion;
     private String contrasena;
-    private boolean esUsuario;
 
     
     public Long getIdPersona() {
@@ -39,14 +38,6 @@ public class Persona implements Serializable {
 
     public void setIdPersona(Long idPersona) {
         this.idPersona = idPersona;
-    }
-
-    public boolean isEsUsuario() {
-        return esUsuario;
-    }
-
-    public void setEsUsuario(boolean esUsuario) {
-        this.esUsuario = esUsuario;
     }
 
     public Long getId() {

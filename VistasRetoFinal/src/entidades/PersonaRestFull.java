@@ -33,7 +33,7 @@ public class PersonaRestFull implements PersonaManager {
 
     public PersonaRestFull() {
         client = javax.ws.rs.client.ClientBuilder.newClient();
-        webTarget = client.target(BASE_URI).path("g3.crud.entities.persona");
+        webTarget = client.target(BASE_URI).path("persona");
     }
     
     public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException {
