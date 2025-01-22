@@ -36,7 +36,7 @@ public class UsuarioRestFull implements UsuarioManager {
 
     public UsuarioRestFull() {
         client = javax.ws.rs.client.ClientBuilder.newClient();
-        webTarget = client.target(BASE_URI).path("/usuario");
+        webTarget = client.target(BASE_URI).path("modelo.usuario");
     }
 
     public String countREST() throws WebApplicationException {

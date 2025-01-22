@@ -6,6 +6,7 @@
 package modelo;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -24,6 +25,9 @@ public class Usuario extends Persona implements Serializable {
 
     private Set<Compra> compras;
     
+    // Contructor
+
+   
     
    // getters and setters
     public boolean isPremium() {

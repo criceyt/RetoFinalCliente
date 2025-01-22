@@ -2,6 +2,7 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -20,6 +21,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import logica.SessionManager;
 import modelo.Usuario;
 
 /**
@@ -38,42 +40,39 @@ public class PerfilController implements Initializable {
 
     @FXML
     private Button cerrarSesionBtn;
-    
+
     @FXML
     private Button volverBtn;
-    
+
     @FXML
     private TextField textFieldDni;
-    
+
     @FXML
     private TextField textFieldEmail;
-    
+
     @FXML
     private TextField textFieldNombre;
-    
+
     @FXML
     private TextField textFieldTelefono;
-    
+
     @FXML
     private TextField textFieldDireccion;
-    
+
     @FXML
     private TextField textFieldCodigoPostal;
-    
+
     @FXML
     private TextField textFieldFechaRegistro;
-    
+
     @FXML
     private CheckBox chkTerms;
+
+
     
-    // Atributos
-    //private Usuario usuario;
+    // Atributo para Cargar los datos del Usuario
+    private Usuario usuario;
     
-    
-    // Set para Recoger el Usuario desde la otra Ventana
-     //public void setUsuario(Usuario usuario) {
-    //    this.usuario = usuario;
-    //}
     
     // Metodo Initialize
     @Override
@@ -84,12 +83,35 @@ public class PerfilController implements Initializable {
         solicitarMantenimientoBtn.setOnAction(this::abrirVentanaSolicitarMantenimiento);
         volverBtn.setOnAction(this::irAtras);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
+
+        // Acceder al usuario desde SessionManager
+        this.usuario = SessionManager.getUsuario();
         
-        //textFieldDni.setText(usuario.getDni());
+        
+        // Metemos todos los datos del Usuario en su sitios correspondiente
+        textFieldDni.setText(usuario.getDni());
+        textFieldEmail.setText(usuario.getEmail());
+        textFieldNombre.setText(usuario.getNombreCompleto());
+        textFieldDireccion.setText(usuario.getDireccion());
+        
+        // Este integer necesita un Parseo
+        int telefonoInt = usuario.getTelefono(); 
+        textFieldTelefono.setText(String.valueOf(telefonoInt));
+        
+        int codigoPostalInt = usuario.getTelefono(); 
+        textFieldCodigoPostal.setText(String.valueOf(codigoPostalInt));
+        
+        // Parseo de la fecha
+        Date fechaString = usuario.getFechaRegistro(); 
+        textFieldFechaRegistro.setText(String.valueOf(fechaString));
+        
+        // ComboBox
+        chkTerms.setSelected(usuario.isPremium());
+        
 
         System.out.println("Ventana inicializada correctamente.");
     }
-    
+
     // Abrir Ventana SignIn & SignUp
     private void abrirVentanaSignInSignUp(ActionEvent event) {
 
@@ -144,7 +166,7 @@ public class PerfilController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
-    
+
     // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
         try {

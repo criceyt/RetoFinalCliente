@@ -1,6 +1,7 @@
 package modelo;
 
 import java.io.Serializable;
+import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -17,7 +18,8 @@ public class Trabajador extends Persona implements Serializable {
     
     private float sueldo;
     private String puesto;
-    
+
+   
     // getters and setters
 
     public float getSueldo() {

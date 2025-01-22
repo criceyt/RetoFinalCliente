@@ -40,7 +40,6 @@ import modelo.Proveedor;
 import modelo.TipoVehiculo;
 import modelo.Vehiculo;
 import org.eclipse.persistence.jpa.jpql.parser.DateTime;
-import sun.font.TextLabel;
 
 /**
  *
@@ -113,7 +112,7 @@ public class TablaProveedoresController implements Initializable {
         refreshButton.setOnAction(this::cargartDatosTabla);
         deleteButton.setOnAction(this::borrarProveedor);
 
-        System.out.println("Ventana inicializada correctamente.");
+        System.out.println("Ventana inicializada correctamente");
 
         // Configuración de las columnas de la tabla.
         idProveedorColumn.setCellValueFactory(new PropertyValueFactory<>("idProveedor"));

@@ -28,6 +28,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import logica.SessionManager;
+import modelo.Persona;
 import modelo.Usuario;
 
 /**
@@ -74,11 +76,6 @@ public class NavegacionPrincipalController implements Initializable {
     // Declaracion del Popup
     private Popup popup;
     private Usuario usuario;
-    
-    // Set para Recoger el Usuario desde la otra Ventana
-    // public void setUsuario(Usuario usuario) {
-    //    this.usuario = usuario;
-    //}
 
     // Metodo Initialize
     @Override

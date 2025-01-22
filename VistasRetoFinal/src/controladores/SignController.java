@@ -33,6 +33,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
 import logica.PersonaManagerFactory;
+import logica.SessionManager;
 import logica.UsuarioManager;
 import logica.UsuarioManagerFactory;
 import modelo.Persona;
@@ -236,14 +237,21 @@ public class SignController implements Initializable {
         // Recoger datos de SignIn
         String login = usernameField.getText();
         String contrasena = passwordField.getText();
+        
+        // Llevar la Password y el login al server para que retorne una 
+        Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
 
         // PROBLEMA: LA CONSULTA AL SERVER SOLO PUEDE DEVOLVER PERSONA
         try {
-
-            Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
+            
+            System.out.println(personaLogIn.isEsUsuario());
+            System.out.println(personaLogIn.getTelefono());
+            //System.out.println(personaLogIn.isEsUsuario());
 
             if (personaLogIn instanceof Usuario) {
-
+                
+                SessionManager.setUsuario((Usuario) personaLogIn);
+                
                 // Se carga el FXML con la información de la vista viewSignUp.
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
                 Parent root = loader.load();
@@ -328,6 +336,7 @@ public class SignController implements Initializable {
             usuarioNuevo.setContrasena(password);
             usuarioNuevo.setFechaRegistro(fechaRegistro);
             usuarioNuevo.setPremium(esPremium);
+            usuarioNuevo.setEsUsuario(true);
 
             // Mandar el Usuario al Server
             UsuarioManagerFactory.get().create_XML(usuarioNuevo);
@@ -545,13 +554,13 @@ public class SignController implements Initializable {
                 field.setStyle("-fx-border-color: transparent;");
             }
         }
-        if (field == direccionField) {
+        /*if (field == direccionField) {
             if (field.getText().isEmpty() || !validarDireccion(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
                 datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
             }
-        }
+        }*/
     }
 }
