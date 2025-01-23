@@ -39,6 +39,14 @@ import logica.ProveedorManager;
 import entidades.Proveedor;
 import entidades.TipoVehiculo;
 import entidades.Vehiculo;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import static javafx.scene.input.KeyCode.T;
 import org.eclipse.persistence.jpa.jpql.parser.DateTime;
 
 /**
@@ -102,6 +110,11 @@ public class TablaProveedoresController implements Initializable {
     @FXML
     private Button addRowButton;
 
+    @FXML
+    private DatePicker datePickerFiltro;
+
+    private DatePicker datePicker;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -114,6 +127,24 @@ public class TablaProveedoresController implements Initializable {
         refreshButton.setOnAction(this::cargartDatosTabla);
         deleteButton.setOnAction(this::borrarProveedor);
         addRowButton.setOnAction(this::añadirLinea);
+
+        datePickerFiltro.setOnAction(event -> {
+            LocalDate filtro = datePickerFiltro.getValue();
+            String filtroString = filtro.toString();
+
+            // Limpia la tabla
+            tableView.getItems().clear();
+
+            // Coje los datos por query filtrado
+            List<Proveedor> proveedoresfiltro = ProveedorManagerFactory.get().filtradoPorDatePickerProveedores(new GenericType<List<Proveedor>>() {
+            }, filtroString);
+
+            // Convertir la lista de proveedores en ObservableList para la TableView
+            ObservableList<Proveedor> proveedoresDataFiltro = FXCollections.observableArrayList(proveedoresfiltro);
+
+            // Establecer los datos en la tabla
+            tableView.setItems(proveedoresDataFiltro);
+        });
 
         // Configuración de las columnas de la tabla.
         idProveedorColumn.setCellValueFactory(new PropertyValueFactory<>("idProveedor"));
@@ -155,6 +186,98 @@ public class TablaProveedoresController implements Initializable {
                 // Si no hay elementos seleccionados, deshabilitar el botón de borrado
                 deleteButton.setDisable(true);
             }
+        });
+
+        // TABLA EDITABLE 
+        // NOMBRE
+        nombreColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        nombreColumn.setOnEditCommit(event -> {
+            Proveedor proveedorModificado = event.getRowValue();
+            proveedorModificado.setNombreProveedor(event.getNewValue());
+
+            Long idProveedor = proveedorModificado.getIdProveedor();
+            String idProveedorStr = String.valueOf(idProveedor);
+
+            // Aquí puedes hacer lo necesario para actualizar la base de datos
+            ProveedorManagerFactory.get().edit_XML(proveedorModificado, idProveedorStr);
+        });
+
+        // ESPECIALIDAD
+        especialidadColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        especialidadColumn.setOnEditCommit(event -> {
+            Proveedor proveedorModificado = event.getRowValue();
+            proveedorModificado.setNombreProveedor(event.getNewValue());
+
+            Long idProveedor = proveedorModificado.getIdProveedor();
+            String idProveedorStr = String.valueOf(idProveedor);
+
+            // Aquí puedes hacer lo necesario para actualizar la base de datos
+            ProveedorManagerFactory.get().edit_XML(proveedorModificado, idProveedorStr);
+        });
+
+        // FECHA
+        ultimaActividadColumn.setCellFactory(column -> {
+            return new TableCell<Proveedor, Date>() {
+                private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                private final DatePicker datePicker = new DatePicker();
+
+                @Override
+                protected void updateItem(Date item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                    } else {
+                        setText(formatter.format(item.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
+                        setGraphic(null);
+                    }
+                }
+
+                @Override
+                public void startEdit() {
+                    super.startEdit();
+                    if (getTableRow() != null) {
+                        Proveedor proveedor = (Proveedor) getTableRow().getItem();
+                        if (proveedor != null) {
+                            // Convertir la fecha de tipo Date a LocalDate para el DatePicker
+                            LocalDate localDate = proveedor.getUltimaActividad().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                            datePicker.setValue(localDate);
+
+                            // Muestra el DatePicker en lugar del texto
+                            setGraphic(datePicker);
+                            setText(null);
+
+                            // Guardar la fecha cuando el usuario haga la selección
+                            datePicker.setOnAction(event -> {
+                                Date newDate = Date.from(datePicker.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
+                                commitEdit(newDate);
+                            });
+
+                            // Cancelar la edición si se presiona ESCAPE
+                            datePicker.setOnKeyPressed(event -> {
+                                if (event.getCode() == KeyCode.ESCAPE) {
+                                    cancelEdit();
+                                }
+                            });
+                        }
+                    }
+                }
+
+                @Override
+                public void commitEdit(Date newValue) {
+                    super.commitEdit(newValue);
+                    if (getTableRow() != null) {
+                        Proveedor proveedor = (Proveedor) getTableRow().getItem();
+                        if (proveedor != null) {
+                            proveedor.setUltimaActividad(newValue);  // Actualizar la fecha en el objeto proveedor
+                            // Aquí podrías actualizar la base de datos si lo deseas
+                            Long idProveedor = proveedor.getIdProveedor();
+                            String idProveedorStr = String.valueOf(idProveedor);
+                            ProveedorManagerFactory.get().edit_XML(proveedor, idProveedorStr);
+                        }
+                    }
+                }
+            };
         });
 
     }
@@ -392,6 +515,10 @@ public class TablaProveedoresController implements Initializable {
         try {
 
             Proveedor porveedorLinea = new Proveedor();
+
+            // La fecha se puede cambiar pero debe ser automatica
+            Date fechaAuto = new Date();
+            porveedorLinea.setUltimaActividad(fechaAuto);
 
             ProveedorManagerFactory.get().create_XML(porveedorLinea);
 

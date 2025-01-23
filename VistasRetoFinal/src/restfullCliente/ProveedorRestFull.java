@@ -86,10 +86,10 @@ public class ProveedorRestFull implements ProveedorManager {
     //    webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
     //}
 
-    public <T> T filtradoPorDatePickerProveedores(Class<T> responseType, String ultimaActividad) throws WebApplicationException {
+    public <T> List<T> filtradoPorDatePickerProveedores(GenericType<List<T>> responseType, String ultimaActividad) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("ultimaActividad/{0}", new Object[]{ultimaActividad}));
-        return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
+        return resource.request(MediaType.APPLICATION_XML).get(responseType);
     }
 
     public <T> List<T> findAll_XML(GenericType<List<T>> responseType) throws WebApplicationException {

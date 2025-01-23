@@ -32,7 +32,7 @@ public interface ProveedorManager {
 
     //public void create_JSON(Object requestEntity) throws ClientErrorException;
 
-    public <T> T filtradoPorDatePickerProveedores(Class<T> responseType, String ultimaActividad) throws ClientErrorException;
+    public <T> List<T> filtradoPorDatePickerProveedores(GenericType<List<T>> responseType, String ultimaActividad) throws ClientErrorException;
 
     public <T> List<T> findAll_XML(GenericType<List<T>> responseType) throws WebApplicationException;
 

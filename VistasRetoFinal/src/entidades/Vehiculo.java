@@ -1,7 +1,6 @@
 package entidades;
 
 import java.io.Serializable;
-import java.sql.Blob;
 import java.util.Date;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,7 +25,6 @@ public class Vehiculo implements Serializable {
 
     private Date fechaAlta;
     private String tipoVehiculo;
-    private Blob imagen;
     
     // Constructor
 
@@ -138,14 +136,5 @@ public class Vehiculo implements Serializable {
     public void setTipoVehiculo(String tipoVehiculo) {
         this.tipoVehiculo = tipoVehiculo;
     }
-
-    public Blob getImagen() {
-        return imagen;
-    }
-
-    public void setImagen(Blob imagen) {
-        this.imagen = imagen;
-    }
-
-    
 }
+
