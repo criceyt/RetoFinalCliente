@@ -5,7 +5,7 @@
  */
 package logica;
 
-import entidades.MantenimientoRestFull;
+import restfullCliente.MantenimientoRestFull;
 
 /**
  *

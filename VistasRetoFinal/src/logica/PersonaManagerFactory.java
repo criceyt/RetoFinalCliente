@@ -5,7 +5,7 @@
  */
 package logica;
 
-import entidades.PersonaRestFull;
+import restfullCliente.PersonaRestFull;
 
 /**
  *

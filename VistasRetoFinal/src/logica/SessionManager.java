@@ -5,7 +5,7 @@
  */
 package logica;
 
-import modelo.Usuario;
+import entidades.Usuario;
 
 /**
  *

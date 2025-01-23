@@ -5,7 +5,7 @@
  */
 package logica;
 
-import entidades.TrabajadorRestFull;
+import restfullCliente.TrabajadorRestFull;
 
 /**
  *

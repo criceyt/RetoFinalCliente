@@ -36,9 +36,9 @@ import logica.PersonaManagerFactory;
 import logica.SessionManager;
 import logica.UsuarioManager;
 import logica.UsuarioManagerFactory;
-import modelo.Persona;
-import modelo.Trabajador;
-import modelo.Usuario;
+import entidades.Persona;
+import entidades.Trabajador;
+import entidades.Usuario;
 
 public class SignController implements Initializable {
 

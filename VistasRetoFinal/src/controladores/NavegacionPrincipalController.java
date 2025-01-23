@@ -29,8 +29,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import logica.SessionManager;
-import modelo.Persona;
-import modelo.Usuario;
+import entidades.Persona;
+import entidades.Usuario;
 
 /**
  *

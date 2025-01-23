@@ -36,9 +36,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javax.ws.rs.core.GenericType;
 import logica.ProveedorManager;
-import modelo.Proveedor;
-import modelo.TipoVehiculo;
-import modelo.Vehiculo;
+import entidades.Proveedor;
+import entidades.TipoVehiculo;
+import entidades.Vehiculo;
 import org.eclipse.persistence.jpa.jpql.parser.DateTime;
 
 /**
@@ -99,6 +99,9 @@ public class TablaProveedoresController implements Initializable {
     @FXML
     private Button deleteButton;
 
+    @FXML
+    private Button addRowButton;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -108,11 +111,9 @@ public class TablaProveedoresController implements Initializable {
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
-        saveBtn.setOnAction(this::proveedorNuevo);
         refreshButton.setOnAction(this::cargartDatosTabla);
         deleteButton.setOnAction(this::borrarProveedor);
-
-        System.out.println("Ventana inicializada correctamente");
+        addRowButton.setOnAction(this::añadirLinea);
 
         // Configuración de las columnas de la tabla.
         idProveedorColumn.setCellValueFactory(new PropertyValueFactory<>("idProveedor"));
@@ -120,6 +121,18 @@ public class TablaProveedoresController implements Initializable {
         tipoColumn.setCellValueFactory(new PropertyValueFactory<>("tipoVehiculo"));
         especialidadColumn.setCellValueFactory(new PropertyValueFactory<>("especialidad"));
         ultimaActividadColumn.setCellValueFactory(new PropertyValueFactory<>("ultimaActividad"));
+
+        // Configuramos las columnas que van a ser EDITABLES
+        // Configurar tabla como editable
+        tableView.setEditable(true);
+        // Configurar la columna de descripción para usar EditingCell
+
+        //nombreColumn.setCellFactory(column -> new EditingCellProveedor());
+        //tipoColumn.setCellFactory(column -> new EditingCellProveedor());
+        //especialidadColumn.setCellFactory(column -> new EditingCellProveedor());
+        //ultimaActividadColumn.setCellFactory(column -> new EditingCellProveedor());
+        // Liampia la tabla antes de introducir los Items
+        tableView.getItems().clear();
 
         // Obtener la lista de proveedores desde el servidor o el origen de datos
         List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
@@ -143,7 +156,7 @@ public class TablaProveedoresController implements Initializable {
                 deleteButton.setDisable(true);
             }
         });
-        
+
     }
 
     private void proveedorNuevo(ActionEvent event) {
@@ -370,6 +383,33 @@ public class TablaProveedoresController implements Initializable {
                     System.out.println("Borrado cancelado.");
                 }
             });
+        }
+    }
+
+    // Añadir Linea para insertar Proveedor
+    private void añadirLinea(ActionEvent event) {
+
+        try {
+
+            Proveedor porveedorLinea = new Proveedor();
+
+            ProveedorManagerFactory.get().create_XML(porveedorLinea);
+
+            // Liampia la tabla antes de introducir los Items
+            tableView.getItems().clear();
+
+            // Obtener la lista de proveedores desde el servidor o el origen de datos
+            List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
+            });
+
+            // Convertir la lista de proveedores en ObservableList para la TableView
+            ObservableList<Proveedor> proveedoresData = FXCollections.observableArrayList(proveedores);
+
+            // Establecer los datos en la tabla
+            tableView.setItems(proveedoresData);
+
+        } catch (Exception e) {
+            System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
         }
     }
 }

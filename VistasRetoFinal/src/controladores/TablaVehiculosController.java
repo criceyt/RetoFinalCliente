@@ -31,8 +31,8 @@ import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
 import logica.ProveedorManagerFactory;
 import logica.VehiculoManagerFactory;
-import modelo.TipoVehiculo;
-import modelo.Vehiculo;
+import entidades.TipoVehiculo;
+import entidades.Vehiculo;
 
 /**
  * FXML Controller class

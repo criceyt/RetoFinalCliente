@@ -28,7 +28,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
 import logica.MantenimientoManagerFactory;
-import modelo.Mantenimiento;
+import entidades.Mantenimiento;
 
 public class TablaMantenimientoController implements Initializable {
 

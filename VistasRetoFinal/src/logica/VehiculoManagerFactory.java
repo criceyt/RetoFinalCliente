@@ -5,7 +5,7 @@
  */
 package logica;
 
-import entidades.VehiculoRestFull;
+import restfullCliente.VehiculoRestFull;
 
 /**
  *

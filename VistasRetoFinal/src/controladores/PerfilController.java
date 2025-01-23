@@ -24,7 +24,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import logica.SessionManager;
 import logica.UsuarioManagerFactory;
-import modelo.Usuario;
+import entidades.Usuario;
 
 /**
  * FXML Controller class
