@@ -5,8 +5,11 @@
  */
 package controladores;
 
+import logica.ProveedorManagerFactory;
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -25,11 +28,26 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
-import entidades.ProveedorBean;  // Asegúrate de que el paquete sea correcto
 import java.util.List;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.TextField;
+import javax.ws.rs.core.GenericType;
+import logica.ProveedorManager;
+import entidades.Proveedor;
+import entidades.TipoVehiculo;
+import entidades.Vehiculo;
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import static javafx.scene.input.KeyCode.T;
+import org.eclipse.persistence.jpa.jpql.parser.DateTime;
 
 /**
  *
@@ -40,6 +58,12 @@ public class TablaProveedoresController implements Initializable {
     // Elementos de la Ventana
     @FXML
     private Button homeBtn;
+
+    @FXML
+    private Button refreshButton;
+
+    @FXML
+    private Button saveBtn;
 
     @FXML
     private Button cerrarSesionBtn;
@@ -57,57 +81,242 @@ public class TablaProveedoresController implements Initializable {
     private TableView tableView;
 
     @FXML
-    private TableColumn<ProveedorBean, Long> idProveedorColumn;
+    private TableColumn<Proveedor, Long> idProveedorColumn;
 
     @FXML
-    private TableColumn<ProveedorBean, String> nombreColumn;
+    private TableColumn<Proveedor, String> nombreColumn;
 
     @FXML
-    private TableColumn<ProveedorBean, String> tipoColumn;
+    private TableColumn<Proveedor, String> tipoColumn;
 
     @FXML
-    private TableColumn<ProveedorBean, String> especialidadColumn;
+    private TableColumn<Proveedor, String> especialidadColumn;
 
     @FXML
-    private TableColumn<ProveedorBean, Date> ultimaActividadColumn;
+    private TableColumn<Proveedor, Date> ultimaActividadColumn;
 
-    // Metodo Initialize
+    @FXML
+    private TextField NombreField;
+
+    @FXML
+    private TextField especialidadField;
+
+    @FXML
+    private ComboBox<String> categoryComboBox;
+
+    @FXML
+    private Button deleteButton;
+
+    @FXML
+    private Button addRowButton;
+
+    @FXML
+    private DatePicker datePickerFiltro;
+
+    private DatePicker datePicker;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
-        //Se añaden los listeners a todos los botones.
+        // Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
         gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
+        refreshButton.setOnAction(this::cargartDatosTabla);
+        deleteButton.setOnAction(this::borrarProveedor);
+        addRowButton.setOnAction(this::añadirLinea);
 
-        System.out.println("Ventana inicializada correctamente.");
+        datePickerFiltro.setOnAction(event -> {
+            LocalDate filtro = datePickerFiltro.getValue();
+            String filtroString = filtro.toString();
 
+            // Limpia la tabla
+            tableView.getItems().clear();
+
+            // Coje los datos por query filtrado
+            List<Proveedor> proveedoresfiltro = ProveedorManagerFactory.get().filtradoPorDatePickerProveedores(new GenericType<List<Proveedor>>() {
+            }, filtroString);
+
+            // Convertir la lista de proveedores en ObservableList para la TableView
+            ObservableList<Proveedor> proveedoresDataFiltro = FXCollections.observableArrayList(proveedoresfiltro);
+
+            // Establecer los datos en la tabla
+            tableView.setItems(proveedoresDataFiltro);
+        });
+
+        // Configuración de las columnas de la tabla.
         idProveedorColumn.setCellValueFactory(new PropertyValueFactory<>("idProveedor"));
         nombreColumn.setCellValueFactory(new PropertyValueFactory<>("nombreProveedor"));
         tipoColumn.setCellValueFactory(new PropertyValueFactory<>("tipoVehiculo"));
         especialidadColumn.setCellValueFactory(new PropertyValueFactory<>("especialidad"));
         ultimaActividadColumn.setCellValueFactory(new PropertyValueFactory<>("ultimaActividad"));
 
-        ObservableList proveedoresData = null;
+        // Configuramos las columnas que van a ser EDITABLES
+        // Configurar tabla como editable
+        tableView.setEditable(true);
+        // Configurar la columna de descripción para usar EditingCell
 
-        // Crear una lista Obserbable de Proveedores para la Tabla
-        try {
-            // Intenta cargar los proveedores en la lista observable
-            proveedoresData = FXCollections.observableArrayList(FactoriaProveedores.getTablaProveedores());
-        } catch (Exception ex) {
-            // Captura cualquier otra excepción no esperada
-            Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, "Error inesperado al cargar los datos", ex);
-            new Alert(Alert.AlertType.ERROR, "Ocurrió un error inesperado. Por favor, contacta con el soporte técnico.", ButtonType.OK).showAndWait();
-        }
+        //nombreColumn.setCellFactory(column -> new EditingCellProveedor());
+        //tipoColumn.setCellFactory(column -> new EditingCellProveedor());
+        //especialidadColumn.setCellFactory(column -> new EditingCellProveedor());
+        //ultimaActividadColumn.setCellFactory(column -> new EditingCellProveedor());
+        // Liampia la tabla antes de introducir los Items
+        tableView.getItems().clear();
 
-        // Establece el modelo de datos de la tabla
+        // Obtener la lista de proveedores desde el servidor o el origen de datos
+        List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
+        });
+
+        // Convertir la lista de proveedores en ObservableList para la TableView
+        ObservableList<Proveedor> proveedoresData = FXCollections.observableArrayList(proveedores);
+
+        // Establecer los datos en la tabla
         tableView.setItems(proveedoresData);
 
-        //tableView.getSelectionModel().selectedItemProperty().addListener(this::seleccionarElementoTabla);
-        //private void seleccionarElementoTabla(ObservableValue observable, Object oldValue, Object newValue) {
-        //}
+        // Borrado
+        deleteButton.setDisable(true);
+        // Listener para habilitar o deshabilitar el botón de borrado según la selección
+        tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Si hay un elemento seleccionado, habilitar el botón de borrado
+                deleteButton.setDisable(false);
+            } else {
+                // Si no hay elementos seleccionados, deshabilitar el botón de borrado
+                deleteButton.setDisable(true);
+            }
+        });
+
+        // TABLA EDITABLE 
+        // NOMBRE
+        nombreColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        nombreColumn.setOnEditCommit(event -> {
+            Proveedor proveedorModificado = event.getRowValue();
+            proveedorModificado.setNombreProveedor(event.getNewValue());
+
+            Long idProveedor = proveedorModificado.getIdProveedor();
+            String idProveedorStr = String.valueOf(idProveedor);
+
+            // Aquí puedes hacer lo necesario para actualizar la base de datos
+            ProveedorManagerFactory.get().edit_XML(proveedorModificado, idProveedorStr);
+        });
+
+        // ESPECIALIDAD
+        especialidadColumn.setCellFactory(TextFieldTableCell.forTableColumn());
+        especialidadColumn.setOnEditCommit(event -> {
+            Proveedor proveedorModificado = event.getRowValue();
+            proveedorModificado.setNombreProveedor(event.getNewValue());
+
+            Long idProveedor = proveedorModificado.getIdProveedor();
+            String idProveedorStr = String.valueOf(idProveedor);
+
+            // Aquí puedes hacer lo necesario para actualizar la base de datos
+            ProveedorManagerFactory.get().edit_XML(proveedorModificado, idProveedorStr);
+        });
+
+        // FECHA
+        ultimaActividadColumn.setCellFactory(column -> {
+            return new TableCell<Proveedor, Date>() {
+                private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                private final DatePicker datePicker = new DatePicker();
+
+                @Override
+                protected void updateItem(Date item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                    } else {
+                        setText(formatter.format(item.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()));
+                        setGraphic(null);
+                    }
+                }
+
+                @Override
+                public void startEdit() {
+                    super.startEdit();
+                    if (getTableRow() != null) {
+                        Proveedor proveedor = (Proveedor) getTableRow().getItem();
+                        if (proveedor != null) {
+                            // Convertir la fecha de tipo Date a LocalDate para el DatePicker
+                            LocalDate localDate = proveedor.getUltimaActividad().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                            datePicker.setValue(localDate);
+
+                            // Muestra el DatePicker en lugar del texto
+                            setGraphic(datePicker);
+                            setText(null);
+
+                            // Guardar la fecha cuando el usuario haga la selección
+                            datePicker.setOnAction(event -> {
+                                Date newDate = Date.from(datePicker.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant());
+                                commitEdit(newDate);
+                            });
+
+                            // Cancelar la edición si se presiona ESCAPE
+                            datePicker.setOnKeyPressed(event -> {
+                                if (event.getCode() == KeyCode.ESCAPE) {
+                                    cancelEdit();
+                                }
+                            });
+                        }
+                    }
+                }
+
+                @Override
+                public void commitEdit(Date newValue) {
+                    super.commitEdit(newValue);
+                    if (getTableRow() != null) {
+                        Proveedor proveedor = (Proveedor) getTableRow().getItem();
+                        if (proveedor != null) {
+                            proveedor.setUltimaActividad(newValue);  // Actualizar la fecha en el objeto proveedor
+                            // Aquí podrías actualizar la base de datos si lo deseas
+                            Long idProveedor = proveedor.getIdProveedor();
+                            String idProveedorStr = String.valueOf(idProveedor);
+                            ProveedorManagerFactory.get().edit_XML(proveedor, idProveedorStr);
+                        }
+                    }
+                }
+            };
+        });
+
+    }
+
+    private void proveedorNuevo(ActionEvent event) {
+
+        String nombre = NombreField.getText();
+        String especilalidad = especialidadField.getText();
+        String TipoVehiculoString = categoryComboBox.getValue();
+
+        TipoVehiculo valor;
+
+        if (TipoVehiculoString.equals("MOTO")) {
+            valor = TipoVehiculo.MOTO;
+        } else if (TipoVehiculoString.equals("CAMION")) {
+            valor = TipoVehiculo.CAMION;
+        } else {
+            valor = TipoVehiculo.COCHE;
+        }
+
+        Proveedor proveedorNuevo = new Proveedor();
+        proveedorNuevo.setNombreProveedor(nombre);
+        proveedorNuevo.setEspecialidad(especilalidad);
+        proveedorNuevo.setTipoVehiculo(valor);
+
+        Date fechaHoy = new Date();
+        fechaHoy.getDate();
+        proveedorNuevo.setUltimaActividad(fechaHoy);
+
+        try {
+
+            ProveedorManagerFactory.get().create_XML(proveedorNuevo);
+
+        } catch (Exception ex) {
+            System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        }
+
+        tableView.refresh();
+
     }
 
     // Abrir Ventana SignIn & SignUp
@@ -156,7 +365,7 @@ public class TablaProveedoresController implements Initializable {
             stage.setTitle("Navegacion Principal Trabajador");
             // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
             // Se muestra en la ventana el Scene creado.
             stage.setScene(scene);
@@ -237,6 +446,97 @@ public class TablaProveedoresController implements Initializable {
         } catch (IOException ex) {
             Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+        }
+    }
+
+    // Metodo del Boton Refresh para cargar los elementos en la tabla
+    private void cargartDatosTabla(ActionEvent event) {
+
+        // Liampia la tabla antes de introducir los Items
+        tableView.getItems().clear();
+
+        // Obtener la lista de proveedores desde el servidor o el origen de datos
+        List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
+        });
+
+        // Convertir la lista de proveedores en ObservableList para la TableView
+        ObservableList<Proveedor> proveedoresData = FXCollections.observableArrayList(proveedores);
+
+        // Establecer los datos en la tabla
+        tableView.setItems(proveedoresData);
+
+    }
+
+    // Metodo que borra al Proveedor de la tabla y de la base de datos
+    private void borrarProveedor(ActionEvent event) {
+
+        Proveedor proveedorSeleccionado = (Proveedor) tableView.getSelectionModel().getSelectedItem();
+
+        if (proveedorSeleccionado != null) {
+            // Crear la alerta de confirmación
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmación de Borrado");
+            alert.setHeaderText("¿Estás seguro de que deseas borrar este Proveedor?");
+            alert.setContentText("Esta acción no se puede deshacer.");
+
+            // Mostrar la alerta y esperar la respuesta del usuario
+            alert.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    // Si el usuario hace clic en "OK", borrar el mantenimiento
+                    Long id = proveedorSeleccionado.getIdProveedor();
+                    String idParseado = String.valueOf(id);
+
+                    // Llamada al método para borrar el mantenimiento
+                    ProveedorManagerFactory.get().remove(idParseado);
+
+                    // Obtener la lista de proveedores desde el servidor o el origen de datos
+                    List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
+                    });
+
+                    // Convertir la lista de proveedores en ObservableList para la TableView
+                    ObservableList<Proveedor> proveedoresData = FXCollections.observableArrayList(proveedores);
+
+                    // Establecer los datos en la tabla
+                    tableView.setItems(proveedoresData);
+
+                    // Mostrar mensaje de éxito
+                    //new Alert(Alert.AlertType.INFORMATION, "Mantenimiento eliminado correctamente.", ButtonType.OK).showAndWait();
+                } else {
+                    // Si el usuario cancela, no hacer nada
+                    System.out.println("Borrado cancelado.");
+                }
+            });
+        }
+    }
+
+    // Añadir Linea para insertar Proveedor
+    private void añadirLinea(ActionEvent event) {
+
+        try {
+
+            Proveedor porveedorLinea = new Proveedor();
+
+            // La fecha se puede cambiar pero debe ser automatica
+            Date fechaAuto = new Date();
+            porveedorLinea.setUltimaActividad(fechaAuto);
+
+            ProveedorManagerFactory.get().create_XML(porveedorLinea);
+
+            // Liampia la tabla antes de introducir los Items
+            tableView.getItems().clear();
+
+            // Obtener la lista de proveedores desde el servidor o el origen de datos
+            List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
+            });
+
+            // Convertir la lista de proveedores en ObservableList para la TableView
+            ObservableList<Proveedor> proveedoresData = FXCollections.observableArrayList(proveedores);
+
+            // Establecer los datos en la tabla
+            tableView.setItems(proveedoresData);
+
+        } catch (Exception e) {
+            System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
         }
     }
 }

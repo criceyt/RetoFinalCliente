@@ -20,6 +20,7 @@ public class ApplicationClient extends javafx.application.Application {
 
     /**
      * Método que se llama al iniciar la aplicación.
+     *
      * @param stage El escenario principal de la aplicación.
      * @throws Exception si ocurre un error durante la carga del archivo FXML.
      */
@@ -29,7 +30,7 @@ public class ApplicationClient extends javafx.application.Application {
         Parent root = FXMLLoader.load(getClass().getResource("/vistas/SignInSignUp.fxml"));
 
         Scene scene = new Scene(root);
-       scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
 
         stage.setWidth(1000);
         stage.setHeight(800);

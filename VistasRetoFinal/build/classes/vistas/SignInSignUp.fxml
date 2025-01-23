@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.SignController" >
+<AnchorPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.SignController">
     <children>
         <!-- Imagen de fondo -->
         <ImageView fx:id="backgroundImage" pickOnBounds="true" preserveRatio="true" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" />
@@ -42,7 +42,7 @@
                 <TextField fx:id="nombreyApellidoField" promptText="Nombre y Apellidos" styleClass="text-field" />
                 
                 <Label text="DNI/NIF (*)" styleClass="label" />
-                <TextField fx:id="dniField" promptText="Ciudad" styleClass="text-field" />
+                <TextField fx:id="dniField" promptText="DNI" styleClass="text-field" />
                 
                 <Label text="Correo Electrónico (*)" styleClass="label" />
                 <TextField fx:id="emailField" promptText="Correo Electrónico" styleClass="text-field" />

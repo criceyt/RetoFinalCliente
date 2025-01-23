@@ -7,9 +7,13 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,7 +24,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javax.ws.rs.core.GenericType;
+import logica.ProveedorManagerFactory;
+import logica.VehiculoManagerFactory;
+import entidades.TipoVehiculo;
+import entidades.Vehiculo;
 
 /**
  * FXML Controller class
@@ -45,6 +57,42 @@ public class TablaVehiculosController implements Initializable {
     @FXML
     private MenuItem gestionMantenimientos;
 
+    @FXML
+    private TableView tableViewVehiculo;
+
+    @FXML
+    private TableColumn<Vehiculo, Long> idVehiculoColum;
+
+    @FXML
+    private TableColumn<Vehiculo, String> modeloColum;
+
+    @FXML
+    private TableColumn<Vehiculo, String> marcaColum;
+
+    @FXML
+    private TableColumn<Vehiculo, String> colorColum;
+
+    @FXML
+    private TableColumn<Vehiculo, Date> fechaAltaColum;
+
+    @FXML
+    private TableColumn<Vehiculo, Integer> potenciaColum;
+
+    @FXML
+    private TableColumn<Vehiculo, Integer> kmColum;
+
+    @FXML
+    private TableColumn<Vehiculo, Integer> precioColum;
+
+    @FXML
+    private TableColumn<Vehiculo, String> tipoColum;
+
+    @FXML
+    private Button deleteButton;
+
+    @FXML
+    private Button refreshButton;
+
     // Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -55,8 +103,44 @@ public class TablaVehiculosController implements Initializable {
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
+        deleteButton.setOnAction(this::borrarVehiculo);
+        //refreshButton.setOnAction(this::cargarDatosTabla);
 
         System.out.println("Ventana inicializada correctamente.");
+
+        // Configuración de las columnas de la tabla.
+        idVehiculoColum.setCellValueFactory(new PropertyValueFactory<>("idVehiculo"));
+        marcaColum.setCellValueFactory(new PropertyValueFactory<>("marca"));
+        modeloColum.setCellValueFactory(new PropertyValueFactory<>("modelo"));
+        colorColum.setCellValueFactory(new PropertyValueFactory<>("color"));
+        potenciaColum.setCellValueFactory(new PropertyValueFactory<>("potencia"));
+        kmColum.setCellValueFactory(new PropertyValueFactory<>("km"));
+        precioColum.setCellValueFactory(new PropertyValueFactory<>("precio"));
+        fechaAltaColum.setCellValueFactory(new PropertyValueFactory<>("fechaAlta"));
+        tipoColum.setCellValueFactory(new PropertyValueFactory<>("tipoVehiculo"));
+
+        // Obtener la lista de proveedores desde el servidor o el origen de datos
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        // Convertir la lista de proveedores en ObservableList para la TableView
+        ObservableList<Vehiculo> vehiculosData = FXCollections.observableArrayList(vehiculos);
+
+        // Establecer los datos en la tabla
+        tableViewVehiculo.setItems(vehiculosData);
+
+        // Borrado
+        deleteButton.setDisable(true);
+        // Listener para habilitar o deshabilitar el botón de borrado según la selección
+        tableViewVehiculo.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Si hay un elemento seleccionado, habilitar el botón de borrado
+                deleteButton.setDisable(false);
+            } else {
+                // Si no hay elementos seleccionados, deshabilitar el botón de borrado
+                deleteButton.setDisable(true);
+            }
+        });
     }
 
     // Abrir Ventana SignIn & SignUp
@@ -105,7 +189,7 @@ public class TablaVehiculosController implements Initializable {
             stage.setTitle("Navegacion Principal Trabajador");
             // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
             // Se muestra en la ventana el Scene creado.
             stage.setScene(scene);
@@ -194,5 +278,67 @@ public class TablaVehiculosController implements Initializable {
                     .getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
+    }
+
+    // Metodo que borra el Mantenimiento de la tabla y de la base de datos
+    private void borrarVehiculo(ActionEvent event) {
+        Vehiculo vehiculoSeleccionado = (Vehiculo) tableViewVehiculo.getSelectionModel().getSelectedItem();
+
+        if (vehiculoSeleccionado != null) {
+            // Crear la alerta de confirmación
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmación de Borrado");
+            alert.setHeaderText("¿Estás seguro de que deseas borrar este mantenimiento?");
+            alert.setContentText("Esta acción no se puede deshacer.");
+
+            // Mostrar la alerta y esperar la respuesta del usuario
+            alert.showAndWait().ifPresent(response -> {
+                if (response == ButtonType.OK) {
+                    // Si el usuario hace clic en "OK", borrar el mantenimiento
+                    Long id = vehiculoSeleccionado.getIdVehiculo();
+                    String idParseado = String.valueOf(id);
+
+                    // Llamada al método para borrar el mantenimiento
+                    VehiculoManagerFactory.get().remove(idParseado);
+
+                    // Liampia la tabla antes de introducir los Items
+                    tableViewVehiculo.getItems().clear();
+
+                    // Obtener la lista de proveedores desde el servidor o el origen de datos
+                    List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+                    });
+
+                    // Convertir la lista de proveedores en ObservableList para la TableView
+                    ObservableList<Vehiculo> vehiculosData = FXCollections.observableArrayList(vehiculos);
+
+                    // Establecer los datos en la tabla
+                    tableViewVehiculo.setItems(vehiculosData);
+                } else {
+                    // Si el usuario cancela, no hacer nada
+                    System.out.println("Borrado cancelado.");
+                }
+            });
+        } else {
+            // Si no hay un mantenimiento seleccionado, mostrar mensaje de advertencia
+            new Alert(Alert.AlertType.WARNING, "Por favor, selecciona un mantenimiento para eliminar.", ButtonType.OK).showAndWait();
+        }
+
+        /*
+        // Metodo del Boton Refresh para cargar los elementos en la tabla
+        private void cargarDatosTabla(ActionEvent event) {
+
+        // Liampia la tabla antes de introducir los Items
+        tableViewVehiculo.getItems().clear();
+
+        // Obtener la lista de proveedores desde el servidor o el origen de datos
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        // Convertir la lista de proveedores en ObservableList para la TableView
+        ObservableList<Vehiculo> vehiculosData = FXCollections.observableArrayList(vehiculos);
+
+        // Establecer los datos en la tabla
+        tableViewVehiculo.setItems(vehiculosData);
+    }*/
     }
 }

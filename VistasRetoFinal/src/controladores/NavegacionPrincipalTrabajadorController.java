@@ -15,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -22,10 +23,14 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 
 /**
@@ -49,6 +54,34 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     private MenuItem gestionMantenimientos;
+    
+    @FXML
+    public void mostrarFiltroKilometraje(MouseEvent event) {
+        mostrarPopup(event.getSource(), crearRangoInput());
+    }
+
+    @FXML
+    public void mostrarFiltroColor(MouseEvent event) {
+        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un color", "Rojo", "Azul", "Negro", "Blanco"));
+    }
+
+    @FXML
+    public void mostrarFiltroPrecio(MouseEvent event) {
+        mostrarPopup(event.getSource(), crearRangoInput());
+    }
+
+    @FXML
+    public void mostrarFiltroMarca(MouseEvent event) {
+        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione una marca", "Toyota", "Ford", "Honda", "BMW"));
+    }
+
+    @FXML
+    public void mostrarFiltroModelo(MouseEvent event) {
+        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un modelo", "Modelo A", "Modelo B", "Modelo C", "Modelo D"));
+    }
+    
+    // Declaracion del Popup
+    private Popup popup;
 
     // Metodo Initialize
     @Override
@@ -160,5 +193,57 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
+    }
+    
+    private void mostrarPopup(Object source, VBox contenido) {
+        if (popup != null && popup.isShowing()) {
+            popup.hide(); // Ocultar el popup anterior si está visible
+        }
+
+        popup = new Popup();
+        popup.getContent().add(contenido);
+        popup.setAutoHide(true); // Cerrar automáticamente al hacer clic fuera del popup
+
+        Node node = (Node) source;
+        Bounds bounds = node.localToScreen(node.getBoundsInLocal()); // Obtener la posición del botón
+        popup.show(node, bounds.getMinX(), bounds.getMaxY()); // Mostrar debajo del botón
+    }
+
+     private VBox crearRangoInput() {
+        VBox vbox = new VBox(10);
+        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
+        
+        // Campo de texto desde
+        TextField desde = new TextField();
+        desde.setPromptText("Desde...");
+        desde.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        // Campo de texto hasta
+        TextField hasta = new TextField();
+        hasta.setPromptText("Hasta...");
+        hasta.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        Label label = new Label("Rango:");
+        label.setStyle("-fx-text-fill: white;");
+
+        vbox.getChildren().addAll(label, desde, hasta);
+        return vbox;
+    }
+
+    private VBox crearComboBoxInput(String labelText, String... opciones) {
+        VBox vbox = new VBox(10);
+        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
+        
+        // ComboBox
+        ComboBox<String> comboBox = new ComboBox<>();
+        comboBox.getItems().addAll(opciones);
+        comboBox.setPromptText(labelText);
+        comboBox.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        Label label = new Label(labelText);
+        label.setStyle("-fx-text-fill: white;");
+
+        vbox.getChildren().addAll(label, comboBox);
+        return vbox;
     }
 }

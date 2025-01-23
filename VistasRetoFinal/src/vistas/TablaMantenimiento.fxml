@@ -24,7 +24,7 @@
             <Button fx:id="cerrarSesionBtn" style="-fx-text-fill: white; -fx-font-weight: bold;" text="CERRAR SESIÓN" />
         </HBox>
     </top>
-    
+   
     <center>
         <SplitPane orientation="HORIZONTAL">
             <TableView fx:id="tableView" prefWidth="500" styleClass="table-view">
@@ -32,32 +32,33 @@
                     <!-- Columna "X" -->
                     <TableColumn fx:id="indexColumn" text="X" prefWidth="50"/>
                     <!-- Otras columnas -->
-                    <TableColumn fx:id="idMantenimientoColumn" text="idMantenimiento" />
-                    <TableColumn fx:id="dni" text="DNI" />
-                    <TableColumn fx:id="nombreColumn" text="Nombre" />
-                    <TableColumn fx:id="descripcion" text="Descripcion" />
+                    <TableColumn fx:id="idMantenimientoColumn" text="Id Mantenimiento" />
+                    <!--<TableColumn fx:id="dni" text="DNI" />
+                    <TableColumn fx:id="nombreColumn" text="Nombre" />                    
                     <TableColumn fx:id="matricula" text="Matricula" />
                     <TableColumn fx:id="marca" text="Marca" />
-                    <TableColumn fx:id="modelo" text="Modelo" />
-                    <TableColumn fx:id="mantenimientoExitoso" text="Mantenimiento Exitoso" />
-                    <TableColumn fx:id="fechaFinalizacion" text="Fecha Finalizacion" />
+                    <TableColumn fx:id="modelo" text="Modelo" />-->
+                    <TableColumn fx:id="descripcionColumn" text="Descripcion" />
+                    <TableColumn fx:id="mantenimientoExitosoColumn" text="Mantenimiento Exitoso" />
+                    <TableColumn fx:id="fechaFinalizacionColumn" text="Fecha Finalizacion" />
+                    <TableColumn fx:id="idVehiculoColumn" text="Id Vehiculo" />        
                 </columns>
             </TableView>
 
             <VBox spacing="10" alignment="CENTER" styleClass="form-pane">
                 <Label text="Alta de Mantenimiento" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #d32f2f; -fx-padding: 10;"/>
                 <Label text="DNI" styleClass="label"/>
-                <TextField fx:id="dniField"/> 
+                <TextField fx:id="dniField"/>
                 <Label text="Descripcion" styleClass="label"/>
-                <TextField fx:id="descripcionField"/> 
+                <TextField fx:id="descripcionField"/>
                 <Label text="Matricula" styleClass="label"/>
-                <TextField fx:id="matriculaField"/> 
+                <TextField fx:id="matriculaField"/>
                 <Label text="Marca" styleClass="label"/>
-                <TextField fx:id="marcaField"/> 
+                <TextField fx:id="marcaField"/>
                 <Label text="Modelo" styleClass="label"/>
-                <TextField fx:id="modeloField"/> 
+                <TextField fx:id="modeloField"/>
                 <Label text="Fecha De Finalizacion" styleClass="date-picker"/>
-                <DatePicker fx:id="Finalizacion" styleClass="date-picker"/> 
+                <DatePicker fx:id="Finalizacion" styleClass="date-picker"/>
                 <Label text="Categoría:" styleClass="label" />
 
 
@@ -67,7 +68,7 @@
     </center>
     <bottom>
         <HBox>
-            <Button text="DELETE" fx:id="deleteButton"/>
+            <Button text="DELETE" fx:id="btnBorrar"/>
             <Button text="REFRESH" fx:id="refreshButton"/>
      
             <HBox spacing="10" alignment="CENTER">

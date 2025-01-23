@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.control.Label?>
+
 <BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.NavegacionPrincipalController" >
     <!-- Barra Superior -->
     <top>

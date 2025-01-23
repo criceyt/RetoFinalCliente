@@ -42,6 +42,11 @@
     -fx-background-color: #555555;
     -fx-font-weight: bold;
     -fx-text-fill: white;
+      -fx-pref-width: 170;
+}
+.table-view .table-column-cell {
+    -fx-pref-width: 400;  /* Tamaño preferido para cada columna */
+    -fx-min-width: 150;   /* Tamaño mínimo para que la columna no sea demasiado pequeña */
 }
 
 /* Estilo para el formulario */

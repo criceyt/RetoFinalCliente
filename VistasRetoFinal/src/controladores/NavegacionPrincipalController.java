@@ -10,24 +10,27 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.stage.Stage;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.geometry.Bounds;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
+import javafx.stage.Stage;
+import logica.SessionManager;
+import entidades.Persona;
+import entidades.Usuario;
 
 /**
  *
@@ -44,7 +47,35 @@ public class NavegacionPrincipalController implements Initializable {
 
     @FXML
     private Button cerrarSesionBtn;
+    
+    @FXML
+    public void mostrarFiltroKilometraje(MouseEvent event) {
+        mostrarPopup(event.getSource(), crearRangoInput());
+    }
+
+    @FXML
+    public void mostrarFiltroColor(MouseEvent event) {
+        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un color", "Rojo", "Azul", "Negro", "Blanco"));
+    }
+
+    @FXML
+    public void mostrarFiltroPrecio(MouseEvent event) {
+        mostrarPopup(event.getSource(), crearRangoInput());
+    }
+
+    @FXML
+    public void mostrarFiltroMarca(MouseEvent event) {
+        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione una marca", "Toyota", "Ford", "Honda", "BMW"));
+    }
+
+    @FXML
+    public void mostrarFiltroModelo(MouseEvent event) {
+        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un modelo", "Modelo A", "Modelo B", "Modelo C", "Modelo D"));
+    }
+    
+    // Declaracion del Popup
     private Popup popup;
+    private Usuario usuario;
 
     // Metodo Initialize
     @Override
@@ -67,6 +98,8 @@ public class NavegacionPrincipalController implements Initializable {
 
             // Obtener el controlador
             PerfilController controller = loader.getController();
+            
+            //controller.setUsuario((Usuario) usuario);
 
             // Obtener el Stage
             Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
@@ -143,31 +176,6 @@ public class NavegacionPrincipalController implements Initializable {
         }
     }
     
-     @FXML
-    public void mostrarFiltroKilometraje(MouseEvent event) {
-        mostrarPopup(event.getSource(), crearRangoInput());
-    }
-
-    @FXML
-    public void mostrarFiltroColor(MouseEvent event) {
-        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un color", "Rojo", "Azul", "Negro", "Blanco"));
-    }
-
-    @FXML
-    public void mostrarFiltroPrecio(MouseEvent event) {
-        mostrarPopup(event.getSource(), crearRangoInput());
-    }
-
-    @FXML
-    public void mostrarFiltroMarca(MouseEvent event) {
-        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione una marca", "Toyota", "Ford", "Honda", "BMW"));
-    }
-
-    @FXML
-    public void mostrarFiltroModelo(MouseEvent event) {
-        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un modelo", "Modelo A", "Modelo B", "Modelo C", "Modelo D"));
-    }
-
     private void mostrarPopup(Object source, VBox contenido) {
         if (popup != null && popup.isShowing()) {
             popup.hide(); // Ocultar el popup anterior si está visible
