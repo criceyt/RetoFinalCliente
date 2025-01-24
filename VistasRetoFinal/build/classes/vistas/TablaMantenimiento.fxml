@@ -66,11 +66,11 @@
             <Button text="DELETE" fx:id="btnBorrar"/>
             <Button text="REFRESH" fx:id="refreshButton"/>
             <Button text="ADD ROW" fx:id="btnAñadirFila"/>
+            <Button fx:id="btnGuardar" text="SAVE" styleClass="button"/>
      
             <HBox spacing="10" alignment="CENTER">
                 <Label text="Filtrar por fecha:" styleClass="label"/>                
-                <DatePicker fx:id="datePickerFiltro" styleClass="date-picker"/>
-                <Button fx:id="saveBtn" text="Guardar" styleClass="button"/>
+                <DatePicker fx:id="datePickerFiltro" styleClass="date-picker"/>               
             </HBox>
 
             <Button text="PRINT" fx:id="printButton"/>

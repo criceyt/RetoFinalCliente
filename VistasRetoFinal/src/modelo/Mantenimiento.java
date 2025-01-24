@@ -20,8 +20,7 @@ public class Mantenimiento implements Serializable {
     private boolean mantenimientoExitoso;
 
     private Vehiculo vehiculo;
-    
-    private boolean editable = false; // Editable por defecto falso
+   
 
     // getters and setters
     public Long getIdMantenimiento() {
@@ -62,14 +61,6 @@ public class Mantenimiento implements Serializable {
 
     public void setVehiculo(Vehiculo vehiculo) {
         this.vehiculo = vehiculo;
-    }
-    
-    public boolean isEditable() {
-        return editable;
-    }
-
-    public void setEditable(boolean editable) {
-        this.editable = editable;
     }
 
     /**

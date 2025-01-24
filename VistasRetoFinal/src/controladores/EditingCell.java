@@ -20,7 +20,7 @@ public class EditingCell<T> extends TableCell<Mantenimiento, T> {
     private TextField textField;
     private CheckBox checkBox;
     private DatePicker datePicker;
-    private ComboBox<Long> comboBox; // Para el ComboBox de idVehiculo
+    private ChoiceBox<Long> choiceBox;
 
     public EditingCell() {
     }
@@ -30,21 +30,33 @@ public class EditingCell<T> extends TableCell<Mantenimiento, T> {
         if (!isEmpty()) {
             super.startEdit();
             T item = getItem();
+
             if (item instanceof String) {
                 createTextField();
+                textField.setText(getString());
+                setGraphic(textField);
             } else if (item instanceof Boolean) {
                 createCheckBox();
+                checkBox.setSelected((Boolean) item);
+                setGraphic(checkBox);
             } else if (item instanceof Date) {
                 createDatePicker();
-            } else if (item instanceof Long) {  // Agregar esta condición para ComboBox
-                createComboBox();  // Crear el ComboBox para idVehiculo
+                datePicker.setValue(((Date) item).toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                setGraphic(datePicker);
+            } else if (item instanceof Long) {
+                Mantenimiento mantenimiento = (Mantenimiento) getTableRow().getItem();
+                if (mantenimiento != null && mantenimiento.getIdVehiculo() != null && mantenimiento.getIdVehiculo() == 0L) {
+                    createChoiceBox();
+                    choiceBox.setValue((Long) item);
+                    setGraphic(choiceBox);
+                } else {
+                    cancelEdit();
+                }
+            } else {
+                setText(getString());
+                setGraphic(null);
+                setContentDisplay(ContentDisplay.TEXT_ONLY);
             }
-
-            setText(null);
-            setGraphic(item instanceof String ? textField
-                    : item instanceof Boolean ? checkBox
-                            : item instanceof Date ? datePicker
-                                    : item instanceof Long ? comboBox : null);
             setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
         }
     }
@@ -76,19 +88,15 @@ public class EditingCell<T> extends TableCell<Mantenimiento, T> {
                     datePicker.setValue(((Date) item).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
                     setGraphic(datePicker);
                 } else if (item instanceof Long) {
-                     if (getTableRow().getItem() != null) {
                     Mantenimiento mantenimiento = (Mantenimiento) getTableRow().getItem();
-                    if (mantenimiento.getIdVehiculo() == null) {
-                        // Si el idVehiculo es null, mostrar ComboBox
-                        createComboBox();
-                        comboBox.setValue((Long) item);
-                        setGraphic(comboBox);
+                    if (mantenimiento != null && mantenimiento.getIdVehiculo() != null && mantenimiento.getIdVehiculo() == 0L) {
+                        choiceBox.setValue((Long) item);
+                        setGraphic(choiceBox);
                     } else {
-                        // Si ya hay un idVehiculo asignado, mostrar un TextField
-                        textField.setText(String.valueOf(item));
-                        setGraphic(textField);
+                        setText(getString());
+                        setGraphic(null);
+                        setContentDisplay(ContentDisplay.TEXT_ONLY);
                     }
-                }
                 }
             } else {
                 setText(getString());
@@ -116,7 +124,7 @@ public class EditingCell<T> extends TableCell<Mantenimiento, T> {
 
     private void createCheckBox() {
         checkBox = new CheckBox();
-        checkBox.setSelected((Boolean) getItem()); // Aquí convertimos a Boolean
+        checkBox.setSelected((Boolean) getItem());
         checkBox.setOnAction(event -> commitEdit((T) Boolean.valueOf(checkBox.isSelected())));
         checkBox.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
@@ -136,15 +144,29 @@ public class EditingCell<T> extends TableCell<Mantenimiento, T> {
         });
     }
 
-    private void createComboBox() {
-        comboBox = new ComboBox<>();
-        // Aquí cargo los vehículos disponibles desde una lista
-        comboBox.setItems(FXCollections.observableArrayList(obtenerIdVehiculosDisponibles()));
-        comboBox.setOnAction(event -> {
-            Long selectedId = comboBox.getValue();
-            commitEdit((T) selectedId); // Cometer el valor seleccionado
+    private void createChoiceBox() {
+        choiceBox = new ChoiceBox<>();
+        choiceBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
+
+        // Obtener vehículos disponibles
+        List<Long> idVehiculos = obtenerIdVehiculosDisponibles();
+        if (idVehiculos.isEmpty()) {
+            Platform.runLater(() -> {
+                new Alert(Alert.AlertType.WARNING, "No hay vehiculos disponibles", ButtonType.OK).showAndWait();
+            });
+        }
+
+        // Cargar los vehículos disponibles en el ChoiceBox
+        choiceBox.setItems(FXCollections.observableArrayList(idVehiculos));
+        choiceBox.setOnAction(event -> {
+            Long selectedId = choiceBox.getValue();
+            if (selectedId != null && !selectedId.equals(getItem())) { // Verificar cambio
+                commitEdit((T) selectedId);
+            } else {
+                cancelEdit(); // Si no cambia el valor, cancela la edición
+            }
         });
-        comboBox.setOnKeyPressed(event -> {
+        choiceBox.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
                 cancelEdit();
             }
@@ -157,59 +179,69 @@ public class EditingCell<T> extends TableCell<Mantenimiento, T> {
 
     @Override
     public void commitEdit(Object newValue) {
-        // Obtener el mantenimiento de la fila
         Mantenimiento mantenimiento = (Mantenimiento) getTableRow().getItem();
         if (mantenimiento != null) {
-            // Actualizar la propiedad correspondiente del objeto Mantenimiento según el tipo de campo
             if (newValue instanceof String) {
+                // Validar que la descripción no tenga más de 50 caracteres
+                if (((String) newValue).length() > 50) {
+                    Platform.runLater(() -> {
+                        new Alert(Alert.AlertType.WARNING, "La descripción no puede tener más de 50 caracteres.", ButtonType.OK).showAndWait();
+                    });
+                    cancelEdit();
+                    return; // Salir sin confirmar la edición
+                }
                 mantenimiento.setDescripcion((String) newValue);
             } else if (newValue instanceof Boolean) {
                 mantenimiento.setMantenimientoExitoso((Boolean) newValue);
             } else if (newValue instanceof Date) {
+                Date fechaFinalizacion = (Date) newValue;
+                Date fechaActual = new Date();
+                // Validar que la fecha de finalización no sea menor a la fecha actual
+                if (fechaFinalizacion.before(fechaActual)) {
+                    Platform.runLater(() -> {
+                        new Alert(Alert.AlertType.WARNING, "La fecha de finalización no puede ser menor a la fecha actual.", ButtonType.OK).showAndWait();
+                    });
+                    cancelEdit();
+                    return; // Salir sin confirmar la edición
+                }
+                
                 mantenimiento.setFechaFinalizacion((Date) newValue);
             } else if (newValue instanceof Long) {
-                mantenimiento.setIdVehiculo((Long) newValue);  // Actualizar el idVehiculo
+                mantenimiento.setIdVehiculo((Long) newValue);
             }
 
-            // Persistir el cambio en el backend
             try {
-                // Llamar al método para persistir los datos
                 MantenimientoManagerFactory.get().edit_XML(mantenimiento, String.valueOf(mantenimiento.getIdMantenimiento()));
-
-                // Mostrar mensaje de éxito en la interfaz
                 Platform.runLater(() -> {
                     new Alert(Alert.AlertType.INFORMATION, "Mantenimiento actualizado correctamente.", ButtonType.OK).showAndWait();
                 });
             } catch (Exception e) {
-                // Si algo falla en la persistencia, muestra un mensaje de error
                 Platform.runLater(() -> {
                     new Alert(Alert.AlertType.ERROR, "Error al actualizar el mantenimiento en el servidor.", ButtonType.OK).showAndWait();
                 });
-                e.printStackTrace();
             }
         }
 
-        // Llamar al commitEdit original para finalizar la edición
         super.commitEdit((T) newValue);
     }
 
-    // Método para obtener la lista de idVehiculos disponibles
     private List<Long> obtenerIdVehiculosDisponibles() {
         List<Long> idVehiculos = new ArrayList<>();
-        
+
         try {
-            // Obtener todos los vehículos disponibles desde el backend
-            List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>(){});
-            
-            // Extraer los IDs de los vehículos disponibles
+            List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+            });
+
             for (Vehiculo vehiculo : vehiculos) {
                 idVehiculos.add(vehiculo.getIdVehiculo());
             }
+
+            System.out.println("Vehículos disponibles: " + idVehiculos);
         } catch (Exception e) {
-            // Manejo de excepciones si no se pueden obtener los vehículos
-            e.printStackTrace();
+            Platform.runLater(() -> {
+                new Alert(Alert.AlertType.ERROR, "Error al cargar vehículos disponibles.", ButtonType.OK).showAndWait();
+            });
         }
-        
         return idVehiculos;
     }
 }

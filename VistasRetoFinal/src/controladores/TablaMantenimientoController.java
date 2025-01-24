@@ -2,7 +2,6 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -28,9 +27,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
 import logica.MantenimientoManagerFactory;
-import logica.VehiculoManagerFactory;
 import modelo.Mantenimiento;
-import modelo.Vehiculo;
 
 public class TablaMantenimientoController implements Initializable {
 
@@ -66,6 +63,10 @@ public class TablaMantenimientoController implements Initializable {
     private Button refreshButton;
     @FXML
     private Button btnAñadirFila;
+    @FXML
+    private Button btnGuardar;
+    
+    private Mantenimiento mantenimientoVacio;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -78,6 +79,7 @@ public class TablaMantenimientoController implements Initializable {
         btnBorrar.setOnAction(this::borrarMantenimiento);
         refreshButton.setOnAction(this::cargarDatosTabla);
         btnAñadirFila.setOnAction(this::insertarMantenimiento);
+        btnGuardar.setOnAction(this::guardarMantenimiento);
 
         idMantenimientoColumn.setCellValueFactory(new PropertyValueFactory<>("idMantenimiento"));
         descripcionColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
@@ -91,7 +93,7 @@ public class TablaMantenimientoController implements Initializable {
         descripcionColumn.setCellFactory(column -> new EditingCell());
         mantenimientoExitosoColumn.setCellFactory(column -> new EditingCell());
         fechaFinalizacionColumn.setCellFactory(column -> new EditingCell());
-        idVehiculoColumn.setCellFactory(column -> new EditingCell());
+        idVehiculoColumn.setCellFactory(column -> new EditingCell<>());
 
         cargarDatosTabla(null);
 
@@ -255,17 +257,13 @@ public class TablaMantenimientoController implements Initializable {
             Long siguienteId = obtenerSiguienteIdMantenimiento();
 
             // Crea un nuevo objeto Mantenimiento vacío (con valores predeterminados)
-            Mantenimiento mantenimientoVacio = new Mantenimiento();
+            mantenimientoVacio = new Mantenimiento();
             mantenimientoVacio.setIdMantenimiento(siguienteId); //Carga el siguiente id
             mantenimientoVacio.setDescripcion("Introduzca aqui la descripcion del mantenimiento");
             mantenimientoVacio.setMantenimientoExitoso(false);  // Valor predeterminado para mantenimientoExitoso
             mantenimientoVacio.setFechaFinalizacion(new java.util.Date());
-            mantenimientoVacio.setEditable(true); // Permitir edición del idVehiculo la primera vez
-
-            // Llamada al servicio REST para enviar el nuevo mantenimiento
-            MantenimientoManagerFactory.get().create_XML(mantenimientoVacio);
-
-            // Si es necesario, también puedes agregar otras validaciones o condiciones aquí
+            mantenimientoVacio.setIdVehiculo(0L);
+            
             // Añadir el nuevo objeto a la lista de la tabla
             tableView.getItems().add(mantenimientoVacio);
 
@@ -274,10 +272,30 @@ public class TablaMantenimientoController implements Initializable {
 
         } catch (Exception e) {
             // Manejo de cualquier excepción, como por ejemplo problemas en la adición de datos
-            //  Alert("Error al crear la fila:\n" + e.getMessage());
+            new Alert(Alert.AlertType.ERROR, "Error al crear fila");
             // LOGGER.log(Level.SEVERE, "Error al añadir fila: {0}", e.getMessage());
         }
     }
+
+    private void guardarMantenimiento(ActionEvent event) {
+    if (mantenimientoVacio != null) {
+        try {
+            // Llamada al servicio REST para persistir el nuevo mantenimiento
+            MantenimientoManagerFactory.get().create_XML(mantenimientoVacio);
+
+            // Mostrar un mensaje de éxito
+            new Alert(Alert.AlertType.INFORMATION, "Mantenimiento guardado con éxito.").showAndWait();
+
+            // Limpiar la referencia para evitar conflictos
+            mantenimientoVacio = null;
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.ERROR, "Error al guardar el mantenimiento.").showAndWait();
+        }
+    } else {
+        new Alert(Alert.AlertType.WARNING, "No hay un mantenimiento nuevo para guardar.").showAndWait();
+    }
+}
+
 
     private Long obtenerSiguienteIdMantenimiento() {
         try {
@@ -296,17 +314,4 @@ public class TablaMantenimientoController implements Initializable {
         }
     }
 
-   /* private List<Long> obtenerIdVehiculosDisponibles() {
-        try {
-            // Llama al servicio REST para obtener todos los vehículos
-            List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
-            });
-            return vehiculos.stream().map(Vehiculo::getIdVehiculo).collect(Collectors.toList());
-        } catch (Exception e) {
-            new Alert(Alert.AlertType.INFORMATION, "Error al obtener vehiculos", ButtonType.OK).showAndWait();
-            return new ArrayList<>(); // Retorna una lista vacía si ocurre un error
-        }
-    }*/
-
 }
-
