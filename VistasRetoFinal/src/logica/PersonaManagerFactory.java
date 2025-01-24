@@ -5,14 +5,14 @@
  */
 package logica;
 
-import restfullCliente.PersonaRestFull;
+import entidades.PersonaRestFull;
 
 /**
  *
- * @author urkiz
+ * @author 2dam
  */
 public class PersonaManagerFactory {
-    
+
     private static PersonaManager personaManager;
 
     public static PersonaManager get() {

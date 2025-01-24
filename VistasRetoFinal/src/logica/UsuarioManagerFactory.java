@@ -5,13 +5,14 @@
  */
 package logica;
 
-import restfullCliente.UsuarioRestFull;
+import entidades.UsuarioRestFull;
 
 /**
  *
- * @author urkiz
+ * @author 2dam
  */
 public class UsuarioManagerFactory {
+    
     private static UsuarioManager usuarioManager;
 
     public static UsuarioManager get() {

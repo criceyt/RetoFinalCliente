@@ -11,7 +11,7 @@ import javax.ws.rs.core.GenericType;
 
 /**
  *
- * @author urkiz
+ * @author 2dam
  */
 public interface UsuarioManager {
     

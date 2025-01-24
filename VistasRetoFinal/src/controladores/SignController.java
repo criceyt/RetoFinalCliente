@@ -2,9 +2,7 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
-import static java.time.temporal.TemporalQueries.localDate;
 import java.util.Date;
-import java.util.List;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -31,14 +29,12 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import javax.ws.rs.core.GenericType;
-import logica.PersonaManagerFactory;
 import logica.SessionManager;
-import logica.UsuarioManager;
+import logica.PersonaManagerFactory;
 import logica.UsuarioManagerFactory;
-import entidades.Persona;
-import entidades.Trabajador;
-import entidades.Usuario;
+import modelo.Persona;
+import modelo.Trabajador;
+import modelo.Usuario;
 
 public class SignController implements Initializable {
 
@@ -254,6 +250,7 @@ public class SignController implements Initializable {
 
                 // Si la Persona es Usuario entra en este metido Sino va al Otro
                 if (personaLogIn instanceof Usuario) {
+
 
                     SessionManager.setUsuario((Usuario) personaLogIn);
 
