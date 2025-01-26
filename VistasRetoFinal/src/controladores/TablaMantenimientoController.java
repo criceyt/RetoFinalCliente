@@ -69,7 +69,7 @@ public class TablaMantenimientoController implements Initializable {
 
     @FXML
     private DatePicker datePickerFiltro;
-    
+
     private Mantenimiento mantenimientoVacio;
 
     @Override
@@ -85,8 +85,11 @@ public class TablaMantenimientoController implements Initializable {
         btnAñadirFila.setOnAction(this::insertarMantenimiento);
         btnGuardar.setOnAction(this::guardarMantenimiento);
 
+        cargarDatosTabla(null);
+
         // Filtrado de DatePicker
         datePickerFiltro.setOnAction(event -> {
+            // Obtener el valor seleccionado del DatePicker
             LocalDate filtro = datePickerFiltro.getValue();
             String filtroString = filtro.toString();
 
@@ -108,8 +111,9 @@ public class TablaMantenimientoController implements Initializable {
         idMantenimientoColumn.setCellValueFactory(new PropertyValueFactory<>("idMantenimiento"));
         descripcionColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
         mantenimientoExitosoColumn.setCellValueFactory(new PropertyValueFactory<>("mantenimientoExitoso"));
-        fechaFinalizacionColumn.setCellValueFactory(new PropertyValueFactory<>("fechaFinalizacion"));
         idVehiculoColumn.setCellValueFactory(new PropertyValueFactory<>("idVehiculo"));
+        fechaFinalizacionColumn.setCellValueFactory(new PropertyValueFactory<>("fechaFinalizacion"));
+        
 
         // Configurar tabla como editable
         tableView.setEditable(true);
@@ -119,8 +123,6 @@ public class TablaMantenimientoController implements Initializable {
         mantenimientoExitosoColumn.setCellFactory(column -> new EditingCellMantenimiento());
         fechaFinalizacionColumn.setCellFactory(column -> new EditingCellMantenimiento());
         idVehiculoColumn.setCellFactory(column -> new EditingCellMantenimiento<>());
-
-        cargarDatosTabla(null);
 
         // Borrado
         btnBorrar.setDisable(true);

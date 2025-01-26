@@ -9,7 +9,6 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -23,18 +22,15 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import logica.ProveedorManagerFactory;
-import modelo.Proveedor;
+import logica.VehiculoManagerFactory;
 import modelo.TipoVehiculo;
+import modelo.Vehiculo;
 
 /**
- * Clase personalizada para la edición de celdas en la tabla de Proveedores.
- * Permite editar celdas que contienen diferentes tipos de datos como String,
- * Date, Long (enum).
  *
- * @author 2dam
+ * @author urkiz
  */
-public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
+public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
 
     // Atributos para los controles de edición: TextField, DatePicker, ChoiceBox
     private TextField textField;
@@ -42,7 +38,7 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
     private ChoiceBox<TipoVehiculo> choiceBox;
 
     // Constructor por defecto
-    public EditingCellProveedor() {
+    public EditingCellVehiculo() {
     }
 
     // Método para comenzar la edición de la celda
@@ -65,6 +61,10 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
                 createChoiceBox();
                 choiceBox.setValue((TipoVehiculo) item);
                 setGraphic(choiceBox); // Muestra el ChoiceBox
+            } else if (item instanceof Integer) {
+                createTextFieldInteger();
+                textField.setText(getString());
+                setGraphic(textField); // Muestra el TextField
             } else {
                 setText(getString());
                 setGraphic(null); // Solo muestra el texto sin controles gráficos
@@ -116,6 +116,18 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
         }
     }
 
+    // Método para crear el DatePicker y habilitar su edición
+    private void createDatePicker() {
+        datePicker = new DatePicker();
+        datePicker.setValue(((Date) getItem()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
+        datePicker.setOnAction(event -> commitEdit((T) Date.from(datePicker.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()))); // Al seleccionar fecha, se confirma la edición
+        datePicker.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                cancelEdit(); // Si presionamos ESC, cancela la edición
+            }
+        });
+    }
+
     // Método para crear un TextField y habilitar su edición
     private void createTextField() {
         textField = new TextField(getString());
@@ -149,14 +161,52 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
         });
     }
 
-    // Método para crear el DatePicker y habilitar su edición
-    private void createDatePicker() {
-        datePicker = new DatePicker();
-        datePicker.setValue(((Date) getItem()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
-        datePicker.setOnAction(event -> commitEdit((T) Date.from(datePicker.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()))); // Al seleccionar fecha, se confirma la edición
-        datePicker.setOnKeyPressed(event -> {
+    // Método para crear un TextField y habilitar su edición (Integer)
+    private void createTextFieldInteger() {
+        textField = new TextField(getString());
+        textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2); // Ajusta el tamaño del TextField
+
+        // Bandera para controlar si se canceló la edición al presionar ESC
+        final BooleanProperty presionarEsc = new SimpleBooleanProperty(false);
+
+        textField.setOnAction(event -> {
+            // Intentar convertir el texto a Integer, si no es posible mostrar la alerta
+            try {
+                Integer newValue = Integer.parseInt(textField.getText());
+                commitEdit((T) newValue); // Al presionar enter se confirma la edición
+            } catch (NumberFormatException e) {
+                Platform.runLater(() -> {
+                    new Alert(Alert.AlertType.WARNING, "Por favor, ingrese un número entero válido.", ButtonType.OK).showAndWait();
+                });
+            }
+        }); // Al presionar enter se confirma la edición
+
+        // Detecta cuando el foco se pierde para confirmar la edición
+        textField.focusedProperty().addListener((ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) -> {
+            if (!arg2 && !presionarEsc.get()) {
+                try {
+                    Integer newValue = Integer.parseInt(textField.getText());
+                    commitEdit((T) newValue);
+                } catch (NumberFormatException e) {
+                    Platform.runLater(() -> {
+                        new Alert(Alert.AlertType.WARNING, "Por favor, ingrese un número entero válido.", ButtonType.OK).showAndWait();
+                    });
+                }
+            }
+        });
+
+        // Si se presiona ESC, cancela la edición
+        textField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
-                cancelEdit(); // Si presionamos ESC, cancela la edición
+                presionarEsc.set(true); // Marca la bandera de ESC presionado
+                cancelEdit();
+            }
+        });
+
+        // Restablece la bandera cuando se suelta la tecla ESC
+        textField.setOnKeyReleased(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                presionarEsc.set(false); // Restablece la bandera
             }
         });
     }
@@ -200,60 +250,70 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
         return getItem() == null ? "" : getItem().toString();
     }
 
-    // Método para confirmar la edición de los valores
     @Override
     public void commitEdit(Object newValue) {
 
-        // Se crea un porveedor
-        Proveedor proveedores = (Proveedor) getTableRow().getItem();
-        if (proveedores != null) {
+        // Verificar si la fila está vacía o nula
+        Vehiculo vehiculo = (Vehiculo) getTableRow().getItem();
+        if (vehiculo == null) {
+            System.out.println("No hay un vehículo seleccionado en esta fila.");
+            return;  // Sale si no hay datos en la fila
+        }
 
-            // Validaciones para los valores que sean String
-            if (newValue instanceof String) {
-                // Validación: la nombre no puede ser mayor a 50 caracteres
-                if (((String) newValue).length() > 50) {
-                    Platform.runLater(() -> {
-                        new Alert(Alert.AlertType.WARNING, "El Nombre ni Especialidad no puede tener más de 50 caracteres.", ButtonType.OK).showAndWait();
-                    });
-                    cancelEdit();
-                    return; // Cancela la edición si la descripción es inválida
-                }
-                System.out.println(getTableColumn().getText());
-                // Si la columna que se está editando es 'Nombre', se actualiza el nombre
-                if (getTableColumn().getText().equals("Nombre")) {
-                    proveedores.setNombreProveedor((String) newValue);
-                } // Si la columna que se está editando es 'Especialidad', se actualiza la especialidad
-                else if (getTableColumn().getText().equals("Especialidad")) {
-                    proveedores.setEspecialidad((String) newValue);
-                }
+        // Imprimir la columna que se está editando
+        System.out.println("Columna editada: " + getTableColumn().getText());
 
-                // Validaciones para las Fechas
-            } else if (newValue instanceof Date) {
-                Date fechaFinalizacion = (Date) newValue;
-                Date fechaActual = new Date();
-                // Validación: la fecha de finalización no puede ser menor a la fecha actual
-                if (fechaFinalizacion.after(fechaActual)) {
-                    Platform.runLater(() -> {
-                        new Alert(Alert.AlertType.WARNING, "La ultima Actividad no puede ser en el FUTURO", ButtonType.OK).showAndWait();
-                    });
-                    cancelEdit();
-                    return; // Cancela la edición si la fecha es inválida
-                }
-                proveedores.setUltimaActividad((Date) newValue);
+        // Verificar el tipo de nuevo valor
+        System.out.println("Nuevo valor editado: " + newValue);
 
-            } else if (newValue instanceof Enum) {
-                proveedores.setTipoVehiculo((TipoVehiculo) (Enum) newValue);
+        if (newValue instanceof String) {
+            // Caso cuando el valor es String (para columnas como 'Color', 'Marca', etc.)
+            System.out.println("Editando un valor String");
+
+            if (getTableColumn().getText().equals("Color")) {
+                vehiculo.setColor((String) newValue);
+            } else if (getTableColumn().getText().equals("Marca")) {
+                vehiculo.setMarca((String) newValue);
+            } else if (getTableColumn().getText().equals("Modelo")) {
+                vehiculo.setModelo((String) newValue);
             }
+            // ... Aquí más columnas que contengan String
 
-            try {
+        } else if (newValue instanceof Integer) {
+            // Caso cuando el valor es Integer (para columnas como 'Km', 'Precio', 'Potencia')
+            System.out.println("Editando un valor Integer");
 
-                String idParseado = String.valueOf(proveedores.getIdProveedor());
-                ProveedorManagerFactory.get().edit_XML(proveedores, idParseado);
-            } catch (Exception e) {
+            if (getTableColumn().getText().equals("Kilometro")) {
+                vehiculo.setKm((Integer) newValue);
+            } else if (getTableColumn().getText().equals("Precio")) {
+                vehiculo.setPrecio((Integer) newValue);
+            } else if (getTableColumn().getText().equals("Potencia")) {
+                vehiculo.setPotencia((Integer) newValue);
+            }
+        } else if (newValue instanceof Date) {
+            Date fechaAlta = (Date) newValue;
+            Date fechaActual = new Date();
+            // Validación: la fecha de finalización no puede ser menor a la fecha actual
+            if (fechaAlta.after(fechaActual)) {
                 Platform.runLater(() -> {
-                    new Alert(Alert.AlertType.ERROR, "Error al actualizar el proveedor en el servidor.", ButtonType.OK).showAndWait();
+                    new Alert(Alert.AlertType.WARNING, "La fecha de Alta no puede ser en el FUTURO", ButtonType.OK).showAndWait();
                 });
+                cancelEdit();
+                return; // Cancela la edición si la fecha es inválida
             }
+            vehiculo.setFechaAlta((Date) newValue);
+        } else if (newValue instanceof Enum) {
+            vehiculo.setTipoVehiculo((TipoVehiculo) (Enum) newValue);
+        }
+
+        // Después de modificar el vehículo, intenta guardar los cambios
+        try {
+            String idParseado = String.valueOf(vehiculo.getIdVehiculo());
+            VehiculoManagerFactory.get().edit_XML(vehiculo, idParseado);
+        } catch (Exception e) {
+            Platform.runLater(() -> {
+                new Alert(Alert.AlertType.ERROR, "Error al actualizar el vehículo en el servidor.", ButtonType.OK).showAndWait();
+            });
         }
 
         super.commitEdit((T) newValue); // Finaliza la edición

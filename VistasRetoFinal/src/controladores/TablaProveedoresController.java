@@ -80,7 +80,7 @@ public class TablaProveedoresController implements Initializable {
     private TableColumn<Proveedor, String> nombreColumn;
 
     @FXML
-    private TableColumn<Proveedor, String> tipoColumn;
+    private TableColumn<Proveedor, TipoVehiculo> tipoColumn;
 
     @FXML
     private TableColumn<Proveedor, String> especialidadColumn;
@@ -120,7 +120,9 @@ public class TablaProveedoresController implements Initializable {
         refreshButton.setOnAction(this::cargartDatosTabla);
         deleteButton.setOnAction(this::borrarProveedor);
         addRowButton.setOnAction(this::añadirLinea);
-
+                
+        cargartDatosTabla(null);
+        
         // Filtrado de DatePicker
         datePickerFiltro.setOnAction(event -> {
             LocalDate filtro = datePickerFiltro.getValue();
@@ -155,8 +157,7 @@ public class TablaProveedoresController implements Initializable {
         tipoColumn.setCellFactory(column -> new EditingCellProveedor());
         especialidadColumn.setCellFactory(column -> new EditingCellProveedor());
         ultimaActividadColumn.setCellFactory(column -> new EditingCellProveedor<>());
-        
-        cargartDatosTabla(null);
+
 
         // Borrado
         deleteButton.setDisable(true);
@@ -372,21 +373,13 @@ public class TablaProveedoresController implements Initializable {
             // La fecha se puede cambiar pero debe ser automatica
             Date fechaAuto = new Date();
             porveedorLinea.setUltimaActividad(fechaAuto);
+            porveedorLinea.setNombreProveedor("Introduce el Nombre del Nuevo Proveedor");
+            porveedorLinea.setTipoVehiculo(TipoVehiculo.COCHE);
+            porveedorLinea.setEspecialidad("Introduce la Especialidad del Nuevo Proveedor");
 
             ProveedorManagerFactory.get().create_XML(porveedorLinea);
 
-            // Liampia la tabla antes de introducir los Items
-            tableView.getItems().clear();
-
-            // Obtener la lista de proveedores desde el servidor o el origen de datos
-            List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
-            });
-
-            // Convertir la lista de proveedores en ObservableList para la TableView
-            ObservableList<Proveedor> proveedoresData = FXCollections.observableArrayList(proveedores);
-
-            // Establecer los datos en la tabla
-            tableView.setItems(proveedoresData);
+            cargartDatosTabla(null);
 
         } catch (Exception e) {
             System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");

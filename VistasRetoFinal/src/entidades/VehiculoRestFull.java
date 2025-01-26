@@ -122,10 +122,10 @@ public class VehiculoRestFull implements VehiculoManager {
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
     }
 
-    public <T> T filtradoDatePickerVehiculo(Class<T> responseType, String fechaAlta) throws WebApplicationException {
+    public <T> List<T> filtradoDatePickerVehiculo(GenericType<List<T>> responseType, String fechaAlta) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("fechaAlta/{0}", new Object[]{fechaAlta}));
-        return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
+        return resource.request(MediaType.APPLICATION_XML).get(responseType);
     }
 
     public <T> T filtradoPotenciaVehiculo(Class<T> responseType, String potencia) throws WebApplicationException {

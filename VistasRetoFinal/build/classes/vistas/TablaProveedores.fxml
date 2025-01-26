@@ -46,7 +46,7 @@
             <Button text="DELETE" fx:id="deleteButton"/>
             <Button text="REFRESH" fx:id="refreshButton"/>
             <Button text="ADD ROW" fx:id="addRowButton"/>
-            <Label text="Filtrado:" styleClass="label"/>
+            <Label text="Filtrado por Fecha:" styleClass="label"/>
             <DatePicker fx:id="datePickerFiltro" styleClass="date-picker"/>
             <Region HBox.hgrow="ALWAYS"/>
             <Button text="PRINT" fx:id="printButton"/>
