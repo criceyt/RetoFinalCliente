@@ -54,19 +54,23 @@
             <!-- Barra de búsqueda -->
             <TextField promptText="Buscar..." style="-fx-background-color: #fff; -fx-border-color: #888;" />
             <!-- Grid para los vehículos -->
-            <GridPane fx:id="gridPane" hgap="20" vgap="20">
-                <columnConstraints>
-                    <ColumnConstraints />
-                    <ColumnConstraints />
-                    <ColumnConstraints />
-                    <ColumnConstraints />
-                    <ColumnConstraints />
-                </columnConstraints>
-                <rowConstraints>
-                    <RowConstraints />
-                    <RowConstraints />
-                </rowConstraints>
-            </GridPane>
+
+                <GridPane fx:id="gridPane" hgap="20" vgap="20">
+                    <children>
+                        <!-- Primer botón con imagen -->
+                    </children>
+                    <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
+                </GridPane>
         </VBox>
     </center>
 </BorderPane>

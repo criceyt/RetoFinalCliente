@@ -19,8 +19,11 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
+import modelo.Vehiculo;
 
 /**
  *
@@ -30,20 +33,43 @@ public class InformacionExtraVehiculoController implements Initializable {
 
     // Elementos de la Ventana
     @FXML
-    private Button homeBtn;
+    private Label marcaLabel;
+
+    @FXML
+    private Label modeloLabel;
+
+    @FXML
+    private Label colorLabel;
+
+    @FXML
+    private Label potenciaLabel;
+
+    @FXML
+    private Label kmLabel;
+
+    @FXML
+    private Label precioLabel;
+
+    @FXML
+    private Label tipoVehiculoLabel;
 
     @FXML
     private Button cerrarSesionBtn;
-    
+
+    @FXML
+    private Button homeBtn;
+
     @FXML
     private MenuItem gestionVehiculos;
-    
+
     @FXML
     private MenuItem gestionProveedores;
-    
+
     @FXML
     private MenuItem gestionMantenimientos;
     
+    // Atributo
+    private Vehiculo vehiculoInfoExtra;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -54,7 +80,21 @@ public class InformacionExtraVehiculoController implements Initializable {
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
 
-        System.out.println("Ventana inicializada correctamente.");
+        // Recogemos el Vehiculo y sacamos toda su info
+        this.vehiculoInfoExtra = VehiculoInfoExtraManager.getVehiculo();
+
+        
+        //System.out.println(vehiculoInfoExtra.getColor());
+        
+/*
+        marcaLabel.setText(vehiculoInfoExtra.getMarca());
+        modeloLabel.setText(vehiculoInfoExtra.getModelo());
+        colorLabel.setText(vehiculoInfoExtra.getColor());
+        potenciaLabel.setText(String.valueOf(vehiculoInfoExtra.getPotencia()));
+        kmLabel.setText(String.valueOf(vehiculoInfoExtra.getKm()));
+        precioLabel.setText(String.valueOf(vehiculoInfoExtra.getPrecio()));
+        tipoVehiculoLabel.setText(vehiculoInfoExtra.getTipoVehiculo().toString());
+*/
     }
 
     // Abrir Ventana SignIn & SignUp
@@ -91,15 +131,30 @@ public class InformacionExtraVehiculoController implements Initializable {
     // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
         try {
+            // Cargar el FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
             Parent root = loader.load();
 
+            // Crear un ScrollPane para envolver el contenido
+            ScrollPane sc = new ScrollPane();
+            sc.setContent(root);
+
+            // Configurar el ScrollPane para que solo permita desplazamiento vertical
+            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
+            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
+
+            // Configurar el Scene
             Stage stage = (Stage) homeBtn.getScene().getWindow();
             stage.setTitle("Navegación Principal Trabajador");
-            Scene scene = new Scene(root);
+
+            // Crear la nueva escena con el ScrollPane
+            Scene scene = new Scene(sc);
             scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+
+            // Establecer la escena y mostrarla
             stage.setScene(scene);
             stage.show();
+
         } catch (IOException ex) {
             Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
@@ -136,7 +191,7 @@ public class InformacionExtraVehiculoController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
-    
+
     private void abrirVentanaGestionVehiculos(ActionEvent event) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TablaVehiculos.fxml"));
@@ -187,5 +242,4 @@ public class InformacionExtraVehiculoController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
-
 }

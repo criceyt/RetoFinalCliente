@@ -27,11 +27,13 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
@@ -64,9 +66,6 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     private MenuItem gestionMantenimientos;
-
-    @FXML
-    private Button abrirInfoVehiculoConcreto;
 
     @FXML
     public void mostrarFiltroKilometraje(MouseEvent event) {
@@ -105,11 +104,9 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
-        //abrirInfoVehiculoConcreto.setOnAction(this::abrirVentanaInformacionVehiculo);
 
         generarBotones();
 
-        System.out.println("Ventana inicializada correctamente.");
     }
 
     // Abrir Ventana SignIn & SignUp
@@ -211,8 +208,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         }
     }
 
-    // Metodo que abre la venatan de Informacion de Vehiculo
-    private void abrirVentanaInformacionVehiculo(ActionEvent event) {
+    private void abrirVentanaInformacionVehiculo(ActionEvent event, Vehiculo vehiculo) {
         try {
             // Se carga el FXML con la información de la vista
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculo.fxml"));
@@ -221,15 +217,18 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             // Obtener el controlador
             InformacionExtraVehiculoController controller = loader.getController();
 
+            // Guardamos el objeto en la clase para que pueda ser utilizado en el controlador
+            VehiculoInfoExtraManager.setVehiculo(vehiculo);
+
             // Obtener el Stage
             Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
-            stage.setTitle("Informacion de Vehiculos");
+            stage.setTitle("Información de Vehículo");
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {
-            Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(InformacionExtraVehiculoController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
@@ -295,16 +294,48 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         int columna = 0;
 
         for (Vehiculo vehiculo : vehiculos) {
+            // Ruta de la Imagen
             String rutaCoche = vehiculo.getRuta();
+            System.out.println(rutaCoche);
 
-            // Crear el botón
+            if (rutaCoche == null || rutaCoche.isEmpty()) {
+                rutaCoche = "/img/sinImagen.jpg";
+            }
+
+            // Usar getClass().getResource() para acceder a la imagen desde el classpath
+            Image image = new Image(getClass().getResource(rutaCoche).toExternalForm());
+
+            // Crear el nombre del vehículo
+            String nombreVehiculo = vehiculo.getMarca() + " " + vehiculo.getModelo();
+
+            // Crear el ImageView y ajustarlo al tamaño de la ventana
+            ImageView imageView = new ImageView(image);
+            imageView.setFitHeight(200);  // Ajustamos el tamaño de la imagen (más grande)
+            imageView.setFitWidth(200);   // Ajustamos el tamaño de la imagen (más grande)
+            imageView.setPreserveRatio(true);  // Preservamos la relación de aspecto de la imagen
+
+            // Crear el Label para el nombre del vehículo y ponerlo en color negro
+            Label nombreLabel = new Label(nombreVehiculo);
+            nombreLabel.setStyle("-fx-text-fill: black; -fx-font-size: 14px;");  // Establecer el color del texto a negro y tamaño de fuente
+
+            // Crear un VBox que contenga la imagen y el nombre
+            VBox vbox = new VBox(5);  // Espacio de 5px entre la imagen y el texto
+            vbox.getChildren().addAll(imageView, nombreLabel);
+
+            // Ajustar el tamaño máximo del VBox para que se ajuste a la ventana
+            vbox.setMaxWidth(200);   // Limitar el ancho máximo del VBox
+            vbox.setMaxHeight(300);  // Limitar el alto máximo del VBox
+
+            // Crear el botón y asignar el VBox como contenido gráfico
             Button button = new Button();
+            button.setGraphic(vbox);
 
-            // Crear la imagen para el botón
-            ImageView imageView = new ImageView(new Image("file:" + rutaCoche)); // Usamos "file:" para cargar imágenes desde el sistema de archivos
-            imageView.setFitHeight(150);
-            imageView.setFitWidth(200);
-            button.setGraphic(imageView);
+            // Asegurarse de que el botón se ajuste bien dentro del GridPane
+            button.setMaxWidth(Double.MAX_VALUE);  // Hacer que el botón ocupe todo el espacio disponible en su celda
+            button.setMaxHeight(Double.MAX_VALUE); // Hacer que el botón ocupe todo el espacio disponible en su celda
+
+            // Agregar el listener de clic al botón
+            button.setOnAction(event -> abrirVentanaInformacionVehiculo(null, vehiculo));
 
             // Añadir el botón al GridPane en la fila y columna correspondiente
             gridPane.add(button, columna, fila);
@@ -317,4 +348,5 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             }
         }
     }
+
 }

@@ -23,6 +23,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -113,7 +114,6 @@ public class TablaMantenimientoController implements Initializable {
         mantenimientoExitosoColumn.setCellValueFactory(new PropertyValueFactory<>("mantenimientoExitoso"));
         idVehiculoColumn.setCellValueFactory(new PropertyValueFactory<>("idVehiculo"));
         fechaFinalizacionColumn.setCellValueFactory(new PropertyValueFactory<>("fechaFinalizacion"));
-        
 
         // Configurar tabla como editable
         tableView.setEditable(true);
@@ -157,15 +157,30 @@ public class TablaMantenimientoController implements Initializable {
 
     private void irAtras(ActionEvent event) {
         try {
+            // Cargar el FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
             Parent root = loader.load();
 
+            // Crear un ScrollPane para envolver el contenido
+            ScrollPane sc = new ScrollPane();
+            sc.setContent(root);
+
+            // Configurar el ScrollPane para que solo permita desplazamiento vertical
+            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
+            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
+
+            // Configurar el Scene
             Stage stage = (Stage) homeBtn.getScene().getWindow();
             stage.setTitle("Navegación Principal Trabajador");
-            Scene scene = new Scene(root);
+
+            // Crear la nueva escena con el ScrollPane
+            Scene scene = new Scene(sc);
             scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+
+            // Establecer la escena y mostrarla
             stage.setScene(scene);
             stage.show();
+
         } catch (IOException ex) {
             Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
@@ -309,7 +324,7 @@ public class TablaMantenimientoController implements Initializable {
             try {
                 // Llamada al servicio REST para persistir el nuevo mantenimiento
                 MantenimientoManagerFactory.get().create_XML(mantenimientoVacio);
-                
+
                 cargarDatosTabla(null);
 
                 // Mostrar un mensaje de éxito
