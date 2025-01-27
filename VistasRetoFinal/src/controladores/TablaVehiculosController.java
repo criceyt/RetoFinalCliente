@@ -394,6 +394,9 @@ public class TablaVehiculosController implements Initializable {
             // Enum
             vehiculoLinea.setTipoVehiculo(TipoVehiculo.COCHE);
 
+            // La ruta de la imagen
+            vehiculoLinea.setRuta(null);
+            
             // Mnadar el Vehiculo
             VehiculoManagerFactory.get().create_XML(vehiculoLinea);
 

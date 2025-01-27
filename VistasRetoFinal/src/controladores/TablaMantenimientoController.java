@@ -309,6 +309,8 @@ public class TablaMantenimientoController implements Initializable {
             try {
                 // Llamada al servicio REST para persistir el nuevo mantenimiento
                 MantenimientoManagerFactory.get().create_XML(mantenimientoVacio);
+                
+                cargarDatosTabla(null);
 
                 // Mostrar un mensaje de éxito
                 new Alert(Alert.AlertType.INFORMATION, "Mantenimiento guardado con éxito.").showAndWait();

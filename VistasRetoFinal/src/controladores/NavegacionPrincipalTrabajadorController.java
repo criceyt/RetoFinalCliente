@@ -8,6 +8,7 @@ package controladores;
 import javafx.scene.input.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,11 +28,17 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javax.ws.rs.core.GenericType;
+import logica.VehiculoManagerFactory;
+import modelo.Vehiculo;
 
 /**
  *
@@ -40,6 +47,9 @@ import javafx.stage.Stage;
 public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     // Elementos de la Ventana
+    @FXML
+    private GridPane gridPane;
+
     @FXML
     private Button homeBtn;
 
@@ -54,7 +64,10 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     private MenuItem gestionMantenimientos;
-    
+
+    @FXML
+    private Button abrirInfoVehiculoConcreto;
+
     @FXML
     public void mostrarFiltroKilometraje(MouseEvent event) {
         mostrarPopup(event.getSource(), crearRangoInput());
@@ -79,7 +92,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
     public void mostrarFiltroModelo(MouseEvent event) {
         mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un modelo", "Modelo A", "Modelo B", "Modelo C", "Modelo D"));
     }
-    
+
     // Declaracion del Popup
     private Popup popup;
 
@@ -92,6 +105,9 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
+        //abrirInfoVehiculoConcreto.setOnAction(this::abrirVentanaInformacionVehiculo);
+
+        generarBotones();
 
         System.out.println("Ventana inicializada correctamente.");
     }
@@ -194,7 +210,30 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
-    
+
+    // Metodo que abre la venatan de Informacion de Vehiculo
+    private void abrirVentanaInformacionVehiculo(ActionEvent event) {
+        try {
+            // Se carga el FXML con la información de la vista
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculo.fxml"));
+            Parent root = loader.load();
+
+            // Obtener el controlador
+            InformacionExtraVehiculoController controller = loader.getController();
+
+            // Obtener el Stage
+            Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
+            stage.setTitle("Informacion de Vehiculos");
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+        }
+    }
+
     private void mostrarPopup(Object source, VBox contenido) {
         if (popup != null && popup.isShowing()) {
             popup.hide(); // Ocultar el popup anterior si está visible
@@ -209,10 +248,10 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         popup.show(node, bounds.getMinX(), bounds.getMaxY()); // Mostrar debajo del botón
     }
 
-     private VBox crearRangoInput() {
+    private VBox crearRangoInput() {
         VBox vbox = new VBox(10);
         vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
-        
+
         // Campo de texto desde
         TextField desde = new TextField();
         desde.setPromptText("Desde...");
@@ -233,7 +272,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
     private VBox crearComboBoxInput(String labelText, String... opciones) {
         VBox vbox = new VBox(10);
         vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
-        
+
         // ComboBox
         ComboBox<String> comboBox = new ComboBox<>();
         comboBox.getItems().addAll(opciones);
@@ -245,5 +284,37 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
         vbox.getChildren().addAll(label, comboBox);
         return vbox;
+    }
+
+    private void generarBotones() {
+        // Obtener la lista de vehículos desde la base de datos
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        int fila = 0;
+        int columna = 0;
+
+        for (Vehiculo vehiculo : vehiculos) {
+            String rutaCoche = vehiculo.getRuta();
+
+            // Crear el botón
+            Button button = new Button();
+
+            // Crear la imagen para el botón
+            ImageView imageView = new ImageView(new Image("file:" + rutaCoche)); // Usamos "file:" para cargar imágenes desde el sistema de archivos
+            imageView.setFitHeight(150);
+            imageView.setFitWidth(200);
+            button.setGraphic(imageView);
+
+            // Añadir el botón al GridPane en la fila y columna correspondiente
+            gridPane.add(button, columna, fila);
+
+            // Actualizar fila y columna para el siguiente botón
+            columna++;
+            if (columna == 3) {  // Después de 3 botones, pasamos a la siguiente fila
+                columna = 0;
+                fila++;
+            }
+        }
     }
 }
