@@ -7,6 +7,7 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -23,6 +24,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -31,8 +33,9 @@ import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
 import logica.ProveedorManagerFactory;
 import logica.VehiculoManagerFactory;
-import entidades.TipoVehiculo;
-import entidades.Vehiculo;
+import modelo.Proveedor;
+import modelo.TipoVehiculo;
+import modelo.Vehiculo;
 
 /**
  * FXML Controller class
@@ -92,6 +95,14 @@ public class TablaVehiculosController implements Initializable {
 
     @FXML
     private Button refreshButton;
+    
+    @FXML
+    private Button addRowButton;
+    
+    @FXML
+    private DatePicker datePickerFiltro;
+
+    private DatePicker datePicker;
 
     // Metodo Initialize
     @Override
@@ -104,7 +115,8 @@ public class TablaVehiculosController implements Initializable {
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
         deleteButton.setOnAction(this::borrarVehiculo);
-        //refreshButton.setOnAction(this::cargarDatosTabla);
+        addRowButton.setOnAction(this::añadirLinea);
+        refreshButton.setOnAction(this::cargarDatosTabla);
 
         System.out.println("Ventana inicializada correctamente.");
 
@@ -119,15 +131,40 @@ public class TablaVehiculosController implements Initializable {
         fechaAltaColum.setCellValueFactory(new PropertyValueFactory<>("fechaAlta"));
         tipoColum.setCellValueFactory(new PropertyValueFactory<>("tipoVehiculo"));
 
-        // Obtener la lista de proveedores desde el servidor o el origen de datos
-        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        // Metodo que carga los datos de la Tabla
+        cargarDatosTabla(null);
+        
+        // Filtrado de DatePicker
+        datePickerFiltro.setOnAction(event -> {
+            LocalDate filtro = datePickerFiltro.getValue();
+            String filtroString = filtro.toString();
+
+            // Limpia la tabla
+            tableViewVehiculo.getItems().clear();
+
+            // Coje los datos por query filtrado
+            List<Vehiculo> vehiculofiltro = VehiculoManagerFactory.get().filtradoDatePickerVehiculo(new GenericType<List<Vehiculo>>() {
+            }, filtroString);
+
+            // Convertir la lista de proveedores en ObservableList para la TableView
+            ObservableList<Vehiculo> vehiculosDataFiltro = FXCollections.observableArrayList(vehiculofiltro);
+
+            // Establecer los datos en la tabla
+            tableViewVehiculo.setItems(vehiculosDataFiltro);
         });
 
-        // Convertir la lista de proveedores en ObservableList para la TableView
-        ObservableList<Vehiculo> vehiculosData = FXCollections.observableArrayList(vehiculos);
-
-        // Establecer los datos en la tabla
-        tableViewVehiculo.setItems(vehiculosData);
+        // Configurar tabla como editable
+        tableViewVehiculo.setEditable(true);
+        
+        // Configurar la columna de descripción para usar EditingCell
+        marcaColum.setCellFactory(column -> new EditingCellVehiculo());
+        modeloColum.setCellFactory(column -> new EditingCellVehiculo());
+        colorColum.setCellFactory(column -> new EditingCellVehiculo());
+        kmColum.setCellFactory(column -> new EditingCellVehiculo<>());
+        potenciaColum.setCellFactory(column -> new EditingCellVehiculo());
+        precioColum.setCellFactory(column -> new EditingCellVehiculo());
+        tipoColum.setCellFactory(column -> new EditingCellVehiculo<>());
+        fechaAltaColum.setCellFactory(column -> new EditingCellVehiculo<>());
 
         // Borrado
         deleteButton.setDisable(true);
@@ -301,18 +338,9 @@ public class TablaVehiculosController implements Initializable {
                     // Llamada al método para borrar el mantenimiento
                     VehiculoManagerFactory.get().remove(idParseado);
 
-                    // Liampia la tabla antes de introducir los Items
-                    tableViewVehiculo.getItems().clear();
-
-                    // Obtener la lista de proveedores desde el servidor o el origen de datos
-                    List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
-                    });
-
-                    // Convertir la lista de proveedores en ObservableList para la TableView
-                    ObservableList<Vehiculo> vehiculosData = FXCollections.observableArrayList(vehiculos);
-
-                    // Establecer los datos en la tabla
-                    tableViewVehiculo.setItems(vehiculosData);
+                    // Cargamos los datos de la Tabla
+                    cargarDatosTabla(null);
+                    
                 } else {
                     // Si el usuario cancela, no hacer nada
                     System.out.println("Borrado cancelado.");
@@ -322,11 +350,11 @@ public class TablaVehiculosController implements Initializable {
             // Si no hay un mantenimiento seleccionado, mostrar mensaje de advertencia
             new Alert(Alert.AlertType.WARNING, "Por favor, selecciona un mantenimiento para eliminar.", ButtonType.OK).showAndWait();
         }
+    }
 
-        /*
-        // Metodo del Boton Refresh para cargar los elementos en la tabla
-        private void cargarDatosTabla(ActionEvent event) {
-
+    // Metodo paar cargar los datos de la Tabla o para hacer un Refresh
+    private void cargarDatosTabla(ActionEvent event) {
+        
         // Liampia la tabla antes de introducir los Items
         tableViewVehiculo.getItems().clear();
 
@@ -339,6 +367,43 @@ public class TablaVehiculosController implements Initializable {
 
         // Establecer los datos en la tabla
         tableViewVehiculo.setItems(vehiculosData);
-    }*/
+    }
+    
+    // Metodo para Añadir un Vehiuculo Vacio
+    public void añadirLinea(ActionEvent even) {
+        
+        try {
+
+            Vehiculo vehiculoLinea = new Vehiculo();
+
+            // La fecha se puede cambiar pero debe ser automatica
+            Date fechaAuto = new Date();
+            vehiculoLinea.setFechaAlta(fechaAuto);
+            
+            // String 
+            vehiculoLinea.setMarca("Inserta la Marca");
+            vehiculoLinea.setModelo("Inserta el Modelo");
+            vehiculoLinea.setColor("Inserta el Color");
+            
+            // Integer
+            vehiculoLinea.setKm(0);
+            vehiculoLinea.setPotencia(0);
+            vehiculoLinea.setPrecio(0);
+            vehiculoLinea.setTipoVehiculo(TipoVehiculo.COCHE);
+            
+            // Enum
+            vehiculoLinea.setTipoVehiculo(TipoVehiculo.COCHE);
+
+            // Mnadar el Vehiculo
+            VehiculoManagerFactory.get().create_XML(vehiculoLinea);
+
+            
+            // Cargamos la tabla de nuevo
+            cargarDatosTabla(null);
+
+        } catch (Exception e) {
+            System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
+        }
+        
     }
 }

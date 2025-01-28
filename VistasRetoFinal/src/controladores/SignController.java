@@ -2,9 +2,8 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
-import static java.time.temporal.TemporalQueries.localDate;
 import java.util.Date;
-import java.util.List;
+import java.util.Optional;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -26,22 +25,20 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import javax.ws.rs.core.GenericType;
-import logica.PersonaManagerFactory;
-import logica.SessionManager;
-import logica.UsuarioManager;
-import logica.UsuarioManagerFactory;
-import entidades.Persona;
-import entidades.Trabajador;
-import entidades.Usuario;
-import files.Asymmetric;
-import java.util.Base64;
+import javax.ws.rs.WebApplicationException;
 import logica.ClienteRegistro;
+import logica.SessionManager;
+import logica.PersonaManagerFactory;
+import logica.UsuarioManagerFactory;
+import modelo.Persona;
+import modelo.Trabajador;
+import modelo.Usuario;
 
 public class SignController implements Initializable {
 
@@ -126,7 +123,47 @@ public class SignController implements Initializable {
     private boolean isDarkTheme = true;
     private boolean datosCorrectos = true;
 
-    // Metodo Initialize
+    public void forgotPassword(ActionEvent event) {
+        // Crear un cuadro de diálogo
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Recuperar Contraseña");
+        alert.setHeaderText("Introduce tu correo electrónico");
+        alert.setContentText(null);
+
+        // Personalizar el contenido del diálogo
+        TextField emailField = new TextField();
+        emailField.setPromptText("Correo electrónico");
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setContent(emailField);
+
+        // Mostrar el diálogo y capturar el resultado
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            String email = emailField.getText();
+
+            try {
+                // Llamada al método findEmailPersona
+                PersonaManagerFactory.get().resetPassword_XML(Persona.class, email);
+
+            } catch (WebApplicationException e) {
+                // Maneja las excepciones relacionadas con WebApplicationException
+                System.out.println("No se encontró el correo electrónico: " + email);
+            } catch (Exception e) {
+                // Si se produce otro error inesperado
+                System.out.println("Se produjo un error inesperado: " + e.getMessage());
+            }
+
+            if (email.isEmpty()) {
+                System.out.println("El campo de correo está vacío.");
+            } else {
+                System.out.println("Correo ingresado: " + email);
+                // Aquí puedes agregar la lógica para enviar el correo de recuperación
+            }
+        }
+    }
+
+// Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         contextMenu = new ContextMenu();
@@ -240,7 +277,7 @@ public class SignController implements Initializable {
         // Recoger datos de SignIn
         String login = usernameField.getText();
         String contrasena = passwordField.getText();
-        
+
         if (login.isEmpty() || contrasena.isEmpty()) {
             // Alerta que indica que los datos no son correctos
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -248,10 +285,12 @@ public class SignController implements Initializable {
             alert.setHeaderText("Campos Incorrectos");
             alert.setContentText("Ni el campo Login ni el Campo Contraseña pueden estar vacios");
             alert.showAndWait();
+
         } else {
 
             // Llevar la Password y el login al server para que retorne una 
-            Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
+            Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class,
+                    login, contrasena);
 
             try {
 
@@ -300,6 +339,7 @@ public class SignController implements Initializable {
                     stage.show();
                 } else {
                     new Alert(Alert.AlertType.ERROR, "ERROR: No estas registrado ni como Usuario ni como Tarbajador", ButtonType.OK).showAndWait();
+
                 }
 
             } catch (IOException ex) {
@@ -307,7 +347,8 @@ public class SignController implements Initializable {
                 // problema al cargar el FXML o al intentar llamar a la nueva 
                 // ventana, por lo que se mostrará un Alert con el mensaje 
                 // "Error en la sincronización de ventanas, intentalo más tarde".
-                Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(NavegacionPrincipalController.class
+                        .getName()).log(Level.SEVERE, null, ex);
                 new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
             }
         }
@@ -315,76 +356,77 @@ public class SignController implements Initializable {
     }
 
     // Meotodo al Pulsar el Boton
-     @FXML
-private void registroBtn() {
+    @FXML
+    private void registroBtn() {
 
-    if (datosCorrectos) {
+        if (datosCorrectos) {
 
-        // Sacamos todos los datos y los metemos en variables
-        String nombreApellido = nombreyApellidoField.getText();
-        String dni = dniField.getText();
-        String email = emailField.getText();
-        String direccion = direccionField.getText();
-        // Tel
-        String telefonoStr = telefonoField.getText();
-        Integer telefono = Integer.parseInt(telefonoStr);
-        // CP
-        String codigoPostalStr = codigoPostalField.getText();
-        Integer codigoPostal = Integer.parseInt(codigoPostalStr);
+            // Sacamos todos los datos y los metemos en variables
+            String nombreApellido = nombreyApellidoField.getText();
+            String dni = dniField.getText();
+            String email = emailField.getText();
+            String direccion = direccionField.getText();
+            // Tel
+            String telefonoStr = telefonoField.getText();
+            Integer telefono = Integer.parseInt(telefonoStr);
+            // CP
+            String codigoPostalStr = codigoPostalField.getText();
+            Integer codigoPostal = Integer.parseInt(codigoPostalStr);
 
-        // Obtener la contraseña
-        String password = registerPasswordField.getText();
-        
-        // Encriptar la contraseña antes de guardarla
-        String encryptedPassword = ClienteRegistro.encriptarContraseña(password);
+            // Obtener la contraseña
+            String password = registerPasswordField.getText();
 
-        boolean esPremium = activoCheckBox.isSelected();
-        Date fechaRegistro = new Date();
+            // Encriptar la contraseña antes de guardarla
+            String encryptedPassword = ClienteRegistro.encriptarContraseña(password);
+            
+            System.out.println(encryptedPassword);
 
-        Usuario usuarioNuevo = new Usuario();
+            boolean esPremium = activoCheckBox.isSelected();
+            Date fechaRegistro = new Date();
 
-        // Insertar los datos recogidos en el usuario Nuevo
-        usuarioNuevo.setNombreCompleto(nombreApellido);
-        usuarioNuevo.setDni(dni);
-        usuarioNuevo.setEmail(email);
-        usuarioNuevo.setDireccion(direccion);
-        usuarioNuevo.setTelefono(telefono);
-        usuarioNuevo.setCodigoPostal(codigoPostal);
-        usuarioNuevo.setContrasena(encryptedPassword);  // Asignar la contraseña encriptada
-        usuarioNuevo.setFechaRegistro(fechaRegistro);
-        usuarioNuevo.setPremium(esPremium);
+            Usuario usuarioNuevo = new Usuario();
 
-        // Mandar el Usuario al Server (suponiendo que tienes el método adecuado para esto)
-        UsuarioManagerFactory.get().create_XML(usuarioNuevo);
+            // Insertar los datos recogidos en el usuario Nuevo
+            usuarioNuevo.setNombreCompleto(nombreApellido);
+            usuarioNuevo.setDni(dni);
+            usuarioNuevo.setEmail(email);
+            usuarioNuevo.setDireccion(direccion);
+            usuarioNuevo.setTelefono(telefono);
+            usuarioNuevo.setCodigoPostal(codigoPostal);
+            usuarioNuevo.setContrasena(encryptedPassword);  // Asignar la contraseña encriptada
+            usuarioNuevo.setFechaRegistro(fechaRegistro);
+            usuarioNuevo.setPremium(esPremium);
 
-        // Panel informativo de éxito
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("¡Te has registrado!");
-        alert.setHeaderText(null);
-        alert.setContentText("Bienvenido a Nuestro Concesionario ¡Inicia Sesion y no te Pierdas nada!");
+            // Mandar el Usuario al Server (suponiendo que tienes el método adecuado para esto)
+            UsuarioManagerFactory.get().create_XML(usuarioNuevo);
 
-        // Mostrar el alert
-        alert.showAndWait();
+            // Panel informativo de éxito
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("¡Te has registrado!");
+            alert.setHeaderText(null);
+            alert.setContentText("Bienvenido a Nuestro Concesionario ¡Inicia Sesion y no te Pierdas nada!");
 
-        registerPane.setVisible(false);
-        loginPane.setVisible(true);
+            // Mostrar el alert
+            alert.showAndWait();
 
-    } else {
-        // Crear un alert para indicar que los datos no son correctos
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Error en el Registro");
-        alert.setHeaderText(null);
-        alert.setContentText("Introduzca bien los datos en los Campos de ROJO\n"
-                + "Los formatos introducidos no son correctos\n"
-                + "Correo: Debe de tener Formato de Correo\n"
-                + "Contraseñas: Las contraseñas deben de ser Iguales y deben de tener más de 8 caracteres y al menos una Mayúscula");
+            registerPane.setVisible(false);
+            loginPane.setVisible(true);
 
-        // Mostrar el alert
-        alert.showAndWait();
+        } else {
+            // Crear un alert para indicar que los datos no son correctos
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Error en el Registro");
+            alert.setHeaderText(null);
+            alert.setContentText("Introduzca bien los datos en los Campos de ROJO\n"
+                    + "Los formatos introducidos no son correctos\n"
+                    + "Correo: Debe de tener Formato de Correo\n"
+                    + "Contraseñas: Las contraseñas deben de ser Iguales y deben de tener más de 8 caracteres y al menos una Mayúscula");
+
+            // Mostrar el alert
+            alert.showAndWait();
+        }
+
     }
-
-}
-
 
     // Metodo para hacer visible la Contraseña o para dejar de hacerla Visible
     private void togglePasswordVisibility(ActionEvent event) {
@@ -505,7 +547,9 @@ private void registroBtn() {
 
     private static void changeTheme(String themeFile, Scene scene) {
         scene.getStylesheets().clear();
-        scene.getStylesheets().add(SignController.class.getResource(themeFile).toExternalForm());
+        scene
+                .getStylesheets().add(SignController.class
+                        .getResource(themeFile).toExternalForm());
     }
 
     /////////////////////////////////////////  VALIDACIONES DE REGISTRO  ///////////////////////////////////////////////////////////////

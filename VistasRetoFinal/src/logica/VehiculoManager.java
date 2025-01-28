@@ -62,7 +62,7 @@ public interface VehiculoManager {
 
     public <T> T filtradoColorVehiculo(Class<T> responseType, String color) throws WebApplicationException;
 
-    public <T> T filtradoDatePickerVehiculo(Class<T> responseType, String fechaAlta) throws WebApplicationException;
+    public <T> List<T> filtradoDatePickerVehiculo(GenericType<List<T>> responseType, String fechaAlta) throws WebApplicationException;
 
     public <T> T filtradoPotenciaVehiculo(Class<T> responseType, String potencia) throws WebApplicationException;
 

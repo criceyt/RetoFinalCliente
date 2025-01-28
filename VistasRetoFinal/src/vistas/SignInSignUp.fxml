@@ -30,6 +30,11 @@
                     <Button fx:id="revealButton" text="Mostrar" styleClass="button" />
                 </HBox>
                 <Button fx:id="inicioSesionBtn" onAction="#inicioSesionBtn" styleClass="button button-login" text="Iniciar Sesión" />
+
+                <!-- Botón de Olvidar Contraseña -->
+              <Button fx:id="forgotPasswordButton" onAction="#forgotPassword" styleClass="button-forgot" text="He olvidado mi contraseña" />
+
+
                 <Text styleClass="text-black" text="¿No tienes cuenta? Regístrate aquí." />
                 <Button fx:id="registerButton" onAction="#showRegister" styleClass="button button-register" text="Registrarse" />
             </VBox>
@@ -42,7 +47,7 @@
                 <TextField fx:id="nombreyApellidoField" promptText="Nombre y Apellidos" styleClass="text-field" />
                 
                 <Label text="DNI/NIF (*)" styleClass="label" />
-                <TextField fx:id="dniField" promptText="DNI" styleClass="text-field" />
+                <TextField fx:id="dniField" promptText="Ciudad" styleClass="text-field" />
                 
                 <Label text="Correo Electrónico (*)" styleClass="label" />
                 <TextField fx:id="emailField" promptText="Correo Electrónico" styleClass="text-field" />

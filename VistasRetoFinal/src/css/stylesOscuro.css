@@ -64,3 +64,13 @@
 .custom-checkbox .text {
     -fx-fill: #AAAAAA; 
 }
+/* Botón específico para "He olvidado mi contraseña" */
+.button-forgot {
+    -fx-background-color: #555; /* Mismo color que otros botones */
+    -fx-text-fill: white; /* Mismo color del texto */
+    -fx-font-weight: bold;
+    -fx-background-radius: 10;
+    -fx-pref-width: 220; /* Más ancho que los demás */
+    -fx-min-width: 220; /* Fija el ancho mínimo */
+    -fx-max-width: 220; /* Fija el ancho máximo */
+}

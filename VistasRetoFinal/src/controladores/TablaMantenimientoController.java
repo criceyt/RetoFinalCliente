@@ -2,12 +2,14 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -23,12 +25,11 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
 import logica.MantenimientoManagerFactory;
-import entidades.Mantenimiento;
+import modelo.Mantenimiento;
 
 public class TablaMantenimientoController implements Initializable {
 
@@ -51,14 +52,6 @@ public class TablaMantenimientoController implements Initializable {
     private TableColumn<Mantenimiento, Long> idMantenimientoColumn;
     @FXML
     private TableColumn<Mantenimiento, String> descripcionColumn;
-    /*@FXML
-    private TableColumn<Persona, String> dniColumn;
-    @FXML
-    private TableColumn<Compra, String> matriculaColumn;
-    @FXML
-    private TableColumn<Vehiculo, String> marcaColumn;
-    @FXML
-    private TableColumn<Vehiculo, String> modeloColumn;*/
     @FXML
     private TableColumn<Mantenimiento, Boolean> mantenimientoExitosoColumn;
     @FXML
@@ -69,20 +62,15 @@ public class TablaMantenimientoController implements Initializable {
     private Button btnBorrar;
     @FXML
     private Button refreshButton;
+    @FXML
+    private Button btnAñadirFila;
+    @FXML
+    private Button btnGuardar;
 
-    // Campos adicionales del formulario
     @FXML
-    private TextField dniField;
-    @FXML
-    private TextField descripcionField;
-    @FXML
-    private TextField matriculaField;
-    @FXML
-    private TextField marcaField;
-    @FXML
-    private TextField modeloField;
-    @FXML
-    private DatePicker Finalizacion;
+    private DatePicker datePickerFiltro;
+
+    private Mantenimiento mantenimientoVacio;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -94,31 +82,47 @@ public class TablaMantenimientoController implements Initializable {
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
         btnBorrar.setOnAction(this::borrarMantenimiento);
         refreshButton.setOnAction(this::cargarDatosTabla);
+        btnAñadirFila.setOnAction(this::insertarMantenimiento);
+        btnGuardar.setOnAction(this::guardarMantenimiento);
 
-       
+        cargarDatosTabla(null);
+
+        // Filtrado de DatePicker
+        datePickerFiltro.setOnAction(event -> {
+            // Obtener el valor seleccionado del DatePicker
+            LocalDate filtro = datePickerFiltro.getValue();
+            String filtroString = filtro.toString();
+
+            // Limpia la tabla
+            tableView.getItems().clear();
+
+            // Coje los datos por query filtrado
+            List<Mantenimiento> mantenimientoFiltro = MantenimientoManagerFactory.get().filtradoPorDatePickerMantenimiento(new GenericType<List<Mantenimiento>>() {
+            }, filtroString);
+
+            // Convertir la lista de proveedores en ObservableList para la TableView
+            ObservableList<Mantenimiento> mantenimientoDataFiltro = FXCollections.observableArrayList(mantenimientoFiltro);
+
+            // Establecer los datos en la tabla
+            tableView.setItems(mantenimientoDataFiltro);
+        });
+
+        // Le inidicamos a cada Columna que atributo tiene
         idMantenimientoColumn.setCellValueFactory(new PropertyValueFactory<>("idMantenimiento"));
         descripcionColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
-        /*dniColumn.setCellValueFactory(new PropertyValueFactory<>("dni"));
-        matriculaColumn.setCellValueFactory(new PropertyValueFactory<>("matricula"));
-        marcaColumn.setCellValueFactory(new PropertyValueFactory<>("marca"));
-        modeloColumn.setCellValueFactory(new PropertyValueFactory<>("modelo"));*/
         mantenimientoExitosoColumn.setCellValueFactory(new PropertyValueFactory<>("mantenimientoExitoso"));
-        fechaFinalizacionColumn.setCellValueFactory(new PropertyValueFactory<>("fechaFinalizacion"));
         idVehiculoColumn.setCellValueFactory(new PropertyValueFactory<>("idVehiculo"));
-       
+        fechaFinalizacionColumn.setCellValueFactory(new PropertyValueFactory<>("fechaFinalizacion"));
+        
+
         // Configurar tabla como editable
         tableView.setEditable(true);
 
-        // Cargar datos en la tabla
-        List<Mantenimiento> mantenimientos = MantenimientoManagerFactory.get().findAll_XML(new GenericType<List<Mantenimiento>>() {
-        });
-        if (mantenimientos == null) {
-            System.err.println("No se pudo obtener la lista de mantenimientos desde el servidor.");
-            mantenimientos = new ArrayList<>();
-        }
-
-        ObservableList<Mantenimiento> mantenimientosData = FXCollections.observableArrayList(mantenimientos);
-        tableView.setItems(mantenimientosData);
+        // Configurar la columna de descripción para usar EditingCell
+        descripcionColumn.setCellFactory(column -> new EditingCellMantenimiento());
+        mantenimientoExitosoColumn.setCellFactory(column -> new EditingCellMantenimiento());
+        fechaFinalizacionColumn.setCellFactory(column -> new EditingCellMantenimiento());
+        idVehiculoColumn.setCellFactory(column -> new EditingCellMantenimiento<>());
 
         // Borrado
         btnBorrar.setDisable(true);
@@ -245,9 +249,6 @@ public class TablaMantenimientoController implements Initializable {
                     });
                     ObservableList<Mantenimiento> mantenimientosData = FXCollections.observableArrayList(mantenimientos);
                     tableView.setItems(mantenimientosData);
-
-                    // Mostrar mensaje de éxito
-                    //new Alert(Alert.AlertType.INFORMATION, "Mantenimiento eliminado correctamente.", ButtonType.OK).showAndWait();
                 } else {
                     // Si el usuario cancela, no hacer nada
                     System.out.println("Borrado cancelado.");
@@ -262,7 +263,7 @@ public class TablaMantenimientoController implements Initializable {
     // Metodo del Boton Refresh para cargar los elementos en la tabla
     private void cargarDatosTabla(ActionEvent event) {
 
-        // Liampia la tabla antes de introducir los Items
+        // Limpiar la tabla antes de introducir los Items
         tableView.getItems().clear();
 
         // Obtener la lista de mantenimientos desde el servidor o el origen de datos
@@ -274,7 +275,69 @@ public class TablaMantenimientoController implements Initializable {
 
         // Establecer los datos en la tabla
         tableView.setItems(mantenimientosData);
+    }
 
+    private void insertarMantenimiento(ActionEvent event) {
+        try {
+
+            // Calcula el siguiente ID disponible
+            Long siguienteId = obtenerSiguienteIdMantenimiento();
+
+            // Crea un nuevo objeto Mantenimiento vacío (con valores predeterminados)
+            mantenimientoVacio = new Mantenimiento();
+            mantenimientoVacio.setIdMantenimiento(siguienteId); //Carga el siguiente id
+            mantenimientoVacio.setDescripcion("Introduzca aqui la descripcion del mantenimiento");
+            mantenimientoVacio.setMantenimientoExitoso(false);  // Valor predeterminado para mantenimientoExitoso
+            mantenimientoVacio.setFechaFinalizacion(new java.util.Date());
+            mantenimientoVacio.setIdVehiculo(0L);
+
+            // Añadir el nuevo objeto a la lista de la tabla
+            tableView.getItems().add(mantenimientoVacio);
+
+            // Actualizar la vista de la tabla
+            tableView.refresh();
+
+        } catch (Exception e) {
+            // Manejo de cualquier excepción, como por ejemplo problemas en la adición de datos
+            new Alert(Alert.AlertType.ERROR, "Error al crear fila");
+            // LOGGER.log(Level.SEVERE, "Error al añadir fila: {0}", e.getMessage());
+        }
+    }
+
+    private void guardarMantenimiento(ActionEvent event) {
+        if (mantenimientoVacio != null) {
+            try {
+                // Llamada al servicio REST para persistir el nuevo mantenimiento
+                MantenimientoManagerFactory.get().create_XML(mantenimientoVacio);
+
+                // Mostrar un mensaje de éxito
+                new Alert(Alert.AlertType.INFORMATION, "Mantenimiento guardado con éxito.").showAndWait();
+
+                // Limpiar la referencia para evitar conflictos
+                mantenimientoVacio = null;
+            } catch (Exception e) {
+                new Alert(Alert.AlertType.ERROR, "Error al guardar el mantenimiento.").showAndWait();
+            }
+        } else {
+            new Alert(Alert.AlertType.WARNING, "No hay un mantenimiento nuevo para guardar.").showAndWait();
+        }
+    }
+
+    private Long obtenerSiguienteIdMantenimiento() {
+        try {
+            // Llama al servicio REST para obtener todos los mantenimientos
+            List<Mantenimiento> mantenimientos = MantenimientoManagerFactory.get().findAll_XML(new GenericType<List<Mantenimiento>>() {
+            });
+
+            // Extrae los IDs actuales
+            List<Long> ids = mantenimientos.stream().map(Mantenimiento::getIdMantenimiento).collect(Collectors.toList());
+
+            // Encuentra el ID máximo y suma 1
+            return ids.isEmpty() ? 1L : Collections.max(ids) + 1L;
+        } catch (Exception e) {
+            new Alert(Alert.AlertType.INFORMATION, "Error al obtener IDs de mantenimiento", ButtonType.OK).showAndWait();
+            return 1L; // Retorna 1 como fallback
+        }
     }
 
 }
