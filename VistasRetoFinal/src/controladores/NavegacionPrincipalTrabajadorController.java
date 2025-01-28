@@ -8,6 +8,7 @@ package controladores;
 import javafx.scene.input.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -36,6 +37,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
@@ -74,7 +77,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     public void mostrarFiltroColor(MouseEvent event) {
-        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un color", "Rojo", "Azul", "Negro", "Blanco"));
+        mostrarPopup(event.getSource(), crearFiltroColorInput());
     }
 
     @FXML
@@ -104,8 +107,12 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
+        
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+        
 
-        generarBotones();
+        generarBotones(vehiculos);
 
     }
 
@@ -212,7 +219,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         try {
 
             VehiculoInfoExtraManager.setVehiculo(vehiculo);
-            
+
             // Se carga el FXML con la información de la vista
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculoTrabajador.fxml"));
             Parent root = loader.load();
@@ -221,8 +228,6 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             InformacionExtraVehiculoControllerTrabajador controller = loader.getController();
 
             // Guardamos el objeto en la clase para que pueda ser utilizado en el controlador
-            
-
             // Obtener el Stage
             Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
             stage.setTitle("Información de Vehículo");
@@ -288,10 +293,10 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         return vbox;
     }
 
-    private void generarBotones() {
+    private void generarBotones(List<Vehiculo> vehiculos) {
         // Obtener la lista de vehículos desde la base de datos
-        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
-        });
+        
+        gridPane.getChildren().clear();
 
         int fila = 0;
         int columna = 0;
@@ -349,6 +354,99 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
                 columna = 0;
                 fila++;
             }
+        }
+    }
+
+    // Crear el contenido del Popup para el filtro de colores (4 colores por fila)
+    private VBox crearFiltroColorInput() {
+        VBox vbox = new VBox(10);
+        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
+
+        // Crear un GridPane para organizar los colores en 4 columnas
+        GridPane grid = new GridPane();
+        grid.setHgap(10); // Espaciado horizontal
+        grid.setVgap(10); // Espaciado vertical
+
+        // Lista de colores que quieres mostrar
+        Color[] colores = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.PURPLE, Color.ORANGE, Color.CYAN, Color.MAGENTA, Color.BLACK, Color.WHITE, Color.GRAY, Color.BEIGE};
+
+        // Agregar los colores al GridPane (4 por fila)
+        int fila = 0;
+        int columna = 0;
+
+        for (Color color : colores) {
+            Rectangle colorBox = new Rectangle(30, 30, color); // Cambiar el tamaño de los cuadros a 30x30 píxeles
+            colorBox.setOnMouseClicked(e -> seleccionarColor(color)); // Manejar clics en el color
+
+            // Agregar el color al GridPane
+            grid.add(colorBox, columna, fila);
+
+            columna++;
+            if (columna == 4) {  // Cambiar de fila después de 4 colores
+                columna = 0;
+                fila++;
+            }
+        }
+
+        vbox.getChildren().add(grid);  // Añadir el GridPane con los colores al VBox
+        return vbox;
+    }
+
+    // Método para manejar la selección de un color
+    private void seleccionarColor(Color color) {
+        // Aquí puedes manejar la lógica cuando un color es seleccionado
+
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        Color colorSeleccionado = color;
+        String nombreColor = convertirColorAString(colorSeleccionado);
+        System.out.println("El color seleccionado es: " + nombreColor);
+        
+        gridPane.getChildren().clear();
+        ArrayList<Vehiculo> lista = new ArrayList<>();
+        
+       for(Vehiculo v: vehiculos) {
+           if(v.getColor().equalsIgnoreCase(nombreColor)) {
+               lista.add(v);
+           }
+       }
+        
+        generarBotones(lista);
+        
+        
+
+    }
+
+    // Metodo que retorna un Color
+    private String convertirColorAString(Color color) {
+        // Compara el color con los valores predefinidos y devuelve el nombre en String
+        if (color.equals(Color.RED)) {
+            return "Rojo";
+        } else if (color.equals(Color.BLUE)) {
+            return "Azul";
+        } else if (color.equals(Color.GREEN)) {
+            return "Verde";
+        } else if (color.equals(Color.YELLOW)) {
+            return "Amarillo";
+        } else if (color.equals(Color.PURPLE)) {
+            return "Púrpura";
+        } else if (color.equals(Color.ORANGE)) {
+            return "Naranja";
+        } else if (color.equals(Color.CYAN)) {
+            return "Cian";
+        } else if (color.equals(Color.MAGENTA)) {
+            return "Magenta";
+        } else if (color.equals(Color.BLACK)) {
+            return "Negro";
+        } else if (color.equals(Color.WHITE)) {
+            return "Blanco";
+        } else if (color.equals(Color.GRAY)) {
+            return "Gris";
+        } else if (color.equals(Color.BEIGE)) {
+            return "Beige";
+        } else {
+            return "Desconocido"; // Para cualquier color no especificado
         }
     }
 
