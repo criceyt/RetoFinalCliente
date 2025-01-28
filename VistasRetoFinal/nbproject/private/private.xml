@@ -3,12 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/2dam/Desktop/VistasRetoFinal/src/controladores/TablaMantenimientoController.java</file>
-            <file>file:/C:/Users/2dam/Desktop/VistasRetoFinal/src/controladores/TablaProveedoresController.java</file>
-            <file>file:/C:/Users/2dam/Desktop/VistasRetoFinal/src/logica/MantenimientoManager.java</file>
-            <file>file:/C:/Users/2dam/Desktop/VistasRetoFinal/src/controladores/EditingCell.java</file>
-            <file>file:/C:/Users/2dam/Desktop/VistasRetoFinal/src/modelo/Mantenimiento.java</file>
-            <file>file:/C:/Users/2dam/Desktop/VistasRetoFinal/src/vistas/TablaMantenimiento.fxml</file>
+            <file>file:/C:/Users/gorka/OneDrive/Documentos/VistasRetoFinal/src/entidades/VehiculoRestFull.java</file>
+            <file>file:/C:/Users/gorka/OneDrive/Documentos/VistasRetoFinal/src/logica/VehiculoManager.java</file>
+            <file>file:/C:/Users/gorka/OneDrive/Documentos/VistasRetoFinal/src/controladores/NavegacionPrincipalTrabajadorController.java</file>
         </group>
     </open-files>
 </project-private>

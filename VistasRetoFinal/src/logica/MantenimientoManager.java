@@ -15,7 +15,7 @@ import javax.ws.rs.core.GenericType;
  */
 public interface MantenimientoManager {
     
-     public <T> T filtradoPorDatePickerMantenimiento(Class<T> responseType, String fechaFinalizacion) throws WebApplicationException;
+    public <T> List<T> filtradoPorDatePickerMantenimiento(GenericType<List<T>> responseType, String fechaFinalizacion) throws WebApplicationException;
 
     public <T> T filtrarPorMantenimientoExitoso(Class<T> responseType, String mantenimientoExitoso) throws WebApplicationException;
     

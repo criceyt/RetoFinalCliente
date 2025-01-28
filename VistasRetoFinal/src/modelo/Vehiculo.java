@@ -22,14 +22,12 @@ public class Vehiculo implements Serializable {
     private Integer potencia;
     private Integer km;
     private Integer precio;
+    private String ruta;
 
     private Date fechaAlta;
-    private String tipoVehiculo;
+    private TipoVehiculo tipoVehiculo;
     
-    // Constructor
-
     
-
 
     private Set<Mantenimiento> mantenimientos;
 
@@ -129,12 +127,21 @@ public class Vehiculo implements Serializable {
         this.fechaAlta = fechaAlta;
     }
 
-    public String getTipoVehiculo() {
+    public TipoVehiculo getTipoVehiculo() {
         return tipoVehiculo;
     }
 
-    public void setTipoVehiculo(String tipoVehiculo) {
+    public void setTipoVehiculo(TipoVehiculo tipoVehiculo) {
         this.tipoVehiculo = tipoVehiculo;
     }
 
+    public String getRuta() {
+        return ruta;
+    }
+
+    public void setRuta(String ruta) {
+        this.ruta = ruta;
+    }
+    
+    
 }

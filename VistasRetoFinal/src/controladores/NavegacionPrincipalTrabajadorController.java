@@ -8,6 +8,7 @@ package controladores;
 import javafx.scene.input.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,18 +21,21 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Region;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javax.ws.rs.core.GenericType;
+import logica.VehiculoManagerFactory;
+import modelo.Vehiculo;
 
 /**
  *
@@ -40,6 +44,9 @@ import javafx.stage.Stage;
 public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     // Elementos de la Ventana
+    @FXML
+    private GridPane gridPane;
+
     @FXML
     private Button homeBtn;
 
@@ -54,9 +61,12 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     private MenuItem gestionMantenimientos;
-    
+
     @FXML
     public void mostrarFiltroKilometraje(MouseEvent event) {
+        // Antes de abrir el popup, aseguramos que se haya seleccionado el filtro correcto
+        isKilometrajeFiltro = true;
+        isPrecioFiltro = false;
         mostrarPopup(event.getSource(), crearRangoInput());
     }
 
@@ -67,6 +77,9 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     public void mostrarFiltroPrecio(MouseEvent event) {
+        // Antes de abrir el popup, aseguramos que se haya seleccionado el filtro correcto
+        isPrecioFiltro = true;
+        isKilometrajeFiltro = false;
         mostrarPopup(event.getSource(), crearRangoInput());
     }
 
@@ -79,9 +92,11 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
     public void mostrarFiltroModelo(MouseEvent event) {
         mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un modelo", "Modelo A", "Modelo B", "Modelo C", "Modelo D"));
     }
-    
+
     // Declaracion del Popup
     private Popup popup;
+    private boolean isPrecioFiltro = false;
+    private boolean isKilometrajeFiltro = false;
 
     // Metodo Initialize
     @Override
@@ -93,7 +108,8 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
 
-        System.out.println("Ventana inicializada correctamente.");
+        generarBotones(null);
+
     }
 
     // Abrir Ventana SignIn & SignUp
@@ -194,7 +210,33 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
-    
+
+    private void abrirVentanaInformacionVehiculo(ActionEvent event, Vehiculo vehiculo) {
+        try {
+
+            VehiculoInfoExtraManager.setVehiculo(vehiculo);
+
+            // Se carga el FXML con la información de la vista
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculo.fxml"));
+            Parent root = loader.load();
+
+            // Obtener el controlador
+            InformacionExtraVehiculoController controller = loader.getController();
+
+            // Guardamos el objeto en la clase para que pueda ser utilizado en el controlador
+            // Obtener el Stage
+            Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
+            stage.setTitle("Información de Vehículo");
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(InformacionExtraVehiculoController.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+        }
+    }
+
     private void mostrarPopup(Object source, VBox contenido) {
         if (popup != null && popup.isShowing()) {
             popup.hide(); // Ocultar el popup anterior si está visible
@@ -209,10 +251,10 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         popup.show(node, bounds.getMinX(), bounds.getMaxY()); // Mostrar debajo del botón
     }
 
-     private VBox crearRangoInput() {
+    private VBox crearRangoInput() {
         VBox vbox = new VBox(10);
         vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
-        
+
         // Campo de texto desde
         TextField desde = new TextField();
         desde.setPromptText("Desde...");
@@ -223,6 +265,16 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         hasta.setPromptText("Hasta...");
         hasta.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
 
+        // Listener para el campo "Desde"
+        desde.textProperty().addListener((observable, oldValue, newValue) -> {
+            queryFiltradoRango(desde.getText(), hasta.getText());
+        });
+
+        // Listener para el campo "Hasta"
+        hasta.textProperty().addListener((observable, oldValue, newValue) -> {
+            queryFiltradoRango(desde.getText(), hasta.getText());
+        });
+
         Label label = new Label("Rango:");
         label.setStyle("-fx-text-fill: white;");
 
@@ -230,10 +282,32 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         return vbox;
     }
 
+    private void queryFiltradoRango(String desde, String hasta) {
+        try {
+            // Comprobamos si el rango es de precio o kilometraje
+            if (!desde.isEmpty() && !hasta.isEmpty()) {
+                double minValor = Double.parseDouble(desde);
+                double maxValor = Double.parseDouble(hasta);
+
+                // Si los valores son precios, llamamos al método correspondiente
+                if (isPrecioFiltro) {  // Aquí debes manejar el estado de qué filtro está activo (precio o kilometraje)
+                    List<Vehiculo> vehiculosFiltrados = VehiculoManagerFactory.get().filtradoPrecioVehiculo(new GenericType<List<Vehiculo>>(){}, (int) minValor, (int) maxValor);
+                    generarBotones(vehiculosFiltrados);
+                } // Si los valores son kilometraje, llamamos al método correspondiente
+                else if (isKilometrajeFiltro) {
+                    List<Vehiculo> vehiculosFiltrados = VehiculoManagerFactory.get().filtradoKilometrajeVehiculo(new GenericType<List<Vehiculo>>(){}, (int) minValor, (int) maxValor);
+                    generarBotones(vehiculosFiltrados);
+                }
+            }
+        } catch (NumberFormatException ex) {
+            new Alert(Alert.AlertType.ERROR, "Por favor, ingrese un número válido en los campos de rango.", ButtonType.OK).showAndWait();
+        }
+    }
+
     private VBox crearComboBoxInput(String labelText, String... opciones) {
         VBox vbox = new VBox(10);
         vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
-        
+
         // ComboBox
         ComboBox<String> comboBox = new ComboBox<>();
         comboBox.getItems().addAll(opciones);
@@ -246,4 +320,69 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         vbox.getChildren().addAll(label, comboBox);
         return vbox;
     }
+
+    private void generarBotones(List<Vehiculo> vehiculosFiltrados) {
+        // Obtener la lista de vehículos desde la base de datos
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        int fila = 0;
+        int columna = 0;
+
+        for (Vehiculo vehiculo : vehiculos) {
+            // Ruta de la Imagen
+            String rutaCoche = vehiculo.getRuta();
+            System.out.println(rutaCoche);
+
+            if (rutaCoche == null || rutaCoche.isEmpty()) {
+                rutaCoche = "/img/sinImagen.jpg";
+            }
+
+            // Usar getClass().getResource() para acceder a la imagen desde el classpath
+            Image image = new Image(getClass().getResource(rutaCoche).toExternalForm());
+
+            // Crear el nombre del vehículo
+            String nombreVehiculo = vehiculo.getMarca() + " " + vehiculo.getModelo();
+
+            // Crear el ImageView y ajustarlo al tamaño de la ventana
+            ImageView imageView = new ImageView(image);
+            imageView.setFitHeight(200);  // Ajustamos el tamaño de la imagen (más grande)
+            imageView.setFitWidth(200);   // Ajustamos el tamaño de la imagen (más grande)
+            imageView.setPreserveRatio(true);  // Preservamos la relación de aspecto de la imagen
+
+            // Crear el Label para el nombre del vehículo y ponerlo en color negro
+            Label nombreLabel = new Label(nombreVehiculo);
+            nombreLabel.setStyle("-fx-text-fill: black; -fx-font-size: 14px;");  // Establecer el color del texto a negro y tamaño de fuente
+
+            // Crear un VBox que contenga la imagen y el nombre
+            VBox vbox = new VBox(5);  // Espacio de 5px entre la imagen y el texto
+            vbox.getChildren().addAll(imageView, nombreLabel);
+
+            // Ajustar el tamaño máximo del VBox para que se ajuste a la ventana
+            vbox.setMaxWidth(200);   // Limitar el ancho máximo del VBox
+            vbox.setMaxHeight(300);  // Limitar el alto máximo del VBox
+
+            // Crear el botón y asignar el VBox como contenido gráfico
+            Button button = new Button();
+            button.setGraphic(vbox);
+
+            // Asegurarse de que el botón se ajuste bien dentro del GridPane
+            button.setMaxWidth(Double.MAX_VALUE);  // Hacer que el botón ocupe todo el espacio disponible en su celda
+            button.setMaxHeight(Double.MAX_VALUE); // Hacer que el botón ocupe todo el espacio disponible en su celda
+
+            // Agregar el listener de clic al botón
+            button.setOnAction(event -> abrirVentanaInformacionVehiculo(null, vehiculo));
+
+            // Añadir el botón al GridPane en la fila y columna correspondiente
+            gridPane.add(button, columna, fila);
+
+            // Actualizar fila y columna para el siguiente botón
+            columna++;
+            if (columna == 3) {  // Después de 3 botones, pasamos a la siguiente fila
+                columna = 0;
+                fila++;
+            }
+        }
+    }
+
 }

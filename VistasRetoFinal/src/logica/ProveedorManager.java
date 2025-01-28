@@ -6,6 +6,7 @@
 package logica;
 
 import java.util.List;
+import static javafx.scene.input.KeyCode.T;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.GenericType;
@@ -32,7 +33,7 @@ public interface ProveedorManager {
 
     //public void create_JSON(Object requestEntity) throws ClientErrorException;
 
-    public <T> T filtradoPorDatePickerProveedores(Class<T> responseType, String ultimaActividad) throws ClientErrorException;
+    public <T> List<T> filtradoPorDatePickerProveedores(GenericType<List<T>> responseType, String ultimaActividad) throws ClientErrorException;
 
     public <T> List<T> findAll_XML(GenericType<List<T>> responseType) throws WebApplicationException;
 

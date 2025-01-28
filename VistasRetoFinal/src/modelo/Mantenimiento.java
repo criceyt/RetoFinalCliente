@@ -39,11 +39,11 @@ public class Mantenimiento implements Serializable {
         this.descripcion = descripcion;
     }
 
-    public Boolean isMantenimientoExitoso() {
+    public boolean isMantenimientoExitoso() {
         return mantenimientoExitoso;
     }
 
-    public void setMantenimientoExitoso(Boolean mantenimientoExitoso) {
+    public void setMantenimientoExitoso(boolean mantenimientoExitoso) {
         this.mantenimientoExitoso = mantenimientoExitoso;
     }
 
@@ -62,6 +62,10 @@ public class Mantenimiento implements Serializable {
     public void setVehiculo(Vehiculo vehiculo) {
         this.vehiculo = vehiculo;
     }
+    
+    
+    
+    
 
     /**
      * Getter adicional para obtener directamente el ID del vehículo asociado en

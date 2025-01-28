@@ -38,10 +38,10 @@ public class MantenimientoRestFull implements MantenimientoManager {
         webTarget = client.target(BASE_URI).path("mantenimiento");
     }
 
-    public <T> T filtradoPorDatePickerMantenimiento(Class<T> responseType, String fechaFinalizacion) throws WebApplicationException {
+    public <T> List<T> filtradoPorDatePickerMantenimiento(GenericType<List<T>> responseType, String fechaFinalizacion) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("fechaFinalizacion/{0}", new Object[]{fechaFinalizacion}));
-        return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
+        return resource.request(MediaType.APPLICATION_XML).get(responseType);
     }
 
     public <T> T filtrarPorMantenimientoExitoso(Class<T> responseType, String mantenimientoExitoso) throws WebApplicationException {

@@ -35,7 +35,7 @@ public class VehiculoRestFull implements VehiculoManager {
 
     public VehiculoRestFull() {
         client = javax.ws.rs.client.ClientBuilder.newClient();
-        webTarget = client.target(BASE_URI).path("/vehiculo");
+        webTarget = client.target(BASE_URI).path("vehiculo");
     }
 
     public <T> T filtrarPorKm(Class<T> responseType, String km) throws WebApplicationException {
@@ -51,7 +51,6 @@ public class VehiculoRestFull implements VehiculoManager {
     //public void edit_JSON(Object requestEntity, String id) throws ClientErrorException {
     //    webTarget.path(java.text.MessageFormat.format("{0}", new Object[]{id})).request(javax.ws.rs.core.MediaType.APPLICATION_JSON).put(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
     //}
-
     public <T> T filtradoPrecioVehiculo(Class<T> responseType, String precio) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("precio/{0}", new Object[]{precio}));
@@ -69,7 +68,6 @@ public class VehiculoRestFull implements VehiculoManager {
     //    resource = resource.path(java.text.MessageFormat.format("{0}/{1}", new Object[]{from, to}));
     //    return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     //}
-
     public <T> List<T> findAll_XML(GenericType<List<T>> responseType) throws WebApplicationException {
         WebTarget resource = webTarget;
         return resource.request(MediaType.APPLICATION_XML).get(responseType);
@@ -79,7 +77,6 @@ public class VehiculoRestFull implements VehiculoManager {
     //    WebTarget resource = webTarget;
     //    return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     //}
-
     public void remove(String id) throws WebApplicationException {
         webTarget.path(java.text.MessageFormat.format("{0}", new Object[]{id})).request().delete(Vehiculo.class);
     }
@@ -101,7 +98,6 @@ public class VehiculoRestFull implements VehiculoManager {
     //    resource = resource.path(java.text.MessageFormat.format("{0}", new Object[]{id}));
     //    return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     //}
-
     public void create_XML(Object requestEntity) throws WebApplicationException {
         webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_XML).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_XML));
     }
@@ -109,7 +105,6 @@ public class VehiculoRestFull implements VehiculoManager {
     //public void create_JSON(Object requestEntity) throws ClientErrorException {
     //    webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
     //}
-
     public <T> T filtradoMarcaVehiculo(Class<T> responseType, String marca) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("marca/{0}", new Object[]{marca}));
@@ -122,10 +117,10 @@ public class VehiculoRestFull implements VehiculoManager {
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
     }
 
-    public <T> T filtradoDatePickerVehiculo(Class<T> responseType, String fechaAlta) throws WebApplicationException {
+    public <T> List<T> filtradoDatePickerVehiculo(GenericType<List<T>> responseType, String fechaAlta) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("fechaAlta/{0}", new Object[]{fechaAlta}));
-        return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
+        return resource.request(MediaType.APPLICATION_XML).get(responseType);
     }
 
     public <T> T filtradoPotenciaVehiculo(Class<T> responseType, String potencia) throws WebApplicationException {
@@ -134,8 +129,20 @@ public class VehiculoRestFull implements VehiculoManager {
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
     }
 
+    public <T> List<T> filtradoPrecioVehiculo(GenericType<List<T>> responseType, Integer minPrecio, Integer maxPrecio) throws WebApplicationException {
+        WebTarget resource = webTarget;
+        resource = resource.path(java.text.MessageFormat.format("precio/{0}/{1}", new Object[]{minPrecio, maxPrecio}));
+        return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
+    }
+
+    public <T> List<T> filtradoKilometrajeVehiculo(GenericType<List<T>> responseType, Integer minKm, Integer maxKm) throws WebApplicationException {
+        WebTarget resource = webTarget;
+        resource = resource.path(java.text.MessageFormat.format("km/{0}/{1}", new Object[]{minKm, maxKm}));
+        return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
+    }
+
     public void close() {
         client.close();
     }
-    
+
 }

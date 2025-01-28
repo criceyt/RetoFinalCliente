@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.shape.Rectangle?>
 <?import javafx.scene.image.Image?>
-<BorderPane id="mainBackground" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.TablaVehiculosController" >
+<BorderPane id="mainBackground" prefHeight="600.0" prefWidth="1000.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.TablaVehiculosController">
     <top>
         <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #5b1e1e; -fx-padding: 10;">
             <Button fx:id="homeBtn" style="-fx-text-fill: white; -fx-font-weight: bold;" text="HOME" />
@@ -26,58 +26,34 @@
     </top>
     
     <center>
-        <SplitPane orientation="HORIZONTAL">
-            <TableView fx:id="tableViewVehiculo" prefWidth="400" styleClass="table-view">
+        <VBox alignment="CENTER" style="-fx-padding: 10; -fx-spacing: 5;" minHeight="400" maxHeight="500">
+            <!-- Aumentamos el tamaño de la tabla -->
+            <TableView fx:id="tableViewVehiculo" prefWidth="950" maxWidth="950" styleClass="table-view" style="-fx-background-color: white; -fx-border-color: black; -fx-border-width: 1;">
                 <columns>
-                    <TableColumn fx:id="idVehiculoColum" text="Id_Vehiculo"/>
-                    <TableColumn fx:id="modeloColum" text="Modelo"/>
-                    <TableColumn fx:id="marcaColum" text="Marca"/>
-                    <TableColumn fx:id="colorColum" text="Color"/>
-                    <TableColumn fx:id="potenciaColum" text="Potencia"/>
-                    <TableColumn fx:id="kmColum" text="Kilometro"/>
-                    <TableColumn fx:id="precioColum" text="Precio"/>
-                    <TableColumn fx:id="fechaAltaColum" text="fechaAlta"/>
-                    <TableColumn fx:id="tipoColum" text="tipoVehiculo" />
+                    <!-- Aumentamos el tamaño de cada columna -->
+                    <TableColumn fx:id="idVehiculoColum" text="Id_Vehiculo" prefWidth="180" style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="modeloColum" text="Modelo" prefWidth="180" style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="marcaColum" text="Marca" prefWidth="180" style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="colorColum" text="Color" prefWidth="180" style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="potenciaColum" text="Potencia" prefWidth="180" style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="kmColum" text="Kilometro" prefWidth="180" style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="precioColum" text="Precio" prefWidth="180" style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="fechaAltaColum" text="Fecha Alta" prefWidth="180" style="-fx-alignment: CENTER;"/>
+                    <TableColumn fx:id="tipoColum" text="Tipo Vehiculo" prefWidth="180" style="-fx-alignment: CENTER;"/>
                 </columns>
             </TableView>
-
-            <VBox spacing="10" alignment="CENTER" styleClass="form-pane">
-                <Label text="Alta de Coche" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #d32f2f; -fx-padding: 10;"/>
-                <Label text="Modelo" styleClass="label"/>
-                <TextField fx:id="modeloField"/> 
-                <Label text="Potencia" styleClass="label"/>
-                <TextField fx:id="potenciaField"/> 
-                <Label text="Color" styleClass="label"/>
-                <TextField fx:id="colorField"/> 
-                <Label text="Marca" styleClass="label"/>
-                <TextField fx:id="marcaField"/> 
-                <Label text="Categoría:" styleClass="label" />
-                <ComboBox fx:id="categoryComboBox">
-                    <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="Opción 1" />
-                            <String fx:value="Opción 2" />
-                            <String fx:value="Opción 3" />
-                        </FXCollections>
-                    </items>
-                </ComboBox>
-
-
-            </VBox>
-        </SplitPane>
+        </VBox>
     </center>
+
     <bottom>
-        <HBox>
+        <HBox spacing="30" style="-fx-padding: 20;">
             <Button text="DELETE" fx:id="deleteButton"/>
             <Button text="REFRESH" fx:id="refreshButton"/>
-     
-            <HBox spacing="10" alignment="CENTER">
-                <Label text="Filtrar por fecha:" styleClass="label"/>
-                <DatePicker fx:id="datePickerFiltro" styleClass="date-picker"/>
-                <Button text="APLICAR" styleClass="button"/>
-            </HBox>
-
-            <Button text="PRINT" fx:id="printButton"/>
+            <Button text="ADD ROW" fx:id="addRowButton"/>
+            <Label text="Filtrar por fecha:" styleClass="label"/>
+            <DatePicker fx:id="datePickerFiltro" styleClass="date-picker"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="PRINT" fx:id="printBtn"/>
         </HBox>
     </bottom>
 </BorderPane>

@@ -8,16 +8,19 @@ package modelo;
 import java.io.Serializable;
 import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
 
 /**
  *
  * @author 2dam
  */
 @XmlRootElement
+@XmlSeeAlso({Usuario.class, Trabajador.class})
 public class Persona implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
+    // Atributos
     private Long idPersona;
     private String dni;
     private String email;
@@ -27,7 +30,17 @@ public class Persona implements Serializable {
     private Integer telefono;
     private String direccion;
     private String contrasena;
+
     
+    // getters and stters
+    
+    public Long getIdPersona() {
+        return idPersona;
+    }
+
+    public void setIdPersona(Long idPersona) {
+        this.idPersona = idPersona;
+    }
 
     public Long getId() {
         return idPersona;

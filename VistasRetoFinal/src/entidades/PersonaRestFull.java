@@ -36,9 +36,12 @@ public class PersonaRestFull implements PersonaManager {
         webTarget = client.target(BASE_URI).path("persona");
     }
 
-    public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException {
+     public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException {
         WebTarget resource = webTarget;
-        resource = resource.path(java.text.MessageFormat.format("inicioSesion/{0}/{1}", new Object[]{email, contrasena}));
+        resource = resource.path(java.text.MessageFormat.format("inicioSesionPersona/{0}/{1}", new Object[]{email, contrasena}));
+        
+        System.out.println("Clase recibida: " + responseType.getName());
+
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
     }
 

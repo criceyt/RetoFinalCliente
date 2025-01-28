@@ -28,6 +28,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import logica.SessionManager;
+import modelo.Persona;
+import modelo.Usuario;
 
 /**
  *
@@ -72,6 +75,7 @@ public class NavegacionPrincipalController implements Initializable {
     
     // Declaracion del Popup
     private Popup popup;
+    private Usuario usuario;
 
     // Metodo Initialize
     @Override
@@ -94,6 +98,8 @@ public class NavegacionPrincipalController implements Initializable {
 
             // Obtener el controlador
             PerfilController controller = loader.getController();
+            
+            //controller.setUsuario((Usuario) usuario);
 
             // Obtener el Stage
             Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado

@@ -49,13 +49,6 @@
 
         </VBox>
     </left>
-
-
-
-
-
-
-
     <!-- Área Central -->
     <center>
         <VBox spacing="10" style="-fx-padding: 20;">
@@ -65,15 +58,16 @@
             <GridPane hgap="20" vgap="20">
                 <children>
                     <!-- Genera botones en la grilla -->
-                    <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                    <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                    <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="2" GridPane.rowIndex="0" />
-                    <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="3" GridPane.rowIndex="0" />
-                    <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="4" GridPane.rowIndex="0" />
-                    <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                    <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                    <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                    <Button prefHeight="80" prefWidth="100" text="" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                    <!-- Botón con imagen -->
+                    <Button GridPane.columnIndex="0" GridPane.rowIndex="0" prefHeight="80" prefWidth="100">
+                        <graphic>
+                            <ImageView fx:id="imagenButton" fitHeight="40" fitWidth="40">
+                                <image>
+                                    <Image url="img/HondaCivicTypeR.jpg" />
+                                </image>
+                            </ImageView>
+                        </graphic>
+                    </Button>
                 </children>
                 <columnConstraints>
                     <ColumnConstraints />

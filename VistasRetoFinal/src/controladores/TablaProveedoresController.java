@@ -9,7 +9,6 @@ import logica.ProveedorManagerFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -29,17 +28,31 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import java.util.List;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javax.ws.rs.core.GenericType;
-import logica.ProveedorManager;
 import modelo.Proveedor;
 import modelo.TipoVehiculo;
-import modelo.Vehiculo;
-import org.eclipse.persistence.jpa.jpql.parser.DateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.DatePicker;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyCode;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -79,7 +92,7 @@ public class TablaProveedoresController implements Initializable {
     private TableColumn<Proveedor, String> nombreColumn;
 
     @FXML
-    private TableColumn<Proveedor, String> tipoColumn;
+    private TableColumn<Proveedor, TipoVehiculo> tipoColumn;
 
     @FXML
     private TableColumn<Proveedor, String> especialidadColumn;
@@ -99,6 +112,19 @@ public class TablaProveedoresController implements Initializable {
     @FXML
     private Button deleteButton;
 
+    @FXML
+    private Button printBtn;
+
+    @FXML
+    private Button addRowButton;
+
+    @FXML
+    private DatePicker datePickerFiltro;
+
+    // Declaraciones
+    private Logger LOGGER = Logger.getLogger(TablaProveedoresController.class.getName());
+    private DatePicker datePicker;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
 
@@ -108,11 +134,31 @@ public class TablaProveedoresController implements Initializable {
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
-        saveBtn.setOnAction(this::proveedorNuevo);
         refreshButton.setOnAction(this::cargartDatosTabla);
         deleteButton.setOnAction(this::borrarProveedor);
+        addRowButton.setOnAction(this::añadirLinea);
+        printBtn.setOnAction(this::crearInforme);
 
-        System.out.println("Ventana inicializada correctamente.");
+        cargartDatosTabla(null);
+
+        // Filtrado de DatePicker
+        datePickerFiltro.setOnAction(event -> {
+            LocalDate filtro = datePickerFiltro.getValue();
+            String filtroString = filtro.toString();
+
+            // Limpia la tabla
+            tableView.getItems().clear();
+
+            // Coje los datos por query filtrado
+            List<Proveedor> proveedoresfiltro = ProveedorManagerFactory.get().filtradoPorDatePickerProveedores(new GenericType<List<Proveedor>>() {
+            }, filtroString);
+
+            // Convertir la lista de proveedores en ObservableList para la TableView
+            ObservableList<Proveedor> proveedoresDataFiltro = FXCollections.observableArrayList(proveedoresfiltro);
+
+            // Establecer los datos en la tabla
+            tableView.setItems(proveedoresDataFiltro);
+        });
 
         // Configuración de las columnas de la tabla.
         idProveedorColumn.setCellValueFactory(new PropertyValueFactory<>("idProveedor"));
@@ -121,15 +167,14 @@ public class TablaProveedoresController implements Initializable {
         especialidadColumn.setCellValueFactory(new PropertyValueFactory<>("especialidad"));
         ultimaActividadColumn.setCellValueFactory(new PropertyValueFactory<>("ultimaActividad"));
 
-        // Obtener la lista de proveedores desde el servidor o el origen de datos
-        List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
-        });
+        // Configurar tabla como editable
+        tableView.setEditable(true);
 
-        // Convertir la lista de proveedores en ObservableList para la TableView
-        ObservableList<Proveedor> proveedoresData = FXCollections.observableArrayList(proveedores);
-
-        // Establecer los datos en la tabla
-        tableView.setItems(proveedoresData);
+        // Configurar la columna de descripción para usar EditingCell
+        nombreColumn.setCellFactory(column -> new EditingCellProveedor());
+        tipoColumn.setCellFactory(column -> new EditingCellProveedor());
+        especialidadColumn.setCellFactory(column -> new EditingCellProveedor());
+        ultimaActividadColumn.setCellFactory(column -> new EditingCellProveedor<>());
 
         // Borrado
         deleteButton.setDisable(true);
@@ -143,43 +188,6 @@ public class TablaProveedoresController implements Initializable {
                 deleteButton.setDisable(true);
             }
         });
-    }
-
-    private void proveedorNuevo(ActionEvent event) {
-
-        String nombre = NombreField.getText();
-        String especilalidad = especialidadField.getText();
-        String TipoVehiculoString = categoryComboBox.getValue();
-
-        TipoVehiculo valor;
-
-        if (TipoVehiculoString.equals("MOTO")) {
-            valor = TipoVehiculo.MOTO;
-        } else if (TipoVehiculoString.equals("CAMION")) {
-            valor = TipoVehiculo.CAMION;
-        } else {
-            valor = TipoVehiculo.COCHE;
-        }
-
-        Proveedor proveedorNuevo = new Proveedor();
-        proveedorNuevo.setNombreProveedor(nombre);
-        proveedorNuevo.setEspecialidad(especilalidad);
-        proveedorNuevo.setTipoVehiculo(valor);
-
-        Date fechaHoy = new Date();
-        fechaHoy.getDate();
-        proveedorNuevo.setUltimaActividad(fechaHoy);
-
-        try {
-
-            ProveedorManagerFactory.get().create_XML(proveedorNuevo);
-
-        } catch (Exception ex) {
-            System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-        }
-
-        tableView.refresh();
-
     }
 
     // Abrir Ventana SignIn & SignUp
@@ -216,30 +224,33 @@ public class TablaProveedoresController implements Initializable {
     // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
         try {
-            // Se carga el FXML con la información de la vista viewSignUp.
+            // Cargar el FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
             Parent root = loader.load();
 
-            NavegacionPrincipalTrabajadorController controler = loader.getController();
+            // Crear un ScrollPane para envolver el contenido
+            ScrollPane sc = new ScrollPane();
+            sc.setContent(root);
 
-            // Obtener el Stage desde el nodo que disparó el evento.
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            // Configurar el ScrollPane para que solo permita desplazamiento vertical
+            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
+            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
 
-            stage.setTitle("Navegacion Principal Trabajador");
-            // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            // Configurar el Scene
+            Stage stage = (Stage) homeBtn.getScene().getWindow();
+            stage.setTitle("Navegación Principal Trabajador");
 
-            // Se muestra en la ventana el Scene creado.
+            // Crear la nueva escena con el ScrollPane
+            Scene scene = new Scene(sc);
+            scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+
+            // Establecer la escena y mostrarla
             stage.setScene(scene);
             stage.show();
+
         } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(NavegacionPrincipalTrabajadorController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+            Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
@@ -370,5 +381,62 @@ public class TablaProveedoresController implements Initializable {
                 }
             });
         }
+    }
+
+    // Añadir Linea para insertar Proveedor
+    private void añadirLinea(ActionEvent event) {
+
+        try {
+
+            Proveedor porveedorLinea = new Proveedor();
+
+            // La fecha se puede cambiar pero debe ser automatica
+            Date fechaAuto = new Date();
+            porveedorLinea.setUltimaActividad(fechaAuto);
+            porveedorLinea.setNombreProveedor("Introduce el Nombre del Nuevo Proveedor");
+            porveedorLinea.setTipoVehiculo(TipoVehiculo.COCHE);
+            porveedorLinea.setEspecialidad("Introduce la Especialidad del Nuevo Proveedor");
+
+            ProveedorManagerFactory.get().create_XML(porveedorLinea);
+
+            cargartDatosTabla(null);
+
+        } catch (Exception e) {
+            System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
+        }
+    }
+
+    // Metodo que crea el informe
+    private void crearInforme(ActionEvent event) {
+
+        try {
+            
+            JasperReport report = JasperCompileManager.compileReport("src/informes/InformeProveedor.jrxml");
+            
+            JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Proveedor>)this.tableView.getItems());
+
+            Map<String, Object> parameters = new HashMap<>();
+            
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
+            
+            JasperViewer jasperViewer = new JasperViewer(jasperPrint);
+            
+            jasperViewer.setVisible(true);
+                    
+            
+        } catch (JRException e) {
+            
+            LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
+
+            // Crear un Alert de tipo ERROR
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Generando Informe");
+            alert.setHeaderText("Hubo un problema al generar el informe");
+            alert.setContentText("Por favor, intente más tarde o contacte con el administrador.");
+
+            // Mostrar el Alert
+            alert.showAndWait();
+        }
+
     }
 }
