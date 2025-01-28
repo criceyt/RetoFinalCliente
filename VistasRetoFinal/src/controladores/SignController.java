@@ -25,6 +25,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -233,7 +234,7 @@ public class SignController implements Initializable {
         // Recoger datos de SignIn
         String login = usernameField.getText();
         String contrasena = passwordField.getText();
-        
+
         if (login.isEmpty() || contrasena.isEmpty()) {
             // Alerta que indica que los datos no son correctos
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -251,25 +252,30 @@ public class SignController implements Initializable {
                 // Si la Persona es Usuario entra en este metido Sino va al Otro
                 if (personaLogIn instanceof Usuario) {
 
-
                     SessionManager.setUsuario((Usuario) personaLogIn);
 
                     // Se carga el FXML con la información de la vista viewSignUp.
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
                     Parent root = loader.load();
 
+                    // Crear un ScrollPane y asignar el contenido
+                    ScrollPane scrollPane = new ScrollPane();
+                    scrollPane.setContent(root);  // Establecer el contenido de la vista cargada en el ScrollPane
+
+                    // Desactivar el desplazamiento horizontal
+                    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);  // Desactiva la barra de desplazamiento horizontal
+
+                    // Establecer el ajuste automático al ancho (solo el desplazamiento vertical está habilitado)
+                    scrollPane.setFitToWidth(true);  // Permite que el contenido se ajuste al ancho de la ventana
+                    scrollPane.setFitToHeight(true); // Permite que el contenido se ajuste a la altura de la ventana
+
                     NavegacionPrincipalController controller = loader.getController();
-                    //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-                    // Llevar el Usuario a Navegacion Principal
-                    //controller.setUsuario((Usuario) personaLogIn);
-                    //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-                    // Obtener el Stage desde el nodo que disparó el evento.
                     Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
                     stage.setTitle("Navegacion Principal");
                     // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
                     Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+                    scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
                     // Se muestra en la ventana el Scene creado.
                     stage.setScene(scene);
                     stage.show();

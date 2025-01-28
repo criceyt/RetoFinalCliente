@@ -7,6 +7,7 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -25,6 +26,9 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import logica.SessionManager;
+import logica.UsuarioManagerFactory;
+import modelo.Usuario;
 import modelo.Vehiculo;
 
 /**
@@ -59,16 +63,13 @@ public class InformacionExtraVehiculoController implements Initializable {
     private Button cerrarSesionBtn;
 
     @FXML
+    private Button comprarBtn;
+
+    @FXML
     private Button homeBtn;
-
+    
     @FXML
-    private MenuItem gestionVehiculos;
-
-    @FXML
-    private MenuItem gestionProveedores;
-
-    @FXML
-    private MenuItem gestionMantenimientos;
+    private Button tuGarajeBtn;
 
     @FXML
     private ImageView imageView;
@@ -81,9 +82,8 @@ public class InformacionExtraVehiculoController implements Initializable {
         // Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
-        gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
-        gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
-        gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
+        comprarBtn.setOnAction(this::comprarVehiculo);
+        tuGarajeBtn.setOnAction(this::abrirTuGaraje);
 
         // Recogemos el Vehiculo y sacamos toda su info
         this.vehiculo = VehiculoInfoExtraManager.getVehiculo();
@@ -108,6 +108,30 @@ public class InformacionExtraVehiculoController implements Initializable {
         Image image = new Image(getClass().getResource(rutaImagen).toExternalForm());
         imageView.setImage(image);
 
+    }
+
+    // Abrir perfil mediante ImageView
+    @FXML
+    private void abrirPerfilBtn(javafx.scene.input.MouseEvent event) {
+        try {
+            // Se carga el FXML con la información de la vista
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/Perfil.fxml"));
+            Parent root = loader.load();
+
+            // Obtener el controlador
+            PerfilController controller = loader.getController();
+
+            // Obtener el Stage
+            Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
+            stage.setTitle("Perfil de Usuario");
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/Perfil.css").toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(TablaProveedoresController.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+        }
     }
 
     // Abrir Ventana SignIn & SignUp
@@ -145,7 +169,7 @@ public class InformacionExtraVehiculoController implements Initializable {
     private void irAtras(ActionEvent event) {
         try {
             // Cargar el FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
             Parent root = loader.load();
 
             // Crear un ScrollPane para envolver el contenido
@@ -158,7 +182,7 @@ public class InformacionExtraVehiculoController implements Initializable {
 
             // Configurar el Scene
             Stage stage = (Stage) homeBtn.getScene().getWindow();
-            stage.setTitle("Navegación Principal Trabajador");
+            stage.setTitle("Navegación Principal");
 
             // Crear la nueva escena con el ScrollPane
             Scene scene = new Scene(sc);
@@ -174,10 +198,10 @@ public class InformacionExtraVehiculoController implements Initializable {
         }
     }
 
-    // Abrir Ventana Solicitar Mantenimiento
-    private void abrirVentanaSolicitarMantenimiento(ActionEvent event) {
-
-        try {
+    // Metodo para Abrir tu Garaje
+    private void abrirTuGaraje(ActionEvent event) {
+        
+         try {
             // Se carga el FXML con la información de la vista viewSignUp.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SolicitarMantenimiento.fxml"));
             Parent root = loader.load();
@@ -204,55 +228,39 @@ public class InformacionExtraVehiculoController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
+    
+    // Metodo que se Activa cuando se le da a Comprar (Button)
+    private void comprarVehiculo(ActionEvent event) {
 
-    private void abrirVentanaGestionVehiculos(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TablaVehiculos.fxml"));
-            Parent root = loader.load();
+        // Crear el Alert con un mensaje de confirmación
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirmación de Compra");
+        alert.setHeaderText("¿Está seguro que desea comprar este vehículo?");
+        alert.setContentText("La empresa no acepta devoluciones.");
 
-            Stage stage = (Stage) homeBtn.getScene().getWindow();
-            stage.setTitle("Gestión de Vehículos");
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
+        // Mostrar el Alert y esperar la respuesta del usuario
+        Optional<ButtonType> result = alert.showAndWait();
+
+        // Comprobar la respuesta del usuario
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            // El usuario hizo clic en "Sí" (ButtonType.OK)
+            Usuario usu = SessionManager.getUsuario();
+            String idParseado = String.valueOf(usu.getIdPersona());
+            
+            
+            Vehiculo vehiculoParaGuardar = VehiculoInfoExtraManager.getVehiculo();
+            
+            // Insertamos el coche en el ArrayList
+            usu.getTusVehiculos().add(vehiculoParaGuardar);
+
+            // Mandamos el Usaurio
+            UsuarioManagerFactory.get().edit_XML(Usuario.class, idParseado);
+            
+        } else {
+            // El usuario hizo clic en "No" o cerró el diálogo
+            System.out.println("Compra cancelada");
+            // Aquí puedes agregar la lógica para cancelar la compra
         }
-    }
 
-    private void abrirVentanaGestionProveedores(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TablaProveedores.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) homeBtn.getScene().getWindow();
-            stage.setTitle("Gestión de Proveedores");
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
-        }
-    }
-
-    private void abrirVentanaGestionMantenimientos(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TablaMantenimiento.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = (Stage) homeBtn.getScene().getWindow();
-            stage.setTitle("Gestión de Mantenimientos");
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
-        }
     }
 }

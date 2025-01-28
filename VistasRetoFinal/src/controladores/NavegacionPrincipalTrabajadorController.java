@@ -213,14 +213,12 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
             VehiculoInfoExtraManager.setVehiculo(vehiculo);
             
-
-            
             // Se carga el FXML con la información de la vista
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculo.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculoTrabajador.fxml"));
             Parent root = loader.load();
 
             // Obtener el controlador
-            InformacionExtraVehiculoController controller = loader.getController();
+            InformacionExtraVehiculoControllerTrabajador controller = loader.getController();
 
             // Guardamos el objeto en la clase para que pueda ser utilizado en el controlador
             
@@ -233,7 +231,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {
-            Logger.getLogger(InformacionExtraVehiculoController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(InformacionExtraVehiculoControllerTrabajador.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
