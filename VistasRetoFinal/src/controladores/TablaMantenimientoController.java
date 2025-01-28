@@ -3,9 +3,12 @@ package controladores;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,6 +22,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
@@ -31,6 +35,13 @@ import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
 import logica.MantenimientoManagerFactory;
 import modelo.Mantenimiento;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 public class TablaMantenimientoController implements Initializable {
 
@@ -67,10 +78,14 @@ public class TablaMantenimientoController implements Initializable {
     private Button btnAñadirFila;
     @FXML
     private Button btnGuardar;
+    @FXML
+    private Button printBtn;
 
     @FXML
     private DatePicker datePickerFiltro;
 
+    // Declaraciones
+    private Logger LOGGER = Logger.getLogger(TablaMantenimientoController.class.getName());
     private Mantenimiento mantenimientoVacio;
 
     @Override
@@ -85,6 +100,7 @@ public class TablaMantenimientoController implements Initializable {
         refreshButton.setOnAction(this::cargarDatosTabla);
         btnAñadirFila.setOnAction(this::insertarMantenimiento);
         btnGuardar.setOnAction(this::guardarMantenimiento);
+        printBtn.setOnAction(this::crearInforme);
 
         cargarDatosTabla(null);
 
@@ -355,6 +371,40 @@ public class TablaMantenimientoController implements Initializable {
             new Alert(Alert.AlertType.INFORMATION, "Error al obtener IDs de mantenimiento", ButtonType.OK).showAndWait();
             return 1L; // Retorna 1 como fallback
         }
+    }
+    
+    // Metodo que crea el informe
+    private void crearInforme(ActionEvent event) {
+
+        try {
+            
+            JasperReport report = JasperCompileManager.compileReport("src/informes/InformeMantenimiento.jrxml");
+            
+            JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Mantenimiento>)this.tableView.getItems());
+
+            Map<String, Object> parameters = new HashMap<>();
+            
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
+            
+            JasperViewer jasperViewer = new JasperViewer(jasperPrint);
+            
+            jasperViewer.setVisible(true);
+                    
+            
+        } catch (JRException e) {
+            
+            LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
+
+            // Crear un Alert de tipo ERROR
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Generando Informe");
+            alert.setHeaderText("Hubo un problema al generar el informe");
+            alert.setContentText("Por favor, intente más tarde o contacte con el administrador.");
+
+            // Mostrar el Alert
+            alert.showAndWait();
+        }
+
     }
 
 }

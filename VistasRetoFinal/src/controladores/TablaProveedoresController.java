@@ -37,11 +37,22 @@ import modelo.Proveedor;
 import modelo.TipoVehiculo;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -102,11 +113,16 @@ public class TablaProveedoresController implements Initializable {
     private Button deleteButton;
 
     @FXML
+    private Button printBtn;
+
+    @FXML
     private Button addRowButton;
 
     @FXML
     private DatePicker datePickerFiltro;
 
+    // Declaraciones
+    private Logger LOGGER = Logger.getLogger(TablaProveedoresController.class.getName());
     private DatePicker datePicker;
 
     @Override
@@ -121,6 +137,7 @@ public class TablaProveedoresController implements Initializable {
         refreshButton.setOnAction(this::cargartDatosTabla);
         deleteButton.setOnAction(this::borrarProveedor);
         addRowButton.setOnAction(this::añadirLinea);
+        printBtn.setOnAction(this::crearInforme);
 
         cargartDatosTabla(null);
 
@@ -387,5 +404,39 @@ public class TablaProveedoresController implements Initializable {
         } catch (Exception e) {
             System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
         }
+    }
+
+    // Metodo que crea el informe
+    private void crearInforme(ActionEvent event) {
+
+        try {
+            
+            JasperReport report = JasperCompileManager.compileReport("src/informes/InformeProveedor.jrxml");
+            
+            JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Proveedor>)this.tableView.getItems());
+
+            Map<String, Object> parameters = new HashMap<>();
+            
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
+            
+            JasperViewer jasperViewer = new JasperViewer(jasperPrint);
+            
+            jasperViewer.setVisible(true);
+                    
+            
+        } catch (JRException e) {
+            
+            LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
+
+            // Crear un Alert de tipo ERROR
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Generando Informe");
+            alert.setHeaderText("Hubo un problema al generar el informe");
+            alert.setContentText("Por favor, intente más tarde o contacte con el administrador.");
+
+            // Mostrar el Alert
+            alert.showAndWait();
+        }
+
     }
 }

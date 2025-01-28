@@ -53,7 +53,7 @@
             <Label text="Filtrar por fecha:" styleClass="label"/>
             <DatePicker fx:id="datePickerFiltro" styleClass="date-picker"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button text="PRINT" fx:id="printButton"/>
+            <Button text="PRINT" fx:id="printBtn"/>
         </HBox>
     </bottom>
 </BorderPane>

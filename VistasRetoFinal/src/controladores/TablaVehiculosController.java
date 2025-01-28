@@ -8,8 +8,11 @@ package controladores;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,6 +25,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
@@ -32,11 +36,19 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
+import static jxl.biff.BaseCellFeatures.logger;
 import logica.ProveedorManagerFactory;
 import logica.VehiculoManagerFactory;
 import modelo.Proveedor;
 import modelo.TipoVehiculo;
 import modelo.Vehiculo;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  * FXML Controller class
@@ -101,8 +113,13 @@ public class TablaVehiculosController implements Initializable {
     private Button addRowButton;
 
     @FXML
+    private Button printBtn;
+
+    @FXML
     private DatePicker datePickerFiltro;
 
+    // Declaraciones
+    private Logger LOGGER = Logger.getLogger(TablaVehiculosController.class.getName());
     private DatePicker datePicker;
 
     // Metodo Initialize
@@ -118,6 +135,7 @@ public class TablaVehiculosController implements Initializable {
         deleteButton.setOnAction(this::borrarVehiculo);
         addRowButton.setOnAction(this::añadirLinea);
         refreshButton.setOnAction(this::cargarDatosTabla);
+        printBtn.setOnAction(this::crearInforme);
 
         System.out.println("Ventana inicializada correctamente.");
 
@@ -407,6 +425,38 @@ public class TablaVehiculosController implements Initializable {
 
         } catch (Exception e) {
             System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
+        }
+    }
+
+    // Metodo que crea el informe
+    private void crearInforme(ActionEvent event) {
+
+        try {
+
+            JasperReport report = JasperCompileManager.compileReport("src/informes/InformeVehiculo.jrxml");
+
+            JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Vehiculo>) this.tableViewVehiculo.getItems());
+
+            Map<String, Object> parameters = new HashMap<>();
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
+
+            JasperViewer jasperViewer = new JasperViewer(jasperPrint);
+
+            jasperViewer.setVisible(true);
+
+        } catch (JRException e) {
+            
+            LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
+
+            // Crear un Alert de tipo ERROR
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Generando Informe");
+            alert.setHeaderText("Hubo un problema al generar el informe");
+            alert.setContentText("Por favor, intente más tarde o contacte con el administrador.");
+
+            // Mostrar el Alert
+            alert.showAndWait();
         }
 
     }
