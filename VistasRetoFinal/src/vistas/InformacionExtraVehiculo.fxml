@@ -44,6 +44,9 @@
                 
                 <!-- Botón Cargar Imagen -->
                 <Button fx:id="cargarImagenBtn" text="Cargar Imagen" style="-fx-font-size: 16px; -fx-background-color: #4CAF50; -fx-text-fill: white;" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                
+                <!-- Imagen cargada -->
+                <ImageView fx:id="imageView" GridPane.rowIndex="5" GridPane.columnIndex="0" fitWidth="200" fitHeight="200" />
             </GridPane>
         </VBox>
     </center>

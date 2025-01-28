@@ -22,6 +22,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
 import modelo.Vehiculo;
 
@@ -67,13 +69,16 @@ public class InformacionExtraVehiculoController implements Initializable {
 
     @FXML
     private MenuItem gestionMantenimientos;
-    
+
+    @FXML
+    private ImageView imageView;
+
     // Atributo
-    private Vehiculo vehiculoInfoExtra;
+    private Vehiculo vehiculo;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        //Se añaden los listeners a todos los botones.
+        // Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
         gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
@@ -81,20 +86,28 @@ public class InformacionExtraVehiculoController implements Initializable {
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
 
         // Recogemos el Vehiculo y sacamos toda su info
-        this.vehiculoInfoExtra = VehiculoInfoExtraManager.getVehiculo();
+        this.vehiculo = VehiculoInfoExtraManager.getVehiculo();
 
-        
-        //System.out.println(vehiculoInfoExtra.getColor());
-        
-/*
-        marcaLabel.setText(vehiculoInfoExtra.getMarca());
-        modeloLabel.setText(vehiculoInfoExtra.getModelo());
-        colorLabel.setText(vehiculoInfoExtra.getColor());
-        potenciaLabel.setText(String.valueOf(vehiculoInfoExtra.getPotencia()));
-        kmLabel.setText(String.valueOf(vehiculoInfoExtra.getKm()));
-        precioLabel.setText(String.valueOf(vehiculoInfoExtra.getPrecio()));
-        tipoVehiculoLabel.setText(vehiculoInfoExtra.getTipoVehiculo().toString());
-*/
+        // Cargar los datos del Vehiculo
+        marcaLabel.setText(vehiculo.getMarca());
+        modeloLabel.setText(vehiculo.getModelo());
+        colorLabel.setText(vehiculo.getColor());
+        potenciaLabel.setText(String.valueOf(vehiculo.getPotencia()));
+        kmLabel.setText(String.valueOf(vehiculo.getKm()));
+        precioLabel.setText(String.valueOf(vehiculo.getPrecio()));
+        tipoVehiculoLabel.setText(vehiculo.getTipoVehiculo().toString());
+
+        // Cargar la imagen
+        String rutaImagen = vehiculo.getRuta(); // Obtener la ruta de la imagen desde el vehiculo
+
+        if (rutaImagen == null || rutaImagen.isEmpty()) {
+            rutaImagen = "/img/sinImagen.jpg";
+        }
+
+        // Usar getClass().getResource() para acceder a la imagen desde el classpath
+        Image image = new Image(getClass().getResource(rutaImagen).toExternalForm());
+        imageView.setImage(image);
+
     }
 
     // Abrir Ventana SignIn & SignUp

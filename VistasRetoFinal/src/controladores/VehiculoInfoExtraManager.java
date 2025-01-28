@@ -15,7 +15,7 @@ public class VehiculoInfoExtraManager {
     
     private static Vehiculo vehiculo;
 
-    // Método para obtener el usuario actual
+    // Método para obtener el vehiculo actual
     public static Vehiculo getVehiculo() {
         return vehiculo;
     }

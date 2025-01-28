@@ -210,6 +210,11 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     private void abrirVentanaInformacionVehiculo(ActionEvent event, Vehiculo vehiculo) {
         try {
+
+            VehiculoInfoExtraManager.setVehiculo(vehiculo);
+            
+
+            
             // Se carga el FXML con la información de la vista
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculo.fxml"));
             Parent root = loader.load();
@@ -218,7 +223,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             InformacionExtraVehiculoController controller = loader.getController();
 
             // Guardamos el objeto en la clase para que pueda ser utilizado en el controlador
-            VehiculoInfoExtraManager.setVehiculo(vehiculo);
+            
 
             // Obtener el Stage
             Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
