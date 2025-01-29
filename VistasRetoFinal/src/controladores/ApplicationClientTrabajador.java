@@ -6,6 +6,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -20,34 +21,48 @@ public class ApplicationClientTrabajador extends javafx.application.Application 
 
     /**
      * Método que se llama al iniciar la aplicación.
+     *
      * @param stage El escenario principal de la aplicación.
      * @throws Exception si ocurre un error durante la carga del archivo FXML.
      */
     @Override
     public void start(Stage stage) throws Exception {
-
+        // Cargar el FXML
         Parent root = FXMLLoader.load(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
 
-        Scene scene = new Scene(root);
+        // Crear un ScrollPane y asignar el contenido
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setContent(root);  // Establecer el contenido de la vista cargada en el ScrollPane
+
+        // Desactivar el desplazamiento horizontal
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);  // Desactiva la barra de desplazamiento horizontal
+
+        // Establecer el ajuste automático al ancho (solo el desplazamiento vertical está habilitado)
+        scrollPane.setFitToWidth(true);  // Permite que el contenido se ajuste al ancho de la ventana
+        scrollPane.setFitToHeight(true); // Permite que el contenido se ajuste a la altura de la ventana
+
+        // Crear la escena con el ScrollPane como root
+        Scene scene = new Scene(scrollPane);
         scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
+        // Configurar las propiedades de la ventana
         stage.setWidth(1000);
         stage.setHeight(800);
         stage.setResizable(false);
-
         stage.setTitle("Navegacion de Trabajador");
-
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/img/icono.png")));
         stage.setScene(scene);
 
+        // Confirmar antes de cerrar la ventana
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
-                event.consume(); // Evita que la ventana se cierre inmediatamente
+                event.consume();  // Evita que la ventana se cierre inmediatamente
                 mostrarConfirmacionCerrar(stage);
             }
         });
 
+        // Mostrar la ventana
         stage.show();
     }
 

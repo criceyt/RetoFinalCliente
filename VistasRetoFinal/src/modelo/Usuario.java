@@ -6,6 +6,7 @@
 package modelo;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -21,6 +22,12 @@ public class Usuario extends Persona implements Serializable {
     
     // Atributos
     private boolean premium;
+    private ArrayList<Vehiculo> tusVehiculos;
+    
+    public Usuario() {
+        // Aseguramos que el ArrayList esté siempre inicializado
+        this.tusVehiculos = new ArrayList<>();
+    }
 
     private Set<Compra> compras;
     
@@ -41,5 +48,15 @@ public class Usuario extends Persona implements Serializable {
     public void setCompras(Set<Compra> compras) {
         this.compras = compras;
     }
+
+    public ArrayList<Vehiculo> getTusVehiculos() {
+        return tusVehiculos;
+    }
+
+    public void setTusVehiculos(ArrayList<Vehiculo> tusVehiculos) {
+        this.tusVehiculos = tusVehiculos;
+    }
+    
+    
 
 }

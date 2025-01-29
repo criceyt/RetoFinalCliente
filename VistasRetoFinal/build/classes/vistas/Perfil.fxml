@@ -60,31 +60,31 @@
                             <children>
                                 <!-- Primera fila -->
                                 <Label text="DNI" GridPane.rowIndex="0" GridPane.columnIndex="0" />
-                                <TextField GridPane.rowIndex="0" GridPane.columnIndex="1" />
+                                <TextField fx:id="textFieldDni" GridPane.rowIndex="0" GridPane.columnIndex="1" />
 
                                 <!-- Segunda fila -->
                                 <Label text="Email" GridPane.rowIndex="1" GridPane.columnIndex="0" />
-                                <TextField GridPane.rowIndex="1" GridPane.columnIndex="1" />
+                                <TextField fx:id="textFieldEmail" GridPane.rowIndex="1" GridPane.columnIndex="1" />
 
                                 <!-- Tercera fila -->
                                 <Label text="Nombre" GridPane.rowIndex="2" GridPane.columnIndex="0" />
-                                <TextField GridPane.rowIndex="2" GridPane.columnIndex="1" />
+                                <TextField fx:id="textFieldNombre" GridPane.rowIndex="2" GridPane.columnIndex="1" />
 
                                 <!-- Cuarta fila -->
                                 <Label text="Teléfono" GridPane.rowIndex="3" GridPane.columnIndex="0" />
-                                <TextField GridPane.rowIndex="3" GridPane.columnIndex="1" />
+                                <TextField fx:id="textFieldTelefono" GridPane.rowIndex="3" GridPane.columnIndex="1" />
 
                                 <!-- Quinta fila -->
                                 <Label text="Dirección" GridPane.rowIndex="0" GridPane.columnIndex="2" />
-                                <TextField GridPane.rowIndex="0" GridPane.columnIndex="3" />
+                                <TextField fx:id="textFieldDireccion" GridPane.rowIndex="0" GridPane.columnIndex="3" />
 
                                 <!-- Sexta fila -->
                                 <Label text="Código Postal" GridPane.rowIndex="1" GridPane.columnIndex="2" />
-                                <TextField GridPane.rowIndex="1" GridPane.columnIndex="3" />
+                                <TextField fx:id="textFieldCodigoPostal" GridPane.rowIndex="1" GridPane.columnIndex="3" />
 
                                 <!-- Séptima fila -->
                                 <Label text="Fecha Registro" GridPane.rowIndex="2" GridPane.columnIndex="2" />
-                                <TextField GridPane.rowIndex="2" GridPane.columnIndex="3" />
+                                <TextField fx:id="textFieldFechaRegistro" GridPane.rowIndex="2" GridPane.columnIndex="3" />
 
                                 <!-- Checkbox -->
                                 <CheckBox text="Es Premiun" fx:id="chkTerms" style="-fx-text-fill: white;" GridPane.rowIndex="3" GridPane.columnIndex="3" />
@@ -95,7 +95,7 @@
                         <HBox spacing="20" alignment="CENTER">
                             <children>
                                 <Button fx:id="volverBtn" text="Volver" />
-                                <Button text="Guardar" />
+                                <Button fx:id="guardarBtn" text="Guardar" />
                             </children>
                         </HBox>
                     </children>

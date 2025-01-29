@@ -51,7 +51,7 @@
                 <DatePicker fx:id="datePickerFiltro" styleClass="date-picker"/>
             </HBox>
 
-            <Button text="PRINT" fx:id="printButton" style="-fx-background-color: #90a4ae; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
+            <Button text="PRINT" fx:id="printBtn" style="-fx-background-color: #90a4ae; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;"/>
         </HBox>
     </bottom>
 </BorderPane>

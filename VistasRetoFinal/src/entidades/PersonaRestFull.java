@@ -5,12 +5,24 @@
  */
 package entidades;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import javax.ws.rs.ClientErrorException;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 import logica.PersonaManager;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import modelo.Persona;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Jersey REST client generated for REST resource:PersonaFacadeREST
@@ -35,7 +47,7 @@ public class PersonaRestFull implements PersonaManager {
         client = javax.ws.rs.client.ClientBuilder.newClient();
         webTarget = client.target(BASE_URI).path("persona");
     }
-    
+
     public <T> T resetPassword_XML(Class<T> responseType, String email) throws WebApplicationException {
         WebTarget resource = webTarget;
         System.out.println(email);

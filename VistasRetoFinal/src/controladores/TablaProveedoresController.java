@@ -37,10 +37,22 @@ import modelo.Proveedor;
 import modelo.TipoVehiculo;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.KeyCode;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -101,11 +113,16 @@ public class TablaProveedoresController implements Initializable {
     private Button deleteButton;
 
     @FXML
+    private Button printBtn;
+
+    @FXML
     private Button addRowButton;
 
     @FXML
     private DatePicker datePickerFiltro;
 
+    // Declaraciones
+    private Logger LOGGER = Logger.getLogger(TablaProveedoresController.class.getName());
     private DatePicker datePicker;
 
     @Override
@@ -120,9 +137,10 @@ public class TablaProveedoresController implements Initializable {
         refreshButton.setOnAction(this::cargartDatosTabla);
         deleteButton.setOnAction(this::borrarProveedor);
         addRowButton.setOnAction(this::añadirLinea);
-                
+        printBtn.setOnAction(this::crearInforme);
+
         cargartDatosTabla(null);
-        
+
         // Filtrado de DatePicker
         datePickerFiltro.setOnAction(event -> {
             LocalDate filtro = datePickerFiltro.getValue();
@@ -151,13 +169,12 @@ public class TablaProveedoresController implements Initializable {
 
         // Configurar tabla como editable
         tableView.setEditable(true);
-        
+
         // Configurar la columna de descripción para usar EditingCell
         nombreColumn.setCellFactory(column -> new EditingCellProveedor());
         tipoColumn.setCellFactory(column -> new EditingCellProveedor());
         especialidadColumn.setCellFactory(column -> new EditingCellProveedor());
         ultimaActividadColumn.setCellFactory(column -> new EditingCellProveedor<>());
-
 
         // Borrado
         deleteButton.setDisable(true);
@@ -207,30 +224,33 @@ public class TablaProveedoresController implements Initializable {
     // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
         try {
-            // Se carga el FXML con la información de la vista viewSignUp.
+            // Cargar el FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
             Parent root = loader.load();
 
-            NavegacionPrincipalTrabajadorController controler = loader.getController();
+            // Crear un ScrollPane para envolver el contenido
+            ScrollPane sc = new ScrollPane();
+            sc.setContent(root);
 
-            // Obtener el Stage desde el nodo que disparó el evento.
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            // Configurar el ScrollPane para que solo permita desplazamiento vertical
+            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
+            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
 
-            stage.setTitle("Navegacion Principal Trabajador");
-            // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-            Scene scene = new Scene(root);
+            // Configurar el Scene
+            Stage stage = (Stage) homeBtn.getScene().getWindow();
+            stage.setTitle("Navegación Principal Trabajador");
+
+            // Crear la nueva escena con el ScrollPane
+            Scene scene = new Scene(sc);
             scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
-            // Se muestra en la ventana el Scene creado.
+            // Establecer la escena y mostrarla
             stage.setScene(scene);
             stage.show();
+
         } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(NavegacionPrincipalTrabajadorController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+            Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
@@ -384,5 +404,39 @@ public class TablaProveedoresController implements Initializable {
         } catch (Exception e) {
             System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
         }
+    }
+
+    // Metodo que crea el informe
+    private void crearInforme(ActionEvent event) {
+
+        try {
+            
+            JasperReport report = JasperCompileManager.compileReport("src/informes/InformeProveedor.jrxml");
+            
+            JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Proveedor>)this.tableView.getItems());
+
+            Map<String, Object> parameters = new HashMap<>();
+            
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
+            
+            JasperViewer jasperViewer = new JasperViewer(jasperPrint);
+            
+            jasperViewer.setVisible(true);
+                    
+            
+        } catch (JRException e) {
+            
+            LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
+
+            // Crear un Alert de tipo ERROR
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Generando Informe");
+            alert.setHeaderText("Hubo un problema al generar el informe");
+            alert.setContentText("Por favor, intente más tarde o contacte con el administrador.");
+
+            // Mostrar el Alert
+            alert.showAndWait();
+        }
+
     }
 }

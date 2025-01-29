@@ -20,6 +20,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 
 /**
@@ -27,7 +28,7 @@ import javafx.stage.Stage;
  * @author urkiz
  */
 public class SolicitarMantenimientoController implements Initializable {
-    
+
     // Elementos de la Ventana
     @FXML
     private Button homeBtn;
@@ -37,8 +38,7 @@ public class SolicitarMantenimientoController implements Initializable {
 
     @FXML
     private Button cerrarSesionBtn;
-    
-    
+
     // Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -81,32 +81,30 @@ public class SolicitarMantenimientoController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
-    
+
     // Abrir perfil mediante ImageView
     @FXML
     private void abrirPerfilBtn(javafx.scene.input.MouseEvent event) {
         try {
-        // Se carga el FXML con la información de la vista
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/Perfil.fxml"));
-        Parent root = loader.load();
+            // Se carga el FXML con la información de la vista
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/Perfil.fxml"));
+            Parent root = loader.load();
 
-        // Obtener el controlador
-        PerfilController controller = loader.getController();
+            // Obtener el controlador
+            PerfilController controller = loader.getController();
 
-        // Obtener el Stage
-        Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
-        stage.setTitle("Perfil de Usuario");
-        Scene scene = new Scene(root);
-        scene.getStylesheets().add(getClass().getResource("/css/Perfil.css").toExternalForm());
-        stage.setScene(scene);
-        stage.show();
-    } catch (IOException ex) {
-        Logger.getLogger(TablaProveedoresController.class.getName()).log(Level.SEVERE, null, ex);
-        new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+            // Obtener el Stage
+            Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
+            stage.setTitle("Perfil de Usuario");
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/Perfil.css").toExternalForm());
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(TablaProveedoresController.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+        }
     }
-}
-    
-   
 
     // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
@@ -114,6 +112,14 @@ public class SolicitarMantenimientoController implements Initializable {
             // Se carga el FXML con la información de la vista viewSignUp.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
             Parent root = loader.load();
+
+            // Crear un ScrollPane para envolver el contenido
+            ScrollPane sc = new ScrollPane();
+            sc.setContent(root);
+
+            // Configurar el ScrollPane para que solo permita desplazamiento vertical
+            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
+            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
 
             NavegacionPrincipalController controler = loader.getController();
 
@@ -123,7 +129,7 @@ public class SolicitarMantenimientoController implements Initializable {
             stage.setTitle("Navegacion Principal");
             // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
             // Se muestra en la ventana el Scene creado.
             stage.setScene(scene);

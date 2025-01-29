@@ -45,6 +45,7 @@ public class UsuarioRestFull implements UsuarioManager {
     }
 
     public void edit_XML(Object requestEntity, String id) throws WebApplicationException {
+        System.out.println("aaaaaaaaaaaaaaaaaa");
         webTarget.path(java.text.MessageFormat.format("{0}", new Object[]{id})).request(javax.ws.rs.core.MediaType.APPLICATION_XML).put(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_XML), Usuario.class);
     }
 

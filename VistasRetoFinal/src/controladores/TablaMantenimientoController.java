@@ -3,9 +3,12 @@ package controladores;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,10 +22,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -30,6 +35,13 @@ import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
 import logica.MantenimientoManagerFactory;
 import modelo.Mantenimiento;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 public class TablaMantenimientoController implements Initializable {
 
@@ -66,10 +78,14 @@ public class TablaMantenimientoController implements Initializable {
     private Button btnAñadirFila;
     @FXML
     private Button btnGuardar;
+    @FXML
+    private Button printBtn;
 
     @FXML
     private DatePicker datePickerFiltro;
 
+    // Declaraciones
+    private Logger LOGGER = Logger.getLogger(TablaMantenimientoController.class.getName());
     private Mantenimiento mantenimientoVacio;
 
     @Override
@@ -84,6 +100,7 @@ public class TablaMantenimientoController implements Initializable {
         refreshButton.setOnAction(this::cargarDatosTabla);
         btnAñadirFila.setOnAction(this::insertarMantenimiento);
         btnGuardar.setOnAction(this::guardarMantenimiento);
+        printBtn.setOnAction(this::crearInforme);
 
         cargarDatosTabla(null);
 
@@ -113,7 +130,6 @@ public class TablaMantenimientoController implements Initializable {
         mantenimientoExitosoColumn.setCellValueFactory(new PropertyValueFactory<>("mantenimientoExitoso"));
         idVehiculoColumn.setCellValueFactory(new PropertyValueFactory<>("idVehiculo"));
         fechaFinalizacionColumn.setCellValueFactory(new PropertyValueFactory<>("fechaFinalizacion"));
-        
 
         // Configurar tabla como editable
         tableView.setEditable(true);
@@ -157,15 +173,30 @@ public class TablaMantenimientoController implements Initializable {
 
     private void irAtras(ActionEvent event) {
         try {
+            // Cargar el FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
             Parent root = loader.load();
 
+            // Crear un ScrollPane para envolver el contenido
+            ScrollPane sc = new ScrollPane();
+            sc.setContent(root);
+
+            // Configurar el ScrollPane para que solo permita desplazamiento vertical
+            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
+            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
+
+            // Configurar el Scene
             Stage stage = (Stage) homeBtn.getScene().getWindow();
             stage.setTitle("Navegación Principal Trabajador");
-            Scene scene = new Scene(root);
+
+            // Crear la nueva escena con el ScrollPane
+            Scene scene = new Scene(sc);
             scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+
+            // Establecer la escena y mostrarla
             stage.setScene(scene);
             stage.show();
+
         } catch (IOException ex) {
             Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
@@ -310,6 +341,8 @@ public class TablaMantenimientoController implements Initializable {
                 // Llamada al servicio REST para persistir el nuevo mantenimiento
                 MantenimientoManagerFactory.get().create_XML(mantenimientoVacio);
 
+                cargarDatosTabla(null);
+
                 // Mostrar un mensaje de éxito
                 new Alert(Alert.AlertType.INFORMATION, "Mantenimiento guardado con éxito.").showAndWait();
 
@@ -338,6 +371,40 @@ public class TablaMantenimientoController implements Initializable {
             new Alert(Alert.AlertType.INFORMATION, "Error al obtener IDs de mantenimiento", ButtonType.OK).showAndWait();
             return 1L; // Retorna 1 como fallback
         }
+    }
+    
+    // Metodo que crea el informe
+    private void crearInforme(ActionEvent event) {
+
+        try {
+            
+            JasperReport report = JasperCompileManager.compileReport("src/informes/InformeMantenimiento.jrxml");
+            
+            JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Mantenimiento>)this.tableView.getItems());
+
+            Map<String, Object> parameters = new HashMap<>();
+            
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
+            
+            JasperViewer jasperViewer = new JasperViewer(jasperPrint);
+            
+            jasperViewer.setVisible(true);
+                    
+            
+        } catch (JRException e) {
+            
+            LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
+
+            // Crear un Alert de tipo ERROR
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Generando Informe");
+            alert.setHeaderText("Hubo un problema al generar el informe");
+            alert.setContentText("Por favor, intente más tarde o contacte con el administrador.");
+
+            // Mostrar el Alert
+            alert.showAndWait();
+        }
+
     }
 
 }

@@ -35,7 +35,7 @@ public class VehiculoRestFull implements VehiculoManager {
 
     public VehiculoRestFull() {
         client = javax.ws.rs.client.ClientBuilder.newClient();
-        webTarget = client.target(BASE_URI).path("/vehiculo");
+        webTarget = client.target(BASE_URI).path("vehiculo");
     }
 
     public <T> T filtrarPorKm(Class<T> responseType, String km) throws WebApplicationException {

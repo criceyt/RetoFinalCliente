@@ -8,8 +8,11 @@ package controladores;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,20 +25,30 @@ import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
+import static jxl.biff.BaseCellFeatures.logger;
 import logica.ProveedorManagerFactory;
 import logica.VehiculoManagerFactory;
 import modelo.Proveedor;
 import modelo.TipoVehiculo;
 import modelo.Vehiculo;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  * FXML Controller class
@@ -95,13 +108,18 @@ public class TablaVehiculosController implements Initializable {
 
     @FXML
     private Button refreshButton;
-    
+
     @FXML
     private Button addRowButton;
-    
+
+    @FXML
+    private Button printBtn;
+
     @FXML
     private DatePicker datePickerFiltro;
 
+    // Declaraciones
+    private Logger LOGGER = Logger.getLogger(TablaVehiculosController.class.getName());
     private DatePicker datePicker;
 
     // Metodo Initialize
@@ -117,6 +135,7 @@ public class TablaVehiculosController implements Initializable {
         deleteButton.setOnAction(this::borrarVehiculo);
         addRowButton.setOnAction(this::añadirLinea);
         refreshButton.setOnAction(this::cargarDatosTabla);
+        printBtn.setOnAction(this::crearInforme);
 
         System.out.println("Ventana inicializada correctamente.");
 
@@ -133,7 +152,7 @@ public class TablaVehiculosController implements Initializable {
 
         // Metodo que carga los datos de la Tabla
         cargarDatosTabla(null);
-        
+
         // Filtrado de DatePicker
         datePickerFiltro.setOnAction(event -> {
             LocalDate filtro = datePickerFiltro.getValue();
@@ -155,7 +174,7 @@ public class TablaVehiculosController implements Initializable {
 
         // Configurar tabla como editable
         tableViewVehiculo.setEditable(true);
-        
+
         // Configurar la columna de descripción para usar EditingCell
         marcaColum.setCellFactory(column -> new EditingCellVehiculo());
         modeloColum.setCellFactory(column -> new EditingCellVehiculo());
@@ -214,32 +233,33 @@ public class TablaVehiculosController implements Initializable {
     // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
         try {
-            // Se carga el FXML con la información de la vista viewSignUp.
+            // Cargar el FXML
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
             Parent root = loader.load();
 
-            NavegacionPrincipalTrabajadorController controler = loader.getController();
+            // Crear un ScrollPane para envolver el contenido
+            ScrollPane sc = new ScrollPane();
+            sc.setContent(root);
 
-            // Obtener el Stage desde el nodo que disparó el evento.
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            // Configurar el ScrollPane para que solo permita desplazamiento vertical
+            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
+            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
 
-            stage.setTitle("Navegacion Principal Trabajador");
-            // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-            Scene scene = new Scene(root);
+            // Configurar el Scene
+            Stage stage = (Stage) homeBtn.getScene().getWindow();
+            stage.setTitle("Navegación Principal Trabajador");
+
+            // Crear la nueva escena con el ScrollPane
+            Scene scene = new Scene(sc);
             scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
-            // Se muestra en la ventana el Scene creado.
+            // Establecer la escena y mostrarla
             stage.setScene(scene);
             stage.show();
 
         } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(NavegacionPrincipalTrabajadorController.class
-                    .getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+            Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
@@ -340,7 +360,7 @@ public class TablaVehiculosController implements Initializable {
 
                     // Cargamos los datos de la Tabla
                     cargarDatosTabla(null);
-                    
+
                 } else {
                     // Si el usuario cancela, no hacer nada
                     System.out.println("Borrado cancelado.");
@@ -354,7 +374,7 @@ public class TablaVehiculosController implements Initializable {
 
     // Metodo paar cargar los datos de la Tabla o para hacer un Refresh
     private void cargarDatosTabla(ActionEvent event) {
-        
+
         // Liampia la tabla antes de introducir los Items
         tableViewVehiculo.getItems().clear();
 
@@ -368,10 +388,10 @@ public class TablaVehiculosController implements Initializable {
         // Establecer los datos en la tabla
         tableViewVehiculo.setItems(vehiculosData);
     }
-    
+
     // Metodo para Añadir un Vehiuculo Vacio
     public void añadirLinea(ActionEvent even) {
-        
+
         try {
 
             Vehiculo vehiculoLinea = new Vehiculo();
@@ -379,31 +399,65 @@ public class TablaVehiculosController implements Initializable {
             // La fecha se puede cambiar pero debe ser automatica
             Date fechaAuto = new Date();
             vehiculoLinea.setFechaAlta(fechaAuto);
-            
+
             // String 
             vehiculoLinea.setMarca("Inserta la Marca");
             vehiculoLinea.setModelo("Inserta el Modelo");
             vehiculoLinea.setColor("Inserta el Color");
-            
+
             // Integer
             vehiculoLinea.setKm(0);
             vehiculoLinea.setPotencia(0);
             vehiculoLinea.setPrecio(0);
             vehiculoLinea.setTipoVehiculo(TipoVehiculo.COCHE);
-            
+
             // Enum
             vehiculoLinea.setTipoVehiculo(TipoVehiculo.COCHE);
+
+            // La ruta de la imagen
+            vehiculoLinea.setRuta(null);
 
             // Mnadar el Vehiculo
             VehiculoManagerFactory.get().create_XML(vehiculoLinea);
 
-            
             // Cargamos la tabla de nuevo
             cargarDatosTabla(null);
 
         } catch (Exception e) {
             System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
         }
-        
+    }
+
+    // Metodo que crea el informe
+    private void crearInforme(ActionEvent event) {
+
+        try {
+
+            JasperReport report = JasperCompileManager.compileReport("src/informes/InformeVehiculo.jrxml");
+
+            JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Vehiculo>) this.tableViewVehiculo.getItems());
+
+            Map<String, Object> parameters = new HashMap<>();
+
+            JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
+
+            JasperViewer jasperViewer = new JasperViewer(jasperPrint);
+
+            jasperViewer.setVisible(true);
+
+        } catch (JRException e) {
+            
+            LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
+
+            // Crear un Alert de tipo ERROR
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error Generando Informe");
+            alert.setHeaderText("Hubo un problema al generar el informe");
+            alert.setContentText("Por favor, intente más tarde o contacte con el administrador.");
+
+            // Mostrar el Alert
+            alert.showAndWait();
+        }
+
     }
 }

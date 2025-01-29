@@ -1,3 +1,4 @@
+
 #backgroundImage {
     -fx-image: url("/img/fondoClaro.jpg");
     -fx-background-size: cover; /* Asegura que la imagen cubra todo el área */

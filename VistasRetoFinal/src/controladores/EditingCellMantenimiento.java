@@ -49,7 +49,7 @@ public class EditingCellMantenimiento<T> extends TableCell<Mantenimiento, T> {
                 setGraphic(datePicker);
             } else if (item instanceof Long) {
                 Mantenimiento mantenimiento = (Mantenimiento) getTableRow().getItem();
-                if (mantenimiento != null || mantenimiento.getIdVehiculo() != null || mantenimiento.getIdVehiculo() == 0L) {
+                if (mantenimiento != null && mantenimiento.getIdVehiculo() != null && mantenimiento.getIdVehiculo() == 0L) {
                     createChoiceBox();
                     choiceBox.setValue((Long) item);
                     setGraphic(choiceBox);
