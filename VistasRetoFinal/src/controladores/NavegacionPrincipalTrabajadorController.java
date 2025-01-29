@@ -8,6 +8,7 @@ package controladores;
 import javafx.scene.input.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -32,6 +33,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javax.ws.rs.core.GenericType;
@@ -53,6 +56,9 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     private Button cerrarSesionBtn;
+    
+    @FXML
+    private Button restablecerBtn;
 
     @FXML
     private MenuItem gestionVehiculos;
@@ -62,6 +68,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     private MenuItem gestionMantenimientos;
+    
 
     @FXML
     public void mostrarFiltroKilometraje(MouseEvent event) {
@@ -71,7 +78,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     public void mostrarFiltroColor(MouseEvent event) {
-        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un color", "Rojo", "Azul", "Negro", "Blanco"));
+        mostrarPopup(event.getSource(), crearPaletaDeColores());
     }
 
     @FXML
@@ -93,6 +100,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
     // Declaracion del Popup
     private Popup popup;
     private List<Vehiculo> vehiculosSinFiltrar;
+    private List<Vehiculo> vehiculosFiltrados = new ArrayList<>();
 
     // Metodo Initialize
     @Override
@@ -103,9 +111,16 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
+        restablecerBtn.setOnMouseClicked(this::restablecerFiltros);
 
         generarBotones();
 
+    }
+    
+    public void restablecerFiltros(MouseEvent event){
+        vehiculosSinFiltrar = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+                });
+        actualizarVistaConVehiculos(vehiculosSinFiltrar);
     }
 
     // Abrir Ventana SignIn & SignUp
@@ -277,23 +292,29 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
     // Modifica el método para aplicar el filtro de kilometraje y precio
     private void aplicarFiltroKilometrajePrecio(TextField desde, TextField hasta) {
         try {
-            // Obtener los valores desde y hasta
+            // Obtener los valores desde y hasta, con validación
             double desdeValor = desde.getText().isEmpty() ? 0 : Double.parseDouble(desde.getText());
             double hastaValor = hasta.getText().isEmpty() ? Double.MAX_VALUE : Double.parseDouble(hasta.getText());
 
-            List<Vehiculo> vehiculosFiltrados;
+            // Si la lista de vehículos filtrados está vacía, cargamos todos los vehículos
+            if (vehiculosFiltrados.isEmpty()) {
+                vehiculosSinFiltrar = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+                });
+                vehiculosFiltrados = new ArrayList<>(vehiculosSinFiltrar); // Cargamos todos los vehículos al principio
+            }
 
-            vehiculosSinFiltrar = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
-            });
-
-            // Filtrar los vehículos previamente cargados en vehiculosFiltrados
-            vehiculosFiltrados = vehiculosSinFiltrar.stream()
+            // Filtrar los vehículos según el filtro de kilometraje y precio
+            vehiculosFiltrados = vehiculosFiltrados.stream()
                     .filter(vehiculo -> {
                         double precio = vehiculo.getPrecio();  // Obtener el precio del vehículo
                         double kilometraje = vehiculo.getKm(); // Obtener el kilometraje del vehículo
-                        // Filtrar por precio o kilometraje en el rango dado
-                        return (precio >= desdeValor && precio <= hastaValor)
-                                || (kilometraje >= desdeValor && kilometraje <= hastaValor);
+
+                        // Aplicar el filtro de precio y kilometraje
+                        boolean filtroPrecio = (precio >= desdeValor && precio <= hastaValor);
+                        boolean filtroKilometraje = (kilometraje >= desdeValor && kilometraje <= hastaValor);
+
+                        // Si al menos uno de los filtros es válido, incluir el vehículo
+                        return filtroPrecio || filtroKilometraje;
                     })
                     .collect(Collectors.toList());
 
@@ -305,39 +326,6 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         }
     }
 
-
-    /* // Modifica el método para aplicar el filtro de color
-    private void aplicarFiltroColor(String colorSeleccionado) {
-        // Filtrar los vehículos previamente filtrados
-        vehiculosFiltrados = vehiculosFiltrados.stream()
-                .filter(vehiculo -> vehiculo.getColor().equals(colorSeleccionado))
-                .collect(Collectors.toList());
-
-        // Actualizar la vista con los vehículos filtrados
-        actualizarVistaConVehiculos(vehiculosFiltrados);
-    }
-
-    // Modifica el método para aplicar el filtro de marca
-    private void aplicarFiltroMarca(String marcaSeleccionada) {
-        // Filtrar los vehículos previamente filtrados
-        vehiculosFiltrados = vehiculosFiltrados.stream()
-                .filter(vehiculo -> vehiculo.getMarca().equals(marcaSeleccionada))
-                .collect(Collectors.toList());
-
-        // Actualizar la vista con los vehículos filtrados
-        actualizarVistaConVehiculos(vehiculosFiltrados);
-    }
-
-// Modifica el método para aplicar el filtro de modelo
-    private void aplicarFiltroModelo(String modeloSeleccionado) {
-        // Filtrar los vehículos previamente filtrados
-        vehiculosFiltrados = vehiculosFiltrados.stream()
-                .filter(vehiculo -> vehiculo.getModelo().equals(modeloSeleccionado))
-                .collect(Collectors.toList());
-
-        // Actualizar la vista con los vehículos filtrados
-        actualizarVistaConVehiculos(vehiculosFiltrados);
-    }*/
     private VBox crearComboBoxInput(String labelText, String... opciones) {
         VBox vbox = new VBox(10);
         vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
@@ -461,6 +449,93 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
                 fila++;
             }
         }
+    }
+
+    // Crear el contenido del Popup para el filtro de colores (4 colores por fila)
+    private VBox crearPaletaDeColores() {
+        VBox vbox = new VBox(10);
+        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
+
+        // Crear un GridPane para organizar los colores en 4 columnas
+        GridPane grid = new GridPane();
+        grid.setHgap(10); // Espaciado horizontal
+        grid.setVgap(10); // Espaciado vertical
+
+        // Lista de colores que quieres mostrar
+        Color[] colores = {Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.PURPLE, Color.ORANGE, Color.CYAN, Color.MAGENTA, Color.BLACK, Color.WHITE, Color.GRAY, Color.BEIGE};
+
+        // Agregar los colores al GridPane (4 por fila)
+        int fila = 0;
+        int columna = 0;
+
+        for (Color color : colores) {
+            Rectangle colorBox = new Rectangle(30, 30, color); // Cambiar el tamaño de los cuadros a 30x30 píxeles
+            colorBox.setOnMouseClicked(e -> filtrarPorColor(color)); // Manejar clics en el color
+
+            // Agregar el color al GridPane
+            grid.add(colorBox, columna, fila);
+
+            columna++;
+            if (columna == 4) {  // Cambiar de fila después de 4 colores
+                columna = 0;
+                fila++;
+            }
+        }
+
+        vbox.getChildren().add(grid);  // Añadir el GridPane con los colores al VBox
+        return vbox;
+    }
+
+    private String convertirColorAString(Color color) {
+        // Compara el color con los valores predefinidos y devuelve el nombre en String
+        if (color.equals(Color.RED)) {
+            return "Rojo";
+        } else if (color.equals(Color.BLUE)) {
+            return "Azul";
+        } else if (color.equals(Color.GREEN)) {
+            return "Verde";
+        } else if (color.equals(Color.YELLOW)) {
+            return "Amarillo";
+        } else if (color.equals(Color.PURPLE)) {
+            return "Púrpura";
+        } else if (color.equals(Color.ORANGE)) {
+            return "Naranja";
+        } else if (color.equals(Color.CYAN)) {
+            return "Cian";
+        } else if (color.equals(Color.MAGENTA)) {
+            return "Magenta";
+        } else if (color.equals(Color.BLACK)) {
+            return "Negro";
+        } else if (color.equals(Color.WHITE)) {
+            return "Blanco";
+        } else if (color.equals(Color.GRAY)) {
+            return "Gris";
+        } else if (color.equals(Color.BEIGE)) {
+            return "Beige";
+        } else {
+            return "Desconocido"; // Para cualquier color no especificado
+        }
+    }
+
+    private void filtrarPorColor(Color color) {
+        // Filtrar los vehículos por color
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        Color colorSeleccionado = color;
+        String nombreColor = convertirColorAString(colorSeleccionado);
+        System.out.println("El color seleccionado es: " + nombreColor);
+
+        gridPane.getChildren().clear();
+        List<Vehiculo> lista = new ArrayList<>();
+
+        for (Vehiculo v : vehiculos) {
+            if (v.getColor().equalsIgnoreCase(nombreColor)) {
+                lista.add(v);
+            }
+        }
+
+         actualizarVistaConVehiculos(lista);
     }
 
 }
