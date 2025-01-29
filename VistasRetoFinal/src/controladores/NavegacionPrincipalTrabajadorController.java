@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -65,8 +66,6 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
     @FXML
     public void mostrarFiltroKilometraje(MouseEvent event) {
         // Antes de abrir el popup, aseguramos que se haya seleccionado el filtro correcto
-        isKilometrajeFiltro = true;
-        isPrecioFiltro = false;
         mostrarPopup(event.getSource(), crearRangoInput());
     }
 
@@ -78,8 +77,6 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
     @FXML
     public void mostrarFiltroPrecio(MouseEvent event) {
         // Antes de abrir el popup, aseguramos que se haya seleccionado el filtro correcto
-        isPrecioFiltro = true;
-        isKilometrajeFiltro = false;
         mostrarPopup(event.getSource(), crearRangoInput());
     }
 
@@ -95,8 +92,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     // Declaracion del Popup
     private Popup popup;
-    private boolean isPrecioFiltro = false;
-    private boolean isKilometrajeFiltro = false;
+    private List<Vehiculo> vehiculosSinFiltrar;
 
     // Metodo Initialize
     @Override
@@ -108,7 +104,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
 
-        generarBotones(null);
+        generarBotones();
 
     }
 
@@ -244,11 +240,12 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
         popup = new Popup();
         popup.getContent().add(contenido);
-        popup.setAutoHide(true); // Cerrar automáticamente al hacer clic fuera del popup
+        popup.setAutoHide(true); // Cerrar automáticamente al hacer clic fuera del popup    
 
         Node node = (Node) source;
         Bounds bounds = node.localToScreen(node.getBoundsInLocal()); // Obtener la posición del botón
         popup.show(node, bounds.getMinX(), bounds.getMaxY()); // Mostrar debajo del botón
+
     }
 
     private VBox crearRangoInput() {
@@ -265,45 +262,82 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         hasta.setPromptText("Hasta...");
         hasta.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
 
-        // Listener para el campo "Desde"
-        desde.textProperty().addListener((observable, oldValue, newValue) -> {
-            queryFiltradoRango(desde.getText(), hasta.getText());
-        });
-
-        // Listener para el campo "Hasta"
-        hasta.textProperty().addListener((observable, oldValue, newValue) -> {
-            queryFiltradoRango(desde.getText(), hasta.getText());
-        });
-
         Label label = new Label("Rango:");
         label.setStyle("-fx-text-fill: white;");
 
         vbox.getChildren().addAll(label, desde, hasta);
+
+        // Agregar listeners para detectar cambios en los campos de texto
+        desde.textProperty().addListener((observable, oldValue, newValue) -> aplicarFiltroKilometrajePrecio(desde, hasta));
+        hasta.textProperty().addListener((observable, oldValue, newValue) -> aplicarFiltroKilometrajePrecio(desde, hasta));
+
         return vbox;
     }
 
-    private void queryFiltradoRango(String desde, String hasta) {
+    // Modifica el método para aplicar el filtro de kilometraje y precio
+    private void aplicarFiltroKilometrajePrecio(TextField desde, TextField hasta) {
         try {
-            // Comprobamos si el rango es de precio o kilometraje
-            if (!desde.isEmpty() && !hasta.isEmpty()) {
-                double minValor = Double.parseDouble(desde);
-                double maxValor = Double.parseDouble(hasta);
+            // Obtener los valores desde y hasta
+            double desdeValor = desde.getText().isEmpty() ? 0 : Double.parseDouble(desde.getText());
+            double hastaValor = hasta.getText().isEmpty() ? Double.MAX_VALUE : Double.parseDouble(hasta.getText());
 
-                // Si los valores son precios, llamamos al método correspondiente
-                if (isPrecioFiltro) {  // Aquí debes manejar el estado de qué filtro está activo (precio o kilometraje)
-                    List<Vehiculo> vehiculosFiltrados = VehiculoManagerFactory.get().filtradoPrecioVehiculo(new GenericType<List<Vehiculo>>(){}, (int) minValor, (int) maxValor);
-                    generarBotones(vehiculosFiltrados);
-                } // Si los valores son kilometraje, llamamos al método correspondiente
-                else if (isKilometrajeFiltro) {
-                    List<Vehiculo> vehiculosFiltrados = VehiculoManagerFactory.get().filtradoKilometrajeVehiculo(new GenericType<List<Vehiculo>>(){}, (int) minValor, (int) maxValor);
-                    generarBotones(vehiculosFiltrados);
-                }
-            }
-        } catch (NumberFormatException ex) {
-            new Alert(Alert.AlertType.ERROR, "Por favor, ingrese un número válido en los campos de rango.", ButtonType.OK).showAndWait();
+            List<Vehiculo> vehiculosFiltrados;
+
+            vehiculosSinFiltrar = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+            });
+
+            // Filtrar los vehículos previamente cargados en vehiculosFiltrados
+            vehiculosFiltrados = vehiculosSinFiltrar.stream()
+                    .filter(vehiculo -> {
+                        double precio = vehiculo.getPrecio();  // Obtener el precio del vehículo
+                        double kilometraje = vehiculo.getKm(); // Obtener el kilometraje del vehículo
+                        // Filtrar por precio o kilometraje en el rango dado
+                        return (precio >= desdeValor && precio <= hastaValor)
+                                || (kilometraje >= desdeValor && kilometraje <= hastaValor);
+                    })
+                    .collect(Collectors.toList());
+
+            // Actualizar la vista con los vehículos filtrados
+            actualizarVistaConVehiculos(vehiculosFiltrados);
+        } catch (NumberFormatException e) {
+            // Si hay un error en el formato de número, mostrar un mensaje
+            System.out.println("Valor inválido para el filtro de kilometraje o precio.");
         }
     }
 
+
+    /* // Modifica el método para aplicar el filtro de color
+    private void aplicarFiltroColor(String colorSeleccionado) {
+        // Filtrar los vehículos previamente filtrados
+        vehiculosFiltrados = vehiculosFiltrados.stream()
+                .filter(vehiculo -> vehiculo.getColor().equals(colorSeleccionado))
+                .collect(Collectors.toList());
+
+        // Actualizar la vista con los vehículos filtrados
+        actualizarVistaConVehiculos(vehiculosFiltrados);
+    }
+
+    // Modifica el método para aplicar el filtro de marca
+    private void aplicarFiltroMarca(String marcaSeleccionada) {
+        // Filtrar los vehículos previamente filtrados
+        vehiculosFiltrados = vehiculosFiltrados.stream()
+                .filter(vehiculo -> vehiculo.getMarca().equals(marcaSeleccionada))
+                .collect(Collectors.toList());
+
+        // Actualizar la vista con los vehículos filtrados
+        actualizarVistaConVehiculos(vehiculosFiltrados);
+    }
+
+// Modifica el método para aplicar el filtro de modelo
+    private void aplicarFiltroModelo(String modeloSeleccionado) {
+        // Filtrar los vehículos previamente filtrados
+        vehiculosFiltrados = vehiculosFiltrados.stream()
+                .filter(vehiculo -> vehiculo.getModelo().equals(modeloSeleccionado))
+                .collect(Collectors.toList());
+
+        // Actualizar la vista con los vehículos filtrados
+        actualizarVistaConVehiculos(vehiculosFiltrados);
+    }*/
     private VBox crearComboBoxInput(String labelText, String... opciones) {
         VBox vbox = new VBox(10);
         vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
@@ -321,7 +355,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         return vbox;
     }
 
-    private void generarBotones(List<Vehiculo> vehiculosFiltrados) {
+    private void generarBotones() {
         // Obtener la lista de vehículos desde la base de datos
         List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
         });
@@ -379,6 +413,50 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             // Actualizar fila y columna para el siguiente botón
             columna++;
             if (columna == 3) {  // Después de 3 botones, pasamos a la siguiente fila
+                columna = 0;
+                fila++;
+            }
+        }
+    }
+
+    private void actualizarVistaConVehiculos(List<Vehiculo> vehiculosFiltrados) {
+        // Limpiar la interfaz actual
+        gridPane.getChildren().clear();
+
+        // Generar los botones con los vehículos filtrados
+        int fila = 0;
+        int columna = 0;
+
+        for (Vehiculo vehiculo : vehiculosFiltrados) {
+            // La lógica de creación de botones sigue igual
+            String rutaCoche = vehiculo.getRuta();
+            if (rutaCoche == null || rutaCoche.isEmpty()) {
+                rutaCoche = "/img/sinImagen.jpg";
+            }
+
+            Image image = new Image(getClass().getResource(rutaCoche).toExternalForm());
+            String nombreVehiculo = vehiculo.getMarca() + " " + vehiculo.getModelo();
+            ImageView imageView = new ImageView(image);
+            imageView.setFitHeight(200);
+            imageView.setFitWidth(200);
+            imageView.setPreserveRatio(true);
+
+            Label nombreLabel = new Label(nombreVehiculo);
+            nombreLabel.setStyle("-fx-text-fill: black; -fx-font-size: 14px;");
+
+            VBox vbox = new VBox(5);
+            vbox.getChildren().addAll(imageView, nombreLabel);
+
+            Button button = new Button();
+            button.setGraphic(vbox);
+            button.setMaxWidth(Double.MAX_VALUE);
+            button.setMaxHeight(Double.MAX_VALUE);
+            button.setOnAction(event -> abrirVentanaInformacionVehiculo(null, vehiculo));
+
+            gridPane.add(button, columna, fila);
+
+            columna++;
+            if (columna == 3) {
                 columna = 0;
                 fila++;
             }

@@ -61,9 +61,5 @@ public interface VehiculoManager {
 
     public <T> T filtradoPotenciaVehiculo(Class<T> responseType, String potencia) throws WebApplicationException;
 
-    public <T> List<T> filtradoPrecioVehiculo(GenericType<List<T>> responseType, Integer minPrecio, Integer maxPrecio) throws WebApplicationException;
-
-    public <T> List<T> filtradoKilometrajeVehiculo(GenericType<List<T>> responseType, Integer minKm, Integer maxKm) throws WebApplicationException;
-
     public void close();
 }

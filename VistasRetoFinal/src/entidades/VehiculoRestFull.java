@@ -129,18 +129,6 @@ public class VehiculoRestFull implements VehiculoManager {
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
     }
 
-    public <T> List<T> filtradoPrecioVehiculo(GenericType<List<T>> responseType, Integer minPrecio, Integer maxPrecio) throws WebApplicationException {
-        WebTarget resource = webTarget;
-        resource = resource.path(java.text.MessageFormat.format("precio/{0}/{1}", new Object[]{minPrecio, maxPrecio}));
-        return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
-    }
-
-    public <T> List<T> filtradoKilometrajeVehiculo(GenericType<List<T>> responseType, Integer minKm, Integer maxKm) throws WebApplicationException {
-        WebTarget resource = webTarget;
-        resource = resource.path(java.text.MessageFormat.format("km/{0}/{1}", new Object[]{minKm, maxKm}));
-        return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
-    }
-
     public void close() {
         client.close();
     }
