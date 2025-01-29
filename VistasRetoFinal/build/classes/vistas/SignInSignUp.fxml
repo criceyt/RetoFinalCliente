@@ -30,6 +30,11 @@
                     <Button fx:id="revealButton" text="Mostrar" styleClass="button" />
                 </HBox>
                 <Button fx:id="inicioSesionBtn" onAction="#inicioSesionBtn" styleClass="button button-login" text="Iniciar Sesión" />
+
+                <!-- Botón de Olvidar Contraseña -->
+              <Button fx:id="forgotPasswordButton" onAction="#forgotPassword" styleClass="button-forgot" text="He olvidado mi contraseña" />
+
+
                 <Text styleClass="text-black" text="¿No tienes cuenta? Regístrate aquí." />
                 <Button fx:id="registerButton" onAction="#showRegister" styleClass="button button-register" text="Registrarse" />
             </VBox>

@@ -13,6 +13,8 @@ import javax.ws.rs.WebApplicationException;
  */
 public interface PersonaManager {
     
+    public <T> T resetPassword_XML(Class<T> responseType, String userEmail) throws WebApplicationException;
+    
     public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException;
 
     public String countREST() throws WebApplicationException;

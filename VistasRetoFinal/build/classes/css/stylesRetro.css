@@ -83,3 +83,35 @@
 .custom-checkbox .text {
     -fx-fill: #AAAAAA; 
 }
+/* Estilo retro para el botón "He olvidado mi contraseña" */
+.button-forgot {
+    -fx-background-color: rgba(255, 119, 255, 0.8); /* Fondo rosa intenso */
+    -fx-text-fill: #000000; /* Texto negro */
+    -fx-font-family: 'Press Start 2P'; /* Fuente retro */
+    -fx-font-size: 14px; /* Tamaño de fuente */
+    -fx-font-weight: bold; 
+    -fx-background-radius: 15; /* Bordes más redondeados */
+    -fx-border-color: #00FFFF; /* Borde cian brillante */
+    -fx-border-width: 3; /* Grosor del borde */
+    -fx-pref-width: 250; /* Botón más largo */
+    -fx-min-width: 250;
+    -fx-max-width: 300;
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.6), 10, 0, 0, 0); /* Sombra brillante */
+}
+
+/* Efecto hover para el botón */
+.button-forgot:hover {
+    -fx-background-color: rgba(0, 255, 255, 0.9); /* Fondo cambia a cian */
+    -fx-text-fill: #000000; /* Texto sigue negro */
+    -fx-border-color: #FF77FF; /* Borde cambia a rosa */
+    -fx-cursor: hand; /* Cambia a cursor de mano */
+    -fx-effect: dropshadow(gaussian, rgba(255, 119, 255, 0.8), 15, 0, 0, 0); /* Sombra más intensa */
+}
+
+/* Efecto cuando se presiona el botón */
+.button-forgot:pressed {
+    -fx-background-color: rgba(30, 30, 30, 0.8); /* Fondo más oscuro */
+    -fx-text-fill: #FF77FF; /* Texto rosa intenso */
+    -fx-border-color: #00FFFF; /* Borde cian */
+    -fx-effect: dropshadow(gaussian, rgba(0, 255, 255, 0.6), 5, 0, 0, 0); /* Sombra ligera */
+}

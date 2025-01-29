@@ -3,6 +3,7 @@ package controladores;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
+import java.util.Optional;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -24,12 +25,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javax.ws.rs.WebApplicationException;
+import logica.ClienteRegistro;
 import logica.SessionManager;
 import logica.PersonaManagerFactory;
 import logica.UsuarioManagerFactory;
@@ -120,7 +123,47 @@ public class SignController implements Initializable {
     private boolean isDarkTheme = true;
     private boolean datosCorrectos = true;
 
-    // Metodo Initialize
+    public void forgotPassword(ActionEvent event) {
+        // Crear un cuadro de diálogo
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Recuperar Contraseña");
+        alert.setHeaderText("Introduce tu correo electrónico");
+        alert.setContentText(null);
+
+        // Personalizar el contenido del diálogo
+        TextField emailField = new TextField();
+        emailField.setPromptText("Correo electrónico");
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setContent(emailField);
+
+        // Mostrar el diálogo y capturar el resultado
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            String email = emailField.getText();
+
+            try {
+                // Llamada al método findEmailPersona
+                PersonaManagerFactory.get().resetPassword_XML(Persona.class, email);
+
+            } catch (WebApplicationException e) {
+                // Maneja las excepciones relacionadas con WebApplicationException
+                System.out.println("No se encontró el correo electrónico: " + email);
+            } catch (Exception e) {
+                // Si se produce otro error inesperado
+                System.out.println("Se produjo un error inesperado: " + e.getMessage());
+            }
+
+            if (email.isEmpty()) {
+                System.out.println("El campo de correo está vacío.");
+            } else {
+                System.out.println("Correo ingresado: " + email);
+                // Aquí puedes agregar la lógica para enviar el correo de recuperación
+            }
+        }
+    }
+
+// Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         contextMenu = new ContextMenu();
@@ -242,10 +285,12 @@ public class SignController implements Initializable {
             alert.setHeaderText("Campos Incorrectos");
             alert.setContentText("Ni el campo Login ni el Campo Contraseña pueden estar vacios");
             alert.showAndWait();
-        } else {
 
+        } else {
+            contrasena = ClienteRegistro.encriptarContraseña(contrasena);
+            System.out.println(contrasena);
             // Llevar la Password y el login al server para que retorne una 
-            Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
+                Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
 
             try {
 
@@ -258,24 +303,18 @@ public class SignController implements Initializable {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
                     Parent root = loader.load();
 
-                    // Crear un ScrollPane y asignar el contenido
-                    ScrollPane scrollPane = new ScrollPane();
-                    scrollPane.setContent(root);  // Establecer el contenido de la vista cargada en el ScrollPane
-
-                    // Desactivar el desplazamiento horizontal
-                    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);  // Desactiva la barra de desplazamiento horizontal
-
-                    // Establecer el ajuste automático al ancho (solo el desplazamiento vertical está habilitado)
-                    scrollPane.setFitToWidth(true);  // Permite que el contenido se ajuste al ancho de la ventana
-                    scrollPane.setFitToHeight(true); // Permite que el contenido se ajuste a la altura de la ventana
-
                     NavegacionPrincipalController controller = loader.getController();
+                    //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                    // Llevar el Usuario a Navegacion Principal
+                    //controller.setUsuario((Usuario) personaLogIn);
+                    //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+                    // Obtener el Stage desde el nodo que disparó el evento.
                     Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
                     stage.setTitle("Navegacion Principal");
                     // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
                     Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+                    scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
                     // Se muestra en la ventana el Scene creado.
                     stage.setScene(scene);
                     stage.show();
@@ -300,6 +339,7 @@ public class SignController implements Initializable {
                     stage.show();
                 } else {
                     new Alert(Alert.AlertType.ERROR, "ERROR: No estas registrado ni como Usuario ni como Tarbajador", ButtonType.OK).showAndWait();
+
                 }
 
             } catch (IOException ex) {
@@ -307,7 +347,8 @@ public class SignController implements Initializable {
                 // problema al cargar el FXML o al intentar llamar a la nueva 
                 // ventana, por lo que se mostrará un Alert con el mensaje 
                 // "Error en la sincronización de ventanas, intentalo más tarde".
-                Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(NavegacionPrincipalController.class
+                        .getName()).log(Level.SEVERE, null, ex);
                 new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
             }
         }
@@ -332,7 +373,14 @@ public class SignController implements Initializable {
             String codigoPostalStr = codigoPostalField.getText();
             Integer codigoPostal = Integer.parseInt(codigoPostalStr);
 
+            // Obtener la contraseña
             String password = registerPasswordField.getText();
+
+            // Encriptar la contraseña antes de guardarla
+            String encryptedPassword = ClienteRegistro.encriptarContraseña(password);
+
+            System.out.println(encryptedPassword);
+
             boolean esPremium = activoCheckBox.isSelected();
             Date fechaRegistro = new Date();
 
@@ -345,11 +393,11 @@ public class SignController implements Initializable {
             usuarioNuevo.setDireccion(direccion);
             usuarioNuevo.setTelefono(telefono);
             usuarioNuevo.setCodigoPostal(codigoPostal);
-            usuarioNuevo.setContrasena(password);
+            usuarioNuevo.setContrasena(encryptedPassword);  // Asignar la contraseña encriptada
             usuarioNuevo.setFechaRegistro(fechaRegistro);
             usuarioNuevo.setPremium(esPremium);
 
-            // Mandar el Usuario al Server
+            // Mandar el Usuario al Server (suponiendo que tienes el método adecuado para esto)
             UsuarioManagerFactory.get().create_XML(usuarioNuevo);
 
             // Panel informativo de éxito
@@ -499,7 +547,9 @@ public class SignController implements Initializable {
 
     private static void changeTheme(String themeFile, Scene scene) {
         scene.getStylesheets().clear();
-        scene.getStylesheets().add(SignController.class.getResource(themeFile).toExternalForm());
+        scene
+                .getStylesheets().add(SignController.class
+                        .getResource(themeFile).toExternalForm());
     }
 
     /////////////////////////////////////////  VALIDACIONES DE REGISTRO  ///////////////////////////////////////////////////////////////
