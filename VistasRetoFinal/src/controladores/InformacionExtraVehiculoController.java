@@ -33,6 +33,7 @@ import logica.SessionManager;
 import logica.UsuarioManagerFactory;
 import logica.VehiculoManager;
 import modelo.Compra;
+import modelo.CompraId;
 import modelo.Usuario;
 import modelo.Vehiculo;
 
@@ -72,7 +73,7 @@ public class InformacionExtraVehiculoController implements Initializable {
 
     @FXML
     private Button homeBtn;
-    
+
     @FXML
     private Button tuGarajeBtn;
 
@@ -205,8 +206,8 @@ public class InformacionExtraVehiculoController implements Initializable {
 
     // Metodo para Abrir tu Garaje
     private void abrirTuGaraje(ActionEvent event) {
-        
-         try {
+
+        try {
             // Se carga el FXML con la información de la vista viewSignUp.
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SolicitarMantenimiento.fxml"));
             Parent root = loader.load();
@@ -233,7 +234,7 @@ public class InformacionExtraVehiculoController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
-    
+
     // Metodo que se Activa cuando se le da a Comprar (Button)
     private void comprarVehiculo(ActionEvent event) {
 
@@ -249,32 +250,45 @@ public class InformacionExtraVehiculoController implements Initializable {
         // Comprobar la respuesta del usuario
         if (result.isPresent() && result.get() == ButtonType.OK) {
             // El usuario hizo clic en "Sí" (ButtonType.OK)
-            
+
+            // Crear un nuevo objeto Compra
             Compra compra = new Compra();
-            
+
+            // Obtener el usuario y el vehículo
             Usuario usuario = SessionManager.getUsuario();
+            System.out.println(usuario.getIdPersona());
             Vehiculo vehiculo = VehiculoInfoExtraManager.getVehiculo();
-            
+            System.out.println(vehiculo.getIdVehiculo());
+
+            // Crear y establecer el id compuesto de Compra (CompraId)
+            CompraId compraId = new CompraId();
+            compraId.setIdPersona(usuario.getIdPersona());
+            compraId.setIdVehiculo(vehiculo.getIdVehiculo());
+            compra.setIdCompra(compraId);  // Establecer la clave primaria compuesta
+
+            // Establecer el vehículo y usuario en la compra
             compra.setUsuario(usuario);
             compra.setVehiculo(vehiculo);
-            
+
+            // Generar la matrícula y establecerla
             String matriculaNueva = generarMatricula();
             compra.setMatricula(matriculaNueva);
-            
+
+            // Establecer la fecha de compra
             Date date = new Date();
             compra.setFechaCompra(date);
 
-            
+            // Llamada al método de gestión de compras (presumiblemente para persistir la compra)
             CompraManagerFactory.get().create_XML(compra);
-            
+
         } else {
             // El usuario hizo clic en "No" o cerró el diálogo
             System.out.println("Compra cancelada");
             // Aquí puedes agregar la lógica para cancelar la compra
         }
     }
-    
     // Generador de Matricula Aleatoria
+
     public static String generarMatricula() {
         Random rand = new Random();
 
@@ -290,5 +304,3 @@ public class InformacionExtraVehiculoController implements Initializable {
         return String.format("%d %c%c%c", numeros, letra1, letra2, letra3);
     }
 }
-
-

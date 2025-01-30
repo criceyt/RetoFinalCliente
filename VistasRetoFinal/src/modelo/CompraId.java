@@ -17,35 +17,35 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class CompraId implements Serializable {
 
-    private Long usuarioId;
-    private Long vehiculoId;
+    private Long idPersona;
+    private Long idVehiculo;
 
-    public Long getUsuarioId() {
-        return usuarioId;
+    public Long getIdPersona() {
+        return idPersona;
     }
 
-    public void setUsuarioId(Long usuarioId) {
-        this.usuarioId = usuarioId;
+    public void setIdPersona(Long idPersona) {
+        this.idPersona = idPersona;
     }
 
-    public Long getVehiculoId() {
-        return vehiculoId;
+    public Long getIdVehiculo() {
+        return idVehiculo;
     }
 
-    public void setVehiculoId(Long vehiculoId) {
-        this.vehiculoId = vehiculoId;
+    public void setIdVehiculo(Long idVehiculo) {
+        this.idVehiculo = idVehiculo;
     }
 
     @Override
     public String toString() {
-        return "CompraId{" + "usuarioId=" + usuarioId + ", vehiculoId=" + vehiculoId + '}';
+        return "CompraId{" + "idPersona=" + idPersona + ", idVehiculo=" + idVehiculo + '}';
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 31 * hash + (usuarioId != null ? usuarioId.hashCode() : 0);
-        hash = 31 * hash + (vehiculoId != null ? vehiculoId.hashCode() : 0);
+        hash = 31 * hash + (idPersona != null ? idPersona.hashCode() : 0);
+        hash = 31 * hash + (idVehiculo != null ? idVehiculo.hashCode() : 0);
         return hash;
     }
 
@@ -58,15 +58,14 @@ public class CompraId implements Serializable {
             return false;
         }
         CompraId other = (CompraId) obj;
-        if ((this.usuarioId == null && other.usuarioId != null)
-                || (this.usuarioId != null && !this.usuarioId.equals(other.usuarioId))) {
+        if ((this.idPersona == null && other.idPersona != null)
+                || (this.idPersona != null && !this.idPersona.equals(other.idPersona))) {
             return false;
         }
-        if ((this.vehiculoId == null && other.vehiculoId != null)
-                || (this.vehiculoId != null && !this.vehiculoId.equals(other.vehiculoId))) {
+        if ((this.idVehiculo == null && other.idVehiculo != null)
+                || (this.idVehiculo != null && !this.idVehiculo.equals(other.idVehiculo))) {
             return false;
         }
         return true;
     }
-
 }
