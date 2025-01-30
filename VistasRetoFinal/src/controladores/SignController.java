@@ -287,7 +287,8 @@ public class SignController implements Initializable {
             alert.showAndWait();
 
         } else {
-            contrasena = ClienteRegistro.encriptarContraseña(contrasena);
+        //contrasena = ClienteRegistro.encriptarContraseña(contrasena);
+
             System.out.println(contrasena);
             // Llevar la Password y el login al server para que retorne una 
                 Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);

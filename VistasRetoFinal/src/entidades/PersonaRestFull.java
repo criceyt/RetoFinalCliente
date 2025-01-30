@@ -5,6 +5,7 @@
  */
 package entidades;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.ws.rs.ClientErrorException;
@@ -14,7 +15,14 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import logica.PersonaManager;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import modelo.Persona;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Jersey REST client generated for REST resource:PersonaFacadeREST
@@ -46,34 +54,14 @@ public class PersonaRestFull implements PersonaManager {
         resource = resource.path(java.text.MessageFormat.format("reiniciarContrasena/{0}", new Object[]{email}));
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
     }
-    /*
+
     public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("inicioSesionPersona/{0}/{1}", new Object[]{email, contrasena}));
-        
+
         System.out.println("Clase recibida: " + responseType.getName());
 
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
-    }*/
-
-    public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException {
-        WebTarget resource = webTarget;
-        System.out.println(webTarget);
-        try {
-            String emailEncoded = URLEncoder.encode(email, StandardCharsets.UTF_8.toString());
-            String contrasenaEncoded = URLEncoder.encode(contrasena, StandardCharsets.UTF_8.toString());
-            //resource = resource.path("inicioSesionPersona/" + emailEncoded + "/" + contrasenaEncoded);
-            resource = resource.path(java.text.MessageFormat.format("inicioSesionPersona/{0}/{1}", new Object[]{email, contrasena}));
-            
-            // Realizar la petición GET
-            return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
-        } catch (NotFoundException e) {
-            // Manejo del error 404 si no se encuentra el usuario
-            throw new WebApplicationException("Usuario no encontrado", Response.Status.NOT_FOUND);
-        } catch (Exception e) {
-            // Manejo de otros errores
-            throw new WebApplicationException("Error en la solicitud: " + e.getMessage(), Response.Status.INTERNAL_SERVER_ERROR);
-        }
     }
 
     public String countREST() throws WebApplicationException {
