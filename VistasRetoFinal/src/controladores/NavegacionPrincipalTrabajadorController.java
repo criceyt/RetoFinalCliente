@@ -9,8 +9,10 @@ import javafx.scene.input.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -56,7 +58,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     private Button cerrarSesionBtn;
-    
+
     @FXML
     private Button restablecerBtn;
 
@@ -68,7 +70,6 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     private MenuItem gestionMantenimientos;
-    
 
     @FXML
     public void mostrarFiltroKilometraje(MouseEvent event) {
@@ -89,12 +90,12 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     public void mostrarFiltroMarca(MouseEvent event) {
-        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione una marca", "Toyota", "Ford", "Honda", "BMW"));
+        mostrarPopup(event.getSource(), cargarMarcas());
     }
 
     @FXML
     public void mostrarFiltroModelo(MouseEvent event) {
-        mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un modelo", "Modelo A", "Modelo B", "Modelo C", "Modelo D"));
+        mostrarPopup(event.getSource(), cargarModelos());
     }
 
     // Declaracion del Popup
@@ -116,10 +117,10 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         generarBotones();
 
     }
-    
-    public void restablecerFiltros(MouseEvent event){
+
+    public void restablecerFiltros(MouseEvent event) {
         vehiculosSinFiltrar = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
-                });
+        });
         actualizarVistaConVehiculos(vehiculosSinFiltrar);
     }
 
@@ -289,6 +290,86 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         return vbox;
     }
 
+    // Método para cargar las marcas de los vehículos
+    private VBox cargarMarcas() {
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        // Crear una lista de marcas únicas
+        Set<String> marcasUnicas = new HashSet<>(); // Usamos un HashSet para evitar duplicados
+        for (Vehiculo vehiculo : vehiculos) {
+            marcasUnicas.add(vehiculo.getMarca());
+        }
+
+        // Crear un VBox para contener las marcas
+        VBox vbox = new VBox(10); // Espaciado de 10 px entre los elementos
+        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
+
+        // Agregar un título al VBox
+        Label label = new Label("Selecciona una Marca:");
+        label.setStyle("-fx-text-fill: white;");
+        vbox.getChildren().add(label);
+
+        // Crear un ComboBox para mostrar las marcas
+        ComboBox<String> comboBox = new ComboBox<>();
+        comboBox.getItems().addAll(marcasUnicas); // Agregar las marcas al ComboBox
+        comboBox.setPromptText("Selecciona una marca...");
+        comboBox.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        // Agregar un listener para cuando el usuario seleccione una marca
+        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                filtrarPorMarca(newValue);
+            }
+        });
+
+        // Agregar el ComboBox al VBox
+        vbox.getChildren().add(comboBox);
+
+        // Devolver el VBox con las marcas cargadas
+        return vbox;
+    }
+
+    // Método para cargar las marcas de los vehículos
+    private VBox cargarModelos() {
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        // Crear una lista de marcas únicas
+        Set<String> modelosUnicos = new HashSet<>(); // Usamos un HashSet para evitar duplicados
+        for (Vehiculo vehiculo : vehiculos) {
+            modelosUnicos.add(vehiculo.getModelo());
+        }
+
+        // Crear un VBox para contener las marcas
+        VBox vbox = new VBox(10); // Espaciado de 10 px entre los elementos
+        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
+
+        // Agregar un título al VBox
+        Label label = new Label("Selecciona una Marca:");
+        label.setStyle("-fx-text-fill: white;");
+        vbox.getChildren().add(label);
+
+        // Crear un ComboBox para mostrar las marcas
+        ComboBox<String> comboBox = new ComboBox<>();
+        comboBox.getItems().addAll(modelosUnicos); // Agregar las marcas al ComboBox
+        comboBox.setPromptText("Selecciona una marca...");
+        comboBox.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        // Agregar un listener para cuando el usuario seleccione un modelo
+        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                filtrarPorModelo(newValue);
+            }
+        });
+
+        // Agregar el ComboBox al VBox
+        vbox.getChildren().add(comboBox);
+
+        // Devolver el VBox con las marcas cargadas
+        return vbox;
+    }
+
     // Modifica el método para aplicar el filtro de kilometraje y precio
     private void aplicarFiltroKilometrajePrecio(TextField desde, TextField hasta) {
         try {
@@ -324,23 +405,6 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             // Si hay un error en el formato de número, mostrar un mensaje
             System.out.println("Valor inválido para el filtro de kilometraje o precio.");
         }
-    }
-
-    private VBox crearComboBoxInput(String labelText, String... opciones) {
-        VBox vbox = new VBox(10);
-        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
-
-        // ComboBox
-        ComboBox<String> comboBox = new ComboBox<>();
-        comboBox.getItems().addAll(opciones);
-        comboBox.setPromptText(labelText);
-        comboBox.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
-
-        Label label = new Label(labelText);
-        label.setStyle("-fx-text-fill: white;");
-
-        vbox.getChildren().addAll(label, comboBox);
-        return vbox;
     }
 
     private void generarBotones() {
@@ -535,7 +599,35 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             }
         }
 
-         actualizarVistaConVehiculos(lista);
+        actualizarVistaConVehiculos(lista);
+    }
+
+    // Método para filtrar los vehículos por marca
+    private void filtrarPorMarca(String marcaSeleccionada) {
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        // Filtrar los vehículos que coinciden con la marca seleccionada
+        List<Vehiculo> vehiculosFiltrados = vehiculos.stream()
+                .filter(vehiculo -> vehiculo.getMarca().equalsIgnoreCase(marcaSeleccionada))
+                .collect(Collectors.toList());
+
+        // Actualizar la vista con los vehículos filtrados
+        actualizarVistaConVehiculos(vehiculosFiltrados);
+    }
+
+    // Método para filtrar los vehículos por marca
+    private void filtrarPorModelo(String modeloSeleccionado) {
+        List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        // Filtrar los vehículos que coinciden con la marca seleccionada
+        List<Vehiculo> vehiculosFiltrados = vehiculos.stream()
+                .filter(vehiculo -> vehiculo.getModelo().equalsIgnoreCase(modeloSeleccionado))
+                .collect(Collectors.toList());
+
+        // Actualizar la vista con los vehículos filtrados
+        actualizarVistaConVehiculos(vehiculosFiltrados);
     }
 
 }
