@@ -104,7 +104,7 @@ public class PerfilController implements Initializable {
                 validateField(textFieldCodigoPostal);
             }
         });
-        
+
         //Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
         solicitarMantenimientoBtn.setOnAction(this::abrirVentanaSolicitarMantenimiento);
@@ -141,8 +141,6 @@ public class PerfilController implements Initializable {
 
         // ComboBox
         chkTerms.setSelected(usuario.isPremium());
-
-        
 
         System.out.println("Ventana inicializada correctamente.");
     }
@@ -266,14 +264,14 @@ public class PerfilController implements Initializable {
     // Guardar los datos que ha introducido el Usuario para Modificar sus datos
     private void guardarDatosUsuario(ActionEvent event) {
 
-        if (datosCorrectos == true) {
-            // Obtener los nuevos valores desde los campos de texto
-            String nuevoNombre = textFieldNombre.getText();
-            String nuevaDireccion = textFieldDireccion.getText();
-            String nuevoTelefono = textFieldTelefono.getText();
-            String nuevoCodigoPostal = textFieldCodigoPostal.getText();
-            boolean isPremiumNuevo = chkTerms.isSelected();
+        // Obtener los nuevos valores desde los campos de texto
+        String nuevoNombre = textFieldNombre.getText();
+        String nuevaDireccion = textFieldDireccion.getText();
+        String nuevoTelefono = textFieldTelefono.getText();
+        String nuevoCodigoPostal = textFieldCodigoPostal.getText();
+        boolean isPremiumNuevo = chkTerms.isSelected();
 
+        if (!textFieldNombre.getText().isEmpty() && validarSoloLetrasNombre(nuevoNombre) && !textFieldDireccion.getText().isEmpty() && validarDireccion(nuevaDireccion) && !textFieldTelefono.getText().isEmpty() && esTelefonoCorrecto(nuevoTelefono) && !textFieldCodigoPostal.getText().isEmpty() && esPostalCorrecto(nuevoCodigoPostal)) {
             // Si alguno de los datos son nuevos cambiamos los datos
             if (!nuevoNombre.equalsIgnoreCase(usuario.getNombreCompleto()) || !nuevaDireccion.equalsIgnoreCase(usuario.getDireccion()) || !nuevoTelefono.equalsIgnoreCase(String.valueOf(usuario.getTelefono())) || !nuevoCodigoPostal.equalsIgnoreCase(String.valueOf(usuario.getCodigoPostal()))) {
 
@@ -322,8 +320,8 @@ public class PerfilController implements Initializable {
         }
     }
 
-    /////////////////////////////////////////  VALIDACIONES DE REGISTRO  ///////////////////////////////////////////////////////////////
-    // Validacion para que solo Pueda introducir Letras
+/////////////////////////////////////////  VALIDACIONES DE REGISTRO  ///////////////////////////////////////////////////////////////
+// Validacion para que solo Pueda introducir Letras
     public boolean validarSoloLetrasNombre(String nombreyApellidos) {
         return nombreyApellidos.matches("[a-zA-Z]+");
     }
@@ -344,13 +342,11 @@ public class PerfilController implements Initializable {
     }
 
     private void validateField(TextField field) {
-        boolean validacionCorrecta = true;
 
         // Validación para Nombre
         if (field == textFieldNombre) {
             if (field.getText().isEmpty() || !validarSoloLetrasNombre(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
-                validacionCorrecta = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
             }
@@ -360,7 +356,6 @@ public class PerfilController implements Initializable {
         if (field == textFieldTelefono) {
             if (field.getText().isEmpty() || !esTelefonoCorrecto(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
-                validacionCorrecta = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
             }
@@ -370,7 +365,6 @@ public class PerfilController implements Initializable {
         if (field == textFieldCodigoPostal) {
             if (field.getText().isEmpty() || !esPostalCorrecto(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
-                validacionCorrecta = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
             }
@@ -380,14 +374,9 @@ public class PerfilController implements Initializable {
         if (field == textFieldDireccion) {
             if (field.getText().isEmpty() || !validarDireccion(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
-                validacionCorrecta = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
             }
         }
-
-        // Establecer si los datos son correctos o no
-        datosCorrectos = validacionCorrecta;
     }
-
 }

@@ -32,6 +32,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import javax.swing.JFrame;
 import javax.ws.rs.core.GenericType;
 import logica.MantenimientoManagerFactory;
 import modelo.Mantenimiento;
@@ -387,7 +388,7 @@ public class TablaMantenimientoController implements Initializable {
             JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
             
             JasperViewer jasperViewer = new JasperViewer(jasperPrint);
-            
+
             jasperViewer.setVisible(true);
                     
             

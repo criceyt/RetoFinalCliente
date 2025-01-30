@@ -49,7 +49,7 @@ public class ClienteRegistro {
             byte[] encryptedData = cipher.doFinal(contrasena.getBytes());
 
             // Convertir a base64 para enviar al servidor
-            return java.util.Base64.getEncoder().encodeToString(encryptedData);
+            return javax.xml.bind.DatatypeConverter.printBase64Binary(encryptedData);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,7 +81,7 @@ public class ClienteRegistro {
             PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
 
             // Convertir la contraseña cifrada de Base64 a bytes
-            byte[] encryptedData = Base64.getDecoder().decode(contrasena);
+            byte[] encryptedData = javax.xml.bind.DatatypeConverter.parseBase64Binary(contrasena);
 
             // Usar RSA/ECB/PKCS1Padding (asegúrate de que esto es consistente con el cifrado)
             Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");

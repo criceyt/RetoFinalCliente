@@ -1,7 +1,10 @@
 package controladores;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
 import javafx.animation.TranslateTransition;
@@ -272,7 +275,7 @@ public class SignController implements Initializable {
 
     // Meotodo al Pulsar el Boton
     @FXML
-    private void inicioSesionBtn(ActionEvent event) {
+    private void inicioSesionBtn(ActionEvent event) throws UnsupportedEncodingException {
 
         // Recoger datos de SignIn
         String login = usernameField.getText();
@@ -287,11 +290,14 @@ public class SignController implements Initializable {
             alert.showAndWait();
 
         } else {
-        contrasena = ClienteRegistro.encriptarContraseña(contrasena);
+            contrasena = ClienteRegistro.encriptarContraseña(contrasena);
+            System.out.println(contrasena);
+            // En el cliente
+            contrasena = URLEncoder.encode(contrasena, "UTF-8");
 
             System.out.println(contrasena);
             // Llevar la Password y el login al server para que retorne una 
-                Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
+            Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
 
             try {
 

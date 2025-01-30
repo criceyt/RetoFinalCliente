@@ -7,7 +7,9 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.Optional;
+import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -26,8 +28,11 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import logica.CompraManagerFactory;
 import logica.SessionManager;
 import logica.UsuarioManagerFactory;
+import logica.VehiculoManager;
+import modelo.Compra;
 import modelo.Usuario;
 import modelo.Vehiculo;
 
@@ -244,23 +249,46 @@ public class InformacionExtraVehiculoController implements Initializable {
         // Comprobar la respuesta del usuario
         if (result.isPresent() && result.get() == ButtonType.OK) {
             // El usuario hizo clic en "Sí" (ButtonType.OK)
-            Usuario usu = SessionManager.getUsuario();
-            String idParseado = String.valueOf(usu.getIdPersona());
             
+            Compra compra = new Compra();
             
-            Vehiculo vehiculoParaGuardar = VehiculoInfoExtraManager.getVehiculo();
+            Usuario usuario = SessionManager.getUsuario();
+            Vehiculo vehiculo = VehiculoInfoExtraManager.getVehiculo();
             
-            // Insertamos el coche en el ArrayList
-            usu.getTusVehiculos().add(vehiculoParaGuardar);
+            compra.setUsuario(usuario);
+            compra.setVehiculo(vehiculo);
+            
+            String matriculaNueva = generarMatricula();
+            compra.setMatricula(matriculaNueva);
+            
+            Date date = new Date();
+            compra.setFechaCompra(date);
 
-            // Mandamos el Usaurio
-            UsuarioManagerFactory.get().edit_XML(Usuario.class, idParseado);
+            
+            CompraManagerFactory.get().create_XML(compra);
             
         } else {
             // El usuario hizo clic en "No" o cerró el diálogo
             System.out.println("Compra cancelada");
             // Aquí puedes agregar la lógica para cancelar la compra
         }
+    }
+    
+    // Generador de Matricula Aleatoria
+    public static String generarMatricula() {
+        Random rand = new Random();
 
+        // Generar los 4 dígitos aleatorios
+        int numeros = rand.nextInt(9000) + 1000;  // Asegura que siempre sean 4 dígitos (1000-9999)
+
+        // Generar las 3 letras aleatorias
+        char letra1 = (char) (rand.nextInt(26) + 'A'); // Letras entre A-Z
+        char letra2 = (char) (rand.nextInt(26) + 'A');
+        char letra3 = (char) (rand.nextInt(26) + 'A');
+
+        // Devolver la matrícula en el formato "1234 ABC"
+        return String.format("%d %c%c%c", numeros, letra1, letra2, letra3);
     }
 }
+
+

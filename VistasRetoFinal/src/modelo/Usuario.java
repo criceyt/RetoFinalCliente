@@ -56,7 +56,4 @@ public class Usuario extends Persona implements Serializable {
     public void setTusVehiculos(ArrayList<Vehiculo> tusVehiculos) {
         this.tusVehiculos = tusVehiculos;
     }
-    
-    
-
 }
