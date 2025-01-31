@@ -39,6 +39,7 @@ import logica.UsuarioManagerFactory;
 import modelo.Persona;
 import modelo.Trabajador;
 import modelo.Usuario;
+import logica.Hash;
 
 public class SignController implements Initializable {
 
@@ -297,7 +298,10 @@ public class SignController implements Initializable {
 
                 // Si la Persona es Usuario entra en este metido Sino va al Otro
                 if (personaLogIn instanceof Usuario) {
-
+                    
+                    String contrasenaHash = personaLogIn.getContrasena();
+                    contrasenaHash = Hash.hashText(contrasenaHash);
+                  
                     SessionManager.setUsuario((Usuario) personaLogIn);
 
                     // Se carga el FXML con la información de la vista viewSignUp.
