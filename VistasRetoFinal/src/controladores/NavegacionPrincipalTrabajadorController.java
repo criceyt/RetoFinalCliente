@@ -62,11 +62,12 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     private List<Vehiculo> vehi;
     private List<Vehiculo> vehiMostrar;
+    private List<Vehiculo> listaOriginal = new ArrayList<>();
 
     private ComboBox<String> comboBox = new ComboBox<>();
-    
+
     private Rectangle colorBox;
-    
+
     private ComboBox<String> comboBoxModelos = new ComboBox<>();
 
     // Elementos de la Ventana
@@ -183,7 +184,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         cargarVehiculos();
 
     }
-    
+
     private void cargarVehiculos() {
         // Obtener la lista de vehículos desde la base de datos
         vehi = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
@@ -292,7 +293,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             }
         }
     }
-    
+
     private Popup crearPopup(VBox contenido) {
         if (popup != null && popup.isShowing()) {
             popup.hide(); // Ocultar el popup anterior si está visible
@@ -326,7 +327,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
         return vbox;
     }
-    
+
     private VBox crearRangoInputPrecio() {
         VBox vbox = new VBox(10);
         vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
@@ -458,7 +459,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         }
         return vehiculosFiltrados;
     }
-    
+
     private List<Vehiculo> aplicarFiltroPrecio(List<Vehiculo> vehi) {
         try {
             // Obtener los valores desde y hasta, con validación
@@ -493,8 +494,6 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         }
         return vehiculosFiltrados;
     }
-
-    
 
     // Crear el contenido del Popup para el filtro de colores (4 colores por fila)
     private VBox crearPaletaDeColores() {
@@ -606,23 +605,32 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     private void setFilters(TextField desde, TextField hasta) {
 
-        if(!desde.getText().isEmpty()){
+        if (!desde.getText().isEmpty()) {
             vehiMostrar = aplicarFiltroKilometraje(vehiMostrar);
         }
-        
-        if(!desde.getText().isEmpty()){
+
+        if (!desde.getText().isEmpty()) {
             vehiMostrar = aplicarFiltroPrecio(vehiMostrar);
         }
-        if(comboBox.getSelectionModel().getSelectedIndex()!=-1){
+        if (comboBox.getSelectionModel().getSelectedIndex() != -1) {
             vehiMostrar = filtrarPorMarca(comboBox.getSelectionModel().getSelectedItem());
         }
-        if(comboBoxModelos.getSelectionModel().getSelectedIndex()!=-1){
+        if (comboBoxModelos.getSelectionModel().getSelectedIndex() != -1) {
             vehiMostrar = filtrarPorModelo(comboBoxModelos.getSelectionModel().getSelectedItem());
         }
         actualizarVistaConVehiculos(vehiMostrar);
     }
-    
+
     public void restablecerFiltros(MouseEvent event) {
+
+        // Restaurar la lista completa de vehículos desde la base de datos o fuente original
+        vehi = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
+
+        // Restablecer todas las listas de filtrado
+        vehiMostrar = new ArrayList<>(vehi);  // Restaurar vehiMostrar
+        vehiculosFiltrados = new ArrayList<>(vehi); // Restaurar vehiculosFiltrados
+        vehiculosSinFiltrar = new ArrayList<>(vehi); // Restaurar vehiculosSinFiltrar
 
         // Limpiar los TextField
         desdeKm.clear();
@@ -637,7 +645,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         // Actualizar la vista con la lista restaurada
         actualizarVistaConVehiculos(vehi);
     }
-    
+
     // Abrir Ventana SignIn & SignUp
     private void abrirVentanaSignInSignUp(ActionEvent event) {
 
@@ -762,9 +770,4 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
-
-    
-
-
-
 }
