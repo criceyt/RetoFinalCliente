@@ -49,9 +49,6 @@ import modelo.Vehiculo;
  */
 public class NavegacionPrincipalTrabajadorController implements Initializable {
 
-    // Declaracion del Popup
-    private Popup popup;
-
     private Popup filtroKm = null;
     private Popup filtroPrecio = null;
     private Popup filtroColor = null;
@@ -63,14 +60,13 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
     TextField desdePrecio = new TextField();
     TextField hastaPrecio = new TextField();
 
-    private List<Vehiculo> vehi = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
-    });
+    private List<Vehiculo> vehi;
     private List<Vehiculo> vehiMostrar;
 
     private ComboBox<String> comboBox = new ComboBox<>();
-
+    
     private Rectangle colorBox;
-
+    
     private ComboBox<String> comboBoxModelos = new ComboBox<>();
 
     // Elementos de la Ventana
@@ -168,6 +164,11 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         }
     }
 
+    // Declaracion del Popup
+    private Popup popup;
+    private List<Vehiculo> vehiculosSinFiltrar;
+    private List<Vehiculo> vehiculosFiltrados = new ArrayList<>();
+
     // Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -182,139 +183,11 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         cargarVehiculos();
 
     }
-
-    private Popup crearPopup(VBox contenido) {
-        if (popup != null && popup.isShowing()) {
-            popup.hide(); // Ocultar el popup anterior si está visible
-        }
-        popup = new Popup();
-        popup.getContent().add(contenido);
-        popup.setAutoHide(true); // Cerrar automáticamente al hacer clic fuera del popup    
-        return popup;
-    }
-
-    private VBox crearRangoInputKm() {
-        VBox vbox = new VBox(10);
-        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
-
-        // Campo de texto desde
-        desdeKm.setPromptText("Desde...");
-        desdeKm.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
-
-        // Campo de texto hasta
-        hastaKm.setPromptText("Hasta...");
-        hastaKm.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
-
-        Label label = new Label("Rango:");
-        label.setStyle("-fx-text-fill: white;");
-
-        vbox.getChildren().addAll(label, desdeKm, hastaKm);
-
-        // Agregar listeners para detectar cambios en los campos de texto
-        desdeKm.textProperty().addListener((observable, oldValue, newValue) -> setFilters(desdeKm, hastaKm));
-        hastaKm.textProperty().addListener((observable, oldValue, newValue) -> setFilters(desdeKm, hastaKm));
-
-        return vbox;
-    }
-
-    private VBox crearRangoInputPrecio() {
-        VBox vbox = new VBox(10);
-        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
-
-        // Campo de texto desde
-        desdePrecio.setPromptText("Desde...");
-        desdePrecio.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
-
-        // Campo de texto hasta
-        hastaPrecio.setPromptText("Hasta...");
-        hastaPrecio.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
-
-        Label label = new Label("Rango:");
-        label.setStyle("-fx-text-fill: white;");
-
-        vbox.getChildren().addAll(label, desdePrecio, hastaPrecio);
-
-        // Agregar listeners para detectar cambios en los campos de texto
-        desdePrecio.textProperty().addListener((observable, oldValue, newValue) -> setFilters(desdePrecio, hastaPrecio));
-        hastaPrecio.textProperty().addListener((observable, oldValue, newValue) -> setFilters(desdePrecio, hastaPrecio));
-
-        return vbox;
-    }
-
-    // Método para cargar las marcas de los vehículos
-    private VBox cargarMarcas() {
-        // Crear una lista de marcas únicas
-        Set<String> marcasUnicas = new HashSet<>(); // Usamos un HashSet para evitar duplicados
-        for (Vehiculo vehiculo : vehiMostrar) {
-            marcasUnicas.add(vehiculo.getMarca());
-        }
-
-        // Crear un VBox para contener las marcas
-        VBox vbox = new VBox(10); // Espaciado de 10 px entre los elementos
-        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
-
-        // Agregar un título al VBox
-        Label label = new Label("Selecciona una Marca:");
-        label.setStyle("-fx-text-fill: white;");
-        vbox.getChildren().add(label);
-
-        // Crear un ComboBox para mostrar las marcas
-        comboBox.getItems().addAll(marcasUnicas); // Agregar las marcas al ComboBox
-        comboBox.setPromptText("Selecciona una marca...");
-        comboBox.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
-
-        // Agregar un listener para cuando el usuario seleccione una marca
-        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                filtrarPorMarca(newValue);
-            }
-        });
-
-        // Agregar el ComboBox al VBox
-        vbox.getChildren().add(comboBox);
-
-        // Devolver el VBox con las marcas cargadas
-        return vbox;
-    }
-
-    // Método para cargar las marcas de los vehículos
-    private VBox cargarModelos() {
-        // Crear una lista de marcas únicas
-        Set<String> modelosUnicos = new HashSet<>(); // Usamos un HashSet para evitar duplicados
-        for (Vehiculo vehiculo : vehiMostrar) {
-            modelosUnicos.add(vehiculo.getModelo());
-        }
-
-        // Crear un VBox para contener las marcas
-        VBox vbox = new VBox(10); // Espaciado de 10 px entre los elementos
-        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
-
-        // Agregar un título al VBox
-        Label label = new Label("Selecciona una Modelo:");
-        label.setStyle("-fx-text-fill: white;");
-        vbox.getChildren().add(label);
-
-        // Crear un ComboBox para mostrar las marcas
-        comboBoxModelos.getItems().addAll(modelosUnicos); // Agregar las marcas al ComboBox
-        comboBoxModelos.setPromptText("Selecciona una modelo...");
-        comboBoxModelos.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
-
-        // Agregar un listener para cuando el usuario seleccione un modelo
-        comboBoxModelos.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                filtrarPorModelo(newValue);
-            }
-        });
-
-        // Agregar el ComboBox al VBox
-        vbox.getChildren().add(comboBoxModelos);
-
-        // Devolver el VBox con las marcas cargadas
-        return vbox;
-    }
-
+    
     private void cargarVehiculos() {
         // Obtener la lista de vehículos desde la base de datos
+        vehi = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+        });
         vehiMostrar = vehi;
 
         int fila = 0;
@@ -419,6 +292,136 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             }
         }
     }
+    
+    private Popup crearPopup(VBox contenido) {
+        if (popup != null && popup.isShowing()) {
+            popup.hide(); // Ocultar el popup anterior si está visible
+        }
+        popup = new Popup();
+        popup.getContent().add(contenido);
+        popup.setAutoHide(true); // Cerrar automáticamente al hacer clic fuera del popup    
+        return popup;
+    }
+
+    private VBox crearRangoInputKm() {
+        VBox vbox = new VBox(10);
+        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
+
+        // Campo de texto desde
+        desdeKm.setPromptText("Desde...");
+        desdeKm.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        // Campo de texto hasta
+        hastaKm.setPromptText("Hasta...");
+        hastaKm.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        Label label = new Label("Rango:");
+        label.setStyle("-fx-text-fill: white;");
+
+        vbox.getChildren().addAll(label, desdeKm, hastaKm);
+
+        // Agregar listeners para detectar cambios en los campos de texto
+        desdeKm.textProperty().addListener((observable, oldValue, newValue) -> setFilters(desdeKm, hastaKm));
+        hastaKm.textProperty().addListener((observable, oldValue, newValue) -> setFilters(desdeKm, hastaKm));
+
+        return vbox;
+    }
+    
+    private VBox crearRangoInputPrecio() {
+        VBox vbox = new VBox(10);
+        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
+
+        // Campo de texto desde
+        desdePrecio.setPromptText("Desde...");
+        desdePrecio.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        // Campo de texto hasta
+        hastaPrecio.setPromptText("Hasta...");
+        hastaPrecio.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        Label label = new Label("Rango:");
+        label.setStyle("-fx-text-fill: white;");
+
+        vbox.getChildren().addAll(label, desdePrecio, hastaPrecio);
+
+        // Agregar listeners para detectar cambios en los campos de texto
+        desdePrecio.textProperty().addListener((observable, oldValue, newValue) -> setFilters(desdePrecio, hastaPrecio));
+        hastaPrecio.textProperty().addListener((observable, oldValue, newValue) -> setFilters(desdePrecio, hastaPrecio));
+
+        return vbox;
+    }
+
+    // Método para cargar las marcas de los vehículos
+    private VBox cargarMarcas() {
+        // Crear una lista de marcas únicas
+        Set<String> marcasUnicas = new HashSet<>(); // Usamos un HashSet para evitar duplicados
+        for (Vehiculo vehiculo : vehiMostrar) {
+            marcasUnicas.add(vehiculo.getMarca());
+        }
+
+        // Crear un VBox para contener las marcas
+        VBox vbox = new VBox(10); // Espaciado de 10 px entre los elementos
+        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
+
+        // Agregar un título al VBox
+        Label label = new Label("Selecciona una Marca:");
+        label.setStyle("-fx-text-fill: white;");
+        vbox.getChildren().add(label);
+
+        // Crear un ComboBox para mostrar las marcas
+        comboBox.getItems().addAll(marcasUnicas); // Agregar las marcas al ComboBox
+        comboBox.setPromptText("Selecciona una marca...");
+        comboBox.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        // Agregar un listener para cuando el usuario seleccione una marca
+        comboBox.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                filtrarPorMarca(newValue);
+            }
+        });
+
+        // Agregar el ComboBox al VBox
+        vbox.getChildren().add(comboBox);
+
+        // Devolver el VBox con las marcas cargadas
+        return vbox;
+    }
+
+    // Método para cargar las marcas de los vehículos
+    private VBox cargarModelos() {
+        // Crear una lista de marcas únicas
+        Set<String> modelosUnicos = new HashSet<>(); // Usamos un HashSet para evitar duplicados
+        for (Vehiculo vehiculo : vehiMostrar) {
+            modelosUnicos.add(vehiculo.getModelo());
+        }
+
+        // Crear un VBox para contener las marcas
+        VBox vbox = new VBox(10); // Espaciado de 10 px entre los elementos
+        vbox.setStyle("-fx-padding: 10; -fx-background-color: #2e1a1a; -fx-border-color: #004fff; -fx-border-radius: 5;");
+
+        // Agregar un título al VBox
+        Label label = new Label("Selecciona una Modelo:");
+        label.setStyle("-fx-text-fill: white;");
+        vbox.getChildren().add(label);
+
+        // Crear un ComboBox para mostrar las marcas
+        comboBoxModelos.getItems().addAll(modelosUnicos); // Agregar las marcas al ComboBox
+        comboBoxModelos.setPromptText("Selecciona una modelo...");
+        comboBoxModelos.setStyle("-fx-background-color: #444; -fx-text-fill: white; -fx-prompt-text-fill: #aaa;");
+
+        // Agregar un listener para cuando el usuario seleccione un modelo
+        comboBoxModelos.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                filtrarPorModelo(newValue);
+            }
+        });
+
+        // Agregar el ComboBox al VBox
+        vbox.getChildren().add(comboBoxModelos);
+
+        // Devolver el VBox con las marcas cargadas
+        return vbox;
+    }
 
     // Modifica el método para aplicar el filtro de kilometraje y precio
     private List<Vehiculo> aplicarFiltroKilometraje(List<Vehiculo> vehi) {
@@ -427,8 +430,15 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             double desdeValor = desdeKm.getText().isEmpty() ? 0 : Double.parseDouble(desdeKm.getText());
             double hastaValor = hastaKm.getText().isEmpty() ? Double.MAX_VALUE : Double.parseDouble(hastaKm.getText());
 
+            // Si la lista de vehículos filtrados está vacía, cargamos todos los vehículos
+            if (vehiculosFiltrados.isEmpty()) {
+                vehiculosSinFiltrar = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+                });
+                vehiculosFiltrados = new ArrayList<>(vehiculosSinFiltrar); // Cargamos todos los vehículos al principio
+            }
+
             // Filtrar los vehículos según el filtro de kilometraje y precio
-            vehiMostrar = vehiMostrar.stream()
+            vehiculosFiltrados = vehiculosFiltrados.stream()
                     .filter(vehiculo -> {
                         double kilometraje = vehiculo.getKm(); // Obtener el kilometraje del vehículo
 
@@ -441,22 +451,29 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
                     .collect(Collectors.toList());
 
             // Actualizar la vista con los vehículos filtrados
-            actualizarVistaConVehiculos(vehiMostrar);
+            actualizarVistaConVehiculos(vehiculosFiltrados);
         } catch (NumberFormatException e) {
             // Si hay un error en el formato de número, mostrar un mensaje
             System.out.println("Valor inválido para el filtro de kilometraje o precio.");
         }
-        return vehiMostrar;
+        return vehiculosFiltrados;
     }
-
+    
     private List<Vehiculo> aplicarFiltroPrecio(List<Vehiculo> vehi) {
         try {
             // Obtener los valores desde y hasta, con validación
             double desdeValor = desdePrecio.getText().isEmpty() ? 0 : Double.parseDouble(desdePrecio.getText());
             double hastaValor = hastaPrecio.getText().isEmpty() ? Double.MAX_VALUE : Double.parseDouble(hastaPrecio.getText());
 
+            // Si la lista de vehículos filtrados está vacía, cargamos todos los vehículos
+            if (vehiculosFiltrados.isEmpty()) {
+                vehiculosSinFiltrar = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
+                });
+                vehiculosFiltrados = new ArrayList<>(vehiculosSinFiltrar); // Cargamos todos los vehículos al principio
+            }
+
             // Filtrar los vehículos según el filtro de kilometraje y precio
-            vehiMostrar = vehiMostrar.stream()
+            vehiculosFiltrados = vehiculosFiltrados.stream()
                     .filter(vehiculo -> {
                         double precio = vehiculo.getPrecio();  // Obtener el precio del vehículo
 
@@ -469,13 +486,15 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
                     .collect(Collectors.toList());
 
             // Actualizar la vista con los vehículos filtrados
-            actualizarVistaConVehiculos(vehiMostrar);
+            actualizarVistaConVehiculos(vehiculosFiltrados);
         } catch (NumberFormatException e) {
             // Si hay un error en el formato de número, mostrar un mensaje
             System.out.println("Valor inválido para el filtro de kilometraje o precio.");
         }
-        return vehiMostrar;
+        return vehiculosFiltrados;
     }
+
+    
 
     // Crear el contenido del Popup para el filtro de colores (4 colores por fila)
     private VBox crearPaletaDeColores() {
@@ -587,22 +606,22 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     private void setFilters(TextField desde, TextField hasta) {
 
-        if (!desde.getText().isEmpty()) {
+        if(!desde.getText().isEmpty()){
             vehiMostrar = aplicarFiltroKilometraje(vehiMostrar);
         }
-
-        if (!desde.getText().isEmpty()) {
+        
+        if(!desde.getText().isEmpty()){
             vehiMostrar = aplicarFiltroPrecio(vehiMostrar);
         }
-        if (comboBox.getSelectionModel().getSelectedIndex() != -1) {
+        if(comboBox.getSelectionModel().getSelectedIndex()!=-1){
             vehiMostrar = filtrarPorMarca(comboBox.getSelectionModel().getSelectedItem());
         }
-        if (comboBoxModelos.getSelectionModel().getSelectedIndex() != -1) {
+        if(comboBoxModelos.getSelectionModel().getSelectedIndex()!=-1){
             vehiMostrar = filtrarPorModelo(comboBoxModelos.getSelectionModel().getSelectedItem());
         }
         actualizarVistaConVehiculos(vehiMostrar);
     }
-
+    
     public void restablecerFiltros(MouseEvent event) {
 
         // Limpiar los TextField
@@ -618,7 +637,7 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         // Actualizar la vista con la lista restaurada
         actualizarVistaConVehiculos(vehi);
     }
-
+    
     // Abrir Ventana SignIn & SignUp
     private void abrirVentanaSignInSignUp(ActionEvent event) {
 
@@ -743,5 +762,9 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
+
+    
+
+
 
 }
