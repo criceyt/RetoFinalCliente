@@ -10,8 +10,6 @@ import logica.MantenimientoManagerFactory;
 import modelo.Mantenimiento;
 import java.util.Date;
 import java.util.List;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javax.ws.rs.core.GenericType;
 import logica.VehiculoManagerFactory;
@@ -111,30 +109,17 @@ public class EditingCell<T> extends TableCell<Mantenimiento, T> {
     private void createTextField() {
         textField = new TextField(getString());
         textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2);
-
-        // Bandera para controlar si se canceló por ESC
-        final BooleanProperty presionarEsc = new SimpleBooleanProperty(false);
-
         textField.setOnAction(event -> commitEdit((T) textField.getText()));
-
         textField.focusedProperty().addListener((ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) -> {
-            if (!arg2 && !presionarEsc.get()) {
+            if (!arg2) {
                 commitEdit((T) textField.getText());
             }
         });
         textField.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
-                presionarEsc.set(true); // Marca la bandera
                 cancelEdit();
             }
         });
-
-        textField.setOnKeyReleased(event -> {
-            if (event.getCode() == KeyCode.ESCAPE) {
-                presionarEsc.set(false); //Restablece la bandera al liberar ESC
-            }
-        });
-
     }
 
     private void createCheckBox() {
@@ -219,7 +204,7 @@ public class EditingCell<T> extends TableCell<Mantenimiento, T> {
                     cancelEdit();
                     return; // Salir sin confirmar la edición
                 }
-
+                
                 mantenimiento.setFechaFinalizacion((Date) newValue);
             } else if (newValue instanceof Long) {
                 mantenimiento.setIdVehiculo((Long) newValue);
