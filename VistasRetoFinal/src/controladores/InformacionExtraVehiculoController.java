@@ -8,6 +8,7 @@ package controladores;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 import java.util.ResourceBundle;
@@ -23,15 +24,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import javax.ws.rs.core.GenericType;
 import logica.CompraManagerFactory;
 import logica.SessionManager;
-import logica.UsuarioManagerFactory;
-import logica.VehiculoManager;
 import modelo.Compra;
 import modelo.CompraId;
 import modelo.Usuario;
@@ -238,57 +237,81 @@ public class InformacionExtraVehiculoController implements Initializable {
     // Metodo que se Activa cuando se le da a Comprar (Button)
     private void comprarVehiculo(ActionEvent event) {
 
-        // Crear el Alert con un mensaje de confirmación
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Confirmación de Compra");
-        alert.setHeaderText("¿Está seguro que desea comprar este vehículo?");
-        alert.setContentText("La empresa no acepta devoluciones.");
+        boolean compradoYa = false;
+        // Crear un nuevo objeto Compra
+        Compra compra = new Compra();
 
-        // Mostrar el Alert y esperar la respuesta del usuario
-        Optional<ButtonType> result = alert.showAndWait();
+        // Obtener el usuario y el vehículo
+        Usuario usuario = SessionManager.getUsuario();
+        Vehiculo vehiculo = VehiculoInfoExtraManager.getVehiculo();
 
-        // Comprobar la respuesta del usuario
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            // El usuario hizo clic en "Sí" (ButtonType.OK)
+        // Crear y establecer el id compuesto de Compra (CompraId)
+        CompraId compraId = new CompraId();
+        compraId.setIdPersona(usuario.getIdPersona());
+        compraId.setIdVehiculo(vehiculo.getIdVehiculo());
+        compra.setIdCompra(compraId);  // Establecer la clave primaria compuesta
 
-            // Crear un nuevo objeto Compra
-            Compra compra = new Compra();
+        // Generar la matrícula y establecerla
+        String matriculaNueva = generarMatricula();
+        compra.setMatricula(matriculaNueva);
 
-            // Obtener el usuario y el vehículo
-            Usuario usuario = SessionManager.getUsuario();
-            System.out.println(usuario.getIdPersona());
-            Vehiculo vehiculo = VehiculoInfoExtraManager.getVehiculo();
-            System.out.println(vehiculo.getIdVehiculo());
+        // Establecer la fecha de compra
+        Date date = new Date();
+        compra.setFechaCompra(date);
 
-            // Crear y establecer el id compuesto de Compra (CompraId)
-            CompraId compraId = new CompraId();
-            compraId.setIdPersona(usuario.getIdPersona());
-            compraId.setIdVehiculo(vehiculo.getIdVehiculo());
-            compra.setIdCompra(compraId);  // Establecer la clave primaria compuesta
+        // Ahora la valdadera vuelta
+        List<Compra> compras = CompraManagerFactory.get().findAll_XML(new GenericType<List<Compra>>() {
+        });
 
-            // Establecer el vehículo y usuario en la compra
-            compra.setUsuario(usuario);
-            compra.setVehiculo(vehiculo);
+        for (Compra c : compras) {
+            if (c.getIdCompra().getIdPersona().equals(usuario.getIdPersona()) && c.getIdCompra().getIdVehiculo().equals(vehiculo.getIdVehiculo())) {
+                System.out.println("Vehiculo Comprado");
+                compradoYa = true;
+            }
 
-            // Generar la matrícula y establecerla
-            String matriculaNueva = generarMatricula();
-            compra.setMatricula(matriculaNueva);
-
-            // Establecer la fecha de compra
-            Date date = new Date();
-            compra.setFechaCompra(date);
-
-            // Llamada al método de gestión de compras (presumiblemente para persistir la compra)
-            CompraManagerFactory.get().create_XML(compra);
-
-        } else {
-            // El usuario hizo clic en "No" o cerró el diálogo
-            System.out.println("Compra cancelada");
-            // Aquí puedes agregar la lógica para cancelar la compra
         }
-    }
-    // Generador de Matricula Aleatoria
 
+        if (!compradoYa) {
+            // Mostrar una alerta de confirmación para asegurarse de que el usuario quiere comprar el coche
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmación");
+            alert.setHeaderText("¿Estás seguro de que deseas comprar este vehículo?");
+            alert.setContentText("Una vez comprada, la compra no podrá ser revertida.");
+
+            // Mostrar la alerta y esperar la respuesta
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                // Si el usuario confirma la compra (presiona "OK")
+                // Llamada al método de gestión de compras (presumiblemente para persistir la compra)
+                CompraManagerFactory.get().create_XML(compra);
+
+                // Se inserta el Usuario y el Vehiculo
+                compraId.setIdPersona(usuario.getIdPersona());
+                String parseado = String.valueOf(usuario.getIdPersona());
+
+                compra.setUsuario(usuario);
+                compra.setVehiculo(vehiculo);
+
+                CompraManagerFactory.get().edit_XML(compra, parseado);
+            } else {
+                // Si el usuario cancela la operación, no hace nada (o puedes mostrar otro mensaje)
+                System.out.println("Compra cancelada.");
+            }
+        } else {
+            // Mostrar un mensaje de alerta si el coche ya fue comprado
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);  // No tiene cabecera
+            alert.setContentText("Este coche ya lo has comprado.");
+
+            // Mostrar la alerta
+            alert.showAndWait();
+        }
+
+    }
+
+    // Generador de Matricula Aleatoria
     public static String generarMatricula() {
         Random rand = new Random();
 

@@ -5,10 +5,13 @@
  */
 package entidades;
 
+import java.util.List;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
 import logica.CompraManager;
 import modelo.Compra;
 
@@ -82,9 +85,9 @@ public class CompraRestFull implements CompraManager {
         webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
     }
 
-    public <T> T findAll_XML(Class<T> responseType) throws WebApplicationException {
+    public <T> List<T> findAll_XML(GenericType<List<T>> responseType) throws WebApplicationException {
         WebTarget resource = webTarget;
-        return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
+        return resource.request(MediaType.APPLICATION_XML).get(responseType);
     }
 
     public <T> T findAll_JSON(Class<T> responseType) throws WebApplicationException {
