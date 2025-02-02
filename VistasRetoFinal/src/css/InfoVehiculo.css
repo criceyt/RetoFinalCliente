@@ -1,0 +1,101 @@
+/* Definir fondo y estilo general */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+}
+
+/* Barra Superior */
+.top {
+    background-color: #5b1e1e;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.top Button {
+    color: white;
+    font-weight: bold;
+    padding: 10px;
+    background: none;
+    border: none;
+    font-size: 16px;
+}
+
+.top Button:hover {
+    cursor: pointer;
+    background-color: #8b3c3c;
+}
+
+/* Imagen Avatar */
+#abrirPerfilBtn {
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+#abrirPerfilBtn:hover {
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+/* Contenido Principal */
+.center {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.center .VBox {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px;
+}
+
+.grid-pane {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    max-width: 800px;
+}
+
+/* Etiquetas */
+.label {
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: left;
+}
+
+/* Botón Comprar */
+#comprarBtn {
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+#comprarBtn:hover {
+    cursor: pointer;
+    background-color: #45a049;
+}
+
+/* Imagen */
+#imageView {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #ddd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

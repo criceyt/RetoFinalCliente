@@ -29,6 +29,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
@@ -67,6 +68,12 @@ public class NavegacionPrincipalController implements Initializable {
     public void mostrarFiltroColor(MouseEvent event) {
         mostrarPopup(event.getSource(), crearComboBoxInput("Seleccione un color", "Rojo", "Azul", "Negro", "Blanco"));
     }
+
+    @FXML
+    private ImageView backgroundImage; // También debe estar vinculado en el FXML
+
+    @FXML
+    private StackPane stackPane;        // El StackPane que contiene la imagen y el contenido
 
     @FXML
     public void mostrarFiltroPrecio(MouseEvent event) {
@@ -203,32 +210,40 @@ public class NavegacionPrincipalController implements Initializable {
         }
     }
 
-    // Metodo que abre la ventana de info Concreto de Vehioculo
-    private void abrirVentanaInformacionVehiculo(ActionEvent event, Vehiculo vehiculo) {
-        try {
+private void abrirVentanaInformacionVehiculo(ActionEvent event, Vehiculo vehiculo) {
+    try {
 
-            VehiculoInfoExtraManager.setVehiculo(vehiculo);
+        VehiculoInfoExtraManager.setVehiculo(vehiculo);
 
-            // Se carga el FXML con la información de la vista
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculo.fxml"));
-            Parent root = loader.load();
+        // Se carga el FXML con la información de la vista
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculo.fxml"));
+        Parent root = loader.load();
 
-            // Obtener el controlador
-            InformacionExtraVehiculoController controller = loader.getController();
+        // Obtener el controlador
+        InformacionExtraVehiculoController controller = loader.getController();
 
-            // Guardamos el objeto en la clase para que pueda ser utilizado en el controlador
-            // Obtener el Stage
-            Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
-            stage.setTitle("Información de Vehículo");
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            Logger.getLogger(InformacionExtraVehiculoController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
-        }
+        // Guardamos el objeto en la clase para que pueda ser utilizado en el controlador
+        // Obtener el Stage
+        Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
+        stage.setTitle("Información de Vehículo");
+        Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/css/InfoVehiculo.css").toExternalForm());
+        stage.setScene(scene);
+
+        // Ajuste del tamaño de la ventana
+        stage.setWidth(1000);  // Ancho de la ventana
+        stage.setHeight(600); // Alto de la ventana
+
+        // Si no deseas que el tamaño sea modificable por el usuario:
+        stage.setResizable(false);
+
+        stage.show();
+    } catch (IOException ex) {
+        Logger.getLogger(InformacionExtraVehiculoController.class.getName()).log(Level.SEVERE, null, ex);
+        new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
     }
+}
+
 
     private void mostrarPopup(Object source, VBox contenido) {
         if (popup != null && popup.isShowing()) {

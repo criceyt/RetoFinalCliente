@@ -321,7 +321,7 @@ public void forgotPassword(ActionEvent event) {
                     stage.setTitle("Navegacion Principal");
                     // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
                     Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+                    scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
                     // Se muestra en la ventana el Scene creado.
                     stage.setScene(scene);
                     stage.show();

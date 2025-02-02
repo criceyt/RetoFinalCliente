@@ -3,15 +3,30 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/entidades/PersonaRestFull.java</file>
-            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/logica/MantenimientoManager.java</file>
             <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/entidades/MantenimientoRestFull.java</file>
-            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/vistas/Perfil.fxml</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/vistas/NavegacionPrincipalTrabajador.fxml</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/img/background.jpg</file>
             <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/controladores/PerfilController.java</file>
             <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/logica/ClienteRegistro.java</file>
-            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/controladores/SolicitarMantenimientoController.java</file>
-            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/controladores/SignController.java</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/css/NavegacionPrincipal.css</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/controladores/ApplicationClient.java</file>
             <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/logica/PersonaManager.java</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/modelo/TipoVehiculo.java</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/entidades/PersonaRestFull.java</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/logica/MantenimientoManager.java</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/entidades/VehiculoRestFull.java</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/css/InfoVehiculo.css</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/vistas/InformacionExtraVehiculo.fxml</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/vistas/Perfil.fxml</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/controladores/SolicitarMantenimientoController.java</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/controladores/NavegacionPrincipalController.java</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/vistas/NavegacionPrincipal.fxml</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/img/fondonav.jpg</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/css/CSSTabla.css</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/css/Perfil.css</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/controladores/SignController.java</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/controladores/InformacionExtraVehiculoController.java</file>
+            <file>file:/C:/Users/crice/Documents/NetBeansProjects/VistasRetoFinal/src/img/fondo.jpg</file>
         </group>
     </open-files>
 </project-private>
