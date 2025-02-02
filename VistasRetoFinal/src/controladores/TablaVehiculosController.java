@@ -61,61 +61,61 @@ public class TablaVehiculosController implements Initializable {
     // Elementos de la Ventana
     @FXML
     private Button homeBtn;
-    
+
     @FXML
     private Button cerrarSesionBtn;
-    
+
     @FXML
     private MenuItem gestionVehiculos;
-    
+
     @FXML
     private MenuItem gestionProveedores;
-    
+
     @FXML
     private MenuItem gestionMantenimientos;
-    
+
     @FXML
     private TableView tableViewVehiculo;
-    
+
     @FXML
     private TableColumn<Vehiculo, Long> idVehiculoColum;
-    
+
     @FXML
     private TableColumn<Vehiculo, String> modeloColum;
-    
+
     @FXML
     private TableColumn<Vehiculo, String> marcaColum;
-    
+
     @FXML
     private TableColumn<Vehiculo, String> colorColum;
-    
+
     @FXML
     private TableColumn<Vehiculo, Date> fechaAltaColum;
-    
+
     @FXML
     private TableColumn<Vehiculo, Integer> potenciaColum;
-    
+
     @FXML
     private TableColumn<Vehiculo, Integer> kmColum;
-    
+
     @FXML
     private TableColumn<Vehiculo, Integer> precioColum;
-    
+
     @FXML
     private TableColumn<Vehiculo, String> tipoColum;
-    
+
     @FXML
     private Button deleteButton;
-    
+
     @FXML
     private Button refreshButton;
-    
+
     @FXML
     private Button addRowButton;
-    
+
     @FXML
     private Button printBtn;
-    
+
     @FXML
     private DatePicker datePickerFiltro;
 
@@ -137,7 +137,7 @@ public class TablaVehiculosController implements Initializable {
         addRowButton.setOnAction(this::añadirLinea);
         refreshButton.setOnAction(this::cargarDatosTabla);
         printBtn.setOnAction(this::crearInforme);
-        
+
         System.out.println("Ventana inicializada correctamente.");
 
         // Configuración de las columnas de la tabla.
@@ -202,33 +202,49 @@ public class TablaVehiculosController implements Initializable {
 
     // Abrir Ventana SignIn & SignUp
     private void abrirVentanaSignInSignUp(ActionEvent event) {
-        
-        try {
-            // Se carga el FXML con la información de la vista viewSignUp.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
-            Parent root = loader.load();
-            
-            SignController controler = loader.getController();
 
-            // Obtener el Stage desde el nodo que disparó el evento.
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            
-            stage.setTitle("SignIn & SignUp");
-            // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
+        // Crear un alert de tipo confirmación
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Cerrar sesión");
+        alert.setHeaderText("¿Estás seguro de que deseas cerrar sesión?");
+        alert.setContentText("Perderás cualquier cambio no guardado.");
 
-            // Se muestra en la ventana el Scene creado.
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
-        }
+        // Mostrar la alerta y esperar la respuesta del usuario
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+
+                try {
+                    // Se carga el FXML con la información de la vista viewSignUp.
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
+                    Parent root = loader.load();
+
+                    SignController controler = loader.getController();
+
+                    // Obtener el Stage desde el nodo que disparó el evento.
+                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+                    stage.setTitle("SignIn & SignUp");
+                    // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
+
+                    // Se muestra en la ventana el Scene creado.
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException ex) {
+                    // Si salta una IOException significa que ha habido algún 
+                    // problema al cargar el FXML o al intentar llamar a la nueva 
+                    // ventana, por lo que se mostrará un Alert con el mensaje 
+                    // "Error en la sincronización de ventanas, intentalo más tarde".
+                    Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
+                    new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+                }
+                // Aquí puedes agregar el código necesario para cerrar la sesión
+            } else {
+                // Lógica si el usuario cancela
+                System.out.println("Cancelado, no se cierra la sesión.");
+            }
+        });
     }
 
     // Boton HOME para volver atras
@@ -257,7 +273,7 @@ public class TablaVehiculosController implements Initializable {
             // Establecer la escena y mostrarla
             stage.setScene(scene);
             stage.show();
-            
+
         } catch (IOException ex) {
             Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
@@ -281,7 +297,7 @@ public class TablaVehiculosController implements Initializable {
             scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
             stage.setScene(scene);
             stage.show();
-            
+
         } catch (IOException ex) {
             Logger.getLogger(TablaProveedoresController.class
                     .getName()).log(Level.SEVERE, null, ex);
@@ -306,14 +322,14 @@ public class TablaVehiculosController implements Initializable {
             scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
             stage.setScene(scene);
             stage.show();
-            
+
         } catch (IOException ex) {
             Logger.getLogger(TablaMantenimientoController.class
                     .getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
-    
+
     private void abrirVentanaGestionVehiculos(ActionEvent event) {
         try {
             // Se carga el FXML con la información de la vista
@@ -330,7 +346,7 @@ public class TablaVehiculosController implements Initializable {
             scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
             stage.setScene(scene);
             stage.show();
-            
+
         } catch (IOException ex) {
             Logger.getLogger(NavegacionPrincipalController.class
                     .getName()).log(Level.SEVERE, null, ex);
@@ -341,7 +357,7 @@ public class TablaVehiculosController implements Initializable {
     // Metodo que borra el Mantenimiento de la tabla y de la base de datos
     private void borrarVehiculo(ActionEvent event) {
         Vehiculo vehiculoSeleccionado = (Vehiculo) tableViewVehiculo.getSelectionModel().getSelectedItem();
-        
+
         if (vehiculoSeleccionado != null) {
             // Crear la alerta de confirmación
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -361,7 +377,7 @@ public class TablaVehiculosController implements Initializable {
 
                     // Cargamos los datos de la Tabla
                     cargarDatosTabla(null);
-                    
+
                 } else {
                     // Si el usuario cancela, no hacer nada
                     System.out.println("Borrado cancelado.");
@@ -392,9 +408,9 @@ public class TablaVehiculosController implements Initializable {
 
     // Metodo para Añadir un Vehiuculo Vacio
     public void añadirLinea(ActionEvent even) {
-        
+
         try {
-            
+
             Vehiculo vehiculoLinea = new Vehiculo();
 
             // La fecha se puede cambiar pero debe ser automatica
@@ -423,7 +439,7 @@ public class TablaVehiculosController implements Initializable {
 
             // Cargamos la tabla de nuevo
             cargarDatosTabla(null);
-            
+
         } catch (Exception e) {
             System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
         }
@@ -431,23 +447,23 @@ public class TablaVehiculosController implements Initializable {
 
     // Metodo que crea el informe
     private void crearInforme(ActionEvent event) {
-        
+
         try {
-            
+
             JasperReport report = JasperCompileManager.compileReport("src/informes/InformeVehiculo.jrxml");
-            
+
             JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Vehiculo>) this.tableViewVehiculo.getItems());
-            
+
             Map<String, Object> parameters = new HashMap<>();
-            
+
             JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
-            
+
             JasperViewer jasperViewer = new JasperViewer(jasperPrint, false);
-            
+
             jasperViewer.setVisible(true);
-            
+
         } catch (JRException e) {
-            
+
             LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
 
             // Crear un Alert de tipo ERROR
@@ -459,6 +475,6 @@ public class TablaVehiculosController implements Initializable {
             // Mostrar el Alert
             alert.showAndWait();
         }
-        
+
     }
 }

@@ -128,32 +128,48 @@ public class NavegacionPrincipalController implements Initializable {
     // Abrir Ventana SignIn & SignUp
     private void abrirVentanaSignInSignUp(ActionEvent event) {
 
-        try {
-            // Se carga el FXML con la información de la vista viewSignUp.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
-            Parent root = loader.load();
+        // Crear un alert de tipo confirmación
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Cerrar sesión");
+        alert.setHeaderText("¿Estás seguro de que deseas cerrar sesión?");
+        alert.setContentText("Perderás cualquier cambio no guardado.");
 
-            SignController controler = loader.getController();
+        // Mostrar la alerta y esperar la respuesta del usuario
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
 
-            // Obtener el Stage desde el nodo que disparó el evento.
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                try {
+                    // Se carga el FXML con la información de la vista viewSignUp.
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
+                    Parent root = loader.load();
 
-            stage.setTitle("SignIn & SignUp");
-            // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
+                    SignController controler = loader.getController();
 
-            // Se muestra en la ventana el Scene creado.
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
-        }
+                    // Obtener el Stage desde el nodo que disparó el evento.
+                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+                    stage.setTitle("SignIn & SignUp");
+                    // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
+
+                    // Se muestra en la ventana el Scene creado.
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException ex) {
+                    // Si salta una IOException significa que ha habido algún 
+                    // problema al cargar el FXML o al intentar llamar a la nueva 
+                    // ventana, por lo que se mostrará un Alert con el mensaje 
+                    // "Error en la sincronización de ventanas, intentalo más tarde".
+                    Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
+                    new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+                }
+                // Aquí puedes agregar el código necesario para cerrar la sesión
+            } else {
+                // Lógica si el usuario cancela
+                System.out.println("Cancelado, no se cierra la sesión.");
+            }
+        });
     }
 
     // Abrir Ventana Solicitar Mantenimiento

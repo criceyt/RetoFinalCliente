@@ -5,7 +5,9 @@
  */
 package logica;
 
+import java.util.List;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.GenericType;
 
 /**
  *
@@ -29,7 +31,7 @@ public interface CompraManager {
 
     public void create_JSON(Object requestEntity) throws WebApplicationException;
 
-    public <T> T findAll_XML(Class<T> responseType) throws WebApplicationException;
+    public <T> List<T> findAll_XML(GenericType<List<T>> responseType) throws WebApplicationException;
 
     public <T> T findAll_JSON(Class<T> responseType) throws WebApplicationException;
 

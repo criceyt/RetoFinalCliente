@@ -156,20 +156,48 @@ public class TablaMantenimientoController implements Initializable {
     }
 
     private void abrirVentanaSignInSignUp(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
-            Parent root = loader.load();
+        // Crear un alert de tipo confirmación
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Cerrar sesión");
+        alert.setHeaderText("¿Estás seguro de que deseas cerrar sesión?");
+        alert.setContentText("Perderás cualquier cambio no guardado.");
 
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-            stage.setTitle("SignIn & SignUp");
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
-        }
+        // Mostrar la alerta y esperar la respuesta del usuario
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+
+                try {
+                    // Se carga el FXML con la información de la vista viewSignUp.
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
+                    Parent root = loader.load();
+
+                    SignController controler = loader.getController();
+
+                    // Obtener el Stage desde el nodo que disparó el evento.
+                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+                    stage.setTitle("SignIn & SignUp");
+                    // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
+
+                    // Se muestra en la ventana el Scene creado.
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException ex) {
+                    // Si salta una IOException significa que ha habido algún 
+                    // problema al cargar el FXML o al intentar llamar a la nueva 
+                    // ventana, por lo que se mostrará un Alert con el mensaje 
+                    // "Error en la sincronización de ventanas, intentalo más tarde".
+                    Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
+                    new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+                }
+                // Aquí puedes agregar el código necesario para cerrar la sesión
+            } else {
+                // Lógica si el usuario cancela
+                System.out.println("Cancelado, no se cierra la sesión.");
+            }
+        });
     }
 
     private void irAtras(ActionEvent event) {
@@ -373,27 +401,26 @@ public class TablaMantenimientoController implements Initializable {
             return 1L; // Retorna 1 como fallback
         }
     }
-    
+
     // Metodo que crea el informe
     private void crearInforme(ActionEvent event) {
 
         try {
-            
+
             JasperReport report = JasperCompileManager.compileReport("src/informes/InformeMantenimiento.jrxml");
-            
-            JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Mantenimiento>)this.tableView.getItems());
+
+            JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Mantenimiento>) this.tableView.getItems());
 
             Map<String, Object> parameters = new HashMap<>();
-            
+
             JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
-            
-            JasperViewer jasperViewer = new JasperViewer(jasperPrint);
+
+            JasperViewer jasperViewer = new JasperViewer(jasperPrint, false);
 
             jasperViewer.setVisible(true);
-                    
-            
+
         } catch (JRException e) {
-            
+
             LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
 
             // Crear un Alert de tipo ERROR

@@ -51,33 +51,10 @@ public class PersonaRestFull implements PersonaManager {
     }
 
     public <T> T resetPassword_XML(Class<T> responseType, String email) throws WebApplicationException {
-        Response response = null;
-
-        try {
-            String encodedEmail = URLEncoder.encode(email, StandardCharsets.UTF_8.toString());
-            WebTarget resource = webTarget.path("reiniciarContrasena/" + encodedEmail);
-            response = resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get();
-
-            response.bufferEntity(); // Evita que se cierre el stream
-
-            String responseBody = response.readEntity(String.class);
-            System.out.println("Respuesta del servidor: " + responseBody);
-
-            // 🔹 Si la respuesta es un mensaje de éxito en texto plano, retornamos null
-            if (!responseBody.trim().startsWith("<")) {
-                System.out.println("El servidor devolvió un mensaje en texto plano, no XML.");
-                return null;
-            }
-
-            // 🔹 Convertimos la respuesta solo si es XML
-            return response.readEntity(responseType);
-        } catch (UnsupportedEncodingException e) {
-            throw new WebApplicationException("Error al codificar el email", e);
-        } finally {
-            if (response != null) {
-                response.close();
-            }
-        }
+        WebTarget resource = webTarget;
+        System.out.println(email);
+        resource = resource.path(java.text.MessageFormat.format("reiniciarContrasena/{0}", new Object[]{email}));
+        return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
     }
 
     public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException {
@@ -89,6 +66,17 @@ public class PersonaRestFull implements PersonaManager {
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
     }
 
+    public void updatePassword_XML(String email, String newPassword) throws ClientErrorException {
+        String xmlData = "<updatePasswordRequest>"
+                + "<email>" + email + "</email>"
+                + "<newPassword>" + newPassword + "</newPassword>"
+                + "</updatePasswordRequest>";
+
+        webTarget.path("updatePassword")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(xmlData, MediaType.APPLICATION_XML));
+    }
+
     public String countREST() throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path("count");
@@ -97,23 +85,11 @@ public class PersonaRestFull implements PersonaManager {
 
     public void edit_XML(Object requestEntity, String id) throws WebApplicationException {
         webTarget.path(java.text.MessageFormat.format("{0}", new Object[]{id})).request(javax.ws.rs.core.MediaType.APPLICATION_XML).put(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_XML), Persona.class);
-        
     }
-public void updatePassword_XML(String email, String newPassword) throws ClientErrorException {
-    String xmlData = "<updatePasswordRequest>"
-                   + "<email>" + email + "</email>"
-                   + "<newPassword>" + newPassword + "</newPassword>"
-                   + "</updatePasswordRequest>";
-
-    webTarget.path("updatePassword")
-             .request(MediaType.APPLICATION_XML)
-             .put(Entity.entity(xmlData, MediaType.APPLICATION_XML));
-}
 
     //public void edit_JSON(Object requestEntity, String id) throws WebApplicationException {
     //    webTarget.path(java.text.MessageFormat.format("{0}", new Object[]{id})).request(javax.ws.rs.core.MediaType.APPLICATION_JSON).put(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
     //}
-
     public <T> T find_XML(Class<T> responseType, String id) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("{0}", new Object[]{id}));
