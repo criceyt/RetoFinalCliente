@@ -21,7 +21,10 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
+import javax.ws.rs.ClientErrorException;
+import logica.PersonaManagerFactory;
 import logica.SessionManager;
 import logica.UsuarioManagerFactory;
 import modelo.Usuario;
@@ -38,7 +41,7 @@ public class PerfilController implements Initializable {
     private Button homeBtn;
 
     @FXML
-    private Button solicitarMantenimientoBtn;
+    private Button tusVehiculosBtn;
 
     @FXML
     private Button cerrarSesionBtn;
@@ -107,7 +110,7 @@ public class PerfilController implements Initializable {
 
         //Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
-        solicitarMantenimientoBtn.setOnAction(this::abrirVentanaSolicitarMantenimiento);
+        tusVehiculosBtn.setOnAction(this::abrirVentanaTusVehiculos);
         volverBtn.setOnAction(this::irAtras);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
         guardarBtn.setOnAction(this::guardarDatosUsuario);
@@ -149,7 +152,7 @@ public class PerfilController implements Initializable {
     private void abrirVentanaSignInSignUp(ActionEvent event) {
 
         // Crear un alert de tipo confirmación
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Cerrar sesión");
         alert.setHeaderText("¿Estás seguro de que deseas cerrar sesión?");
         alert.setContentText("Perderás cualquier cambio no guardado.");
@@ -198,61 +201,51 @@ public class PerfilController implements Initializable {
 
         if (verificarCambiosNoGuardados()) {
             try {
-                // Se carga el FXML con la información de la vista viewSignUp.
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
                 Parent root = loader.load();
 
-                NavegacionPrincipalController controler = loader.getController();
-
-                // Crear un ScrollPane para envolver el contenido
                 ScrollPane sc = new ScrollPane();
                 sc.setContent(root);
 
-                // Configurar el ScrollPane para que solo permita desplazamiento vertical
-                sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
-                sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
+                sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-                // Obtener el Stage desde el nodo que disparó el evento.
-                Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                Stage stage = (Stage) homeBtn.getScene().getWindow();
+                stage.setTitle("Navegación Principal");
 
-                stage.setTitle("Navegacion Principal");
-                // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-                Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+                Scene scene = new Scene(sc);
+                scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
-                // Se muestra en la ventana el Scene creado.
+                // Establecer el tamaño de la ventana
+                stage.setWidth(1000);  // Establecer el ancho
+                stage.setHeight(800);  // Establecer la altura
+
                 stage.setScene(scene);
                 stage.show();
-
             } catch (IOException ex) {
-                // Si salta una IOException significa que ha habido algún 
-                // problema al cargar el FXML o al intentar llamar a la nueva 
-                // ventana, por lo que se mostrará un Alert con el mensaje 
-                // "Error en la sincronización de ventanas, intentalo más tarde".
-                Logger.getLogger(NavegacionPrincipalController.class
-                        .getName()).log(Level.SEVERE, null, ex);
-                new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+                Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
+                new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
             }
         }
     }
 
     // Abrir Ventana Solicitar Mantenimiento
-    private void abrirVentanaSolicitarMantenimiento(ActionEvent event) {
+    private void abrirVentanaTusVehiculos(ActionEvent event) {
         if (verificarCambiosNoGuardados()) {
             try {
                 // Se carga el FXML con la información de la vista viewSignUp.
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SolicitarMantenimiento.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TusVehiculos.fxml"));
                 Parent root = loader.load();
 
-                SolicitarMantenimientoController controler = loader.getController();
+                TusVehiculosController controler = loader.getController();
 
                 // Obtener el Stage desde el nodo que disparó el evento.
                 Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
-                stage.setTitle("Solicitar Mantenimiento");
+                stage.setTitle("Tus Vehiculos");
                 // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
                 Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+                scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
                 // Se muestra en la ventana el Scene creado.
                 stage.setScene(scene);
@@ -263,7 +256,7 @@ public class PerfilController implements Initializable {
                 // problema al cargar el FXML o al intentar llamar a la nueva 
                 // ventana, por lo que se mostrará un Alert con el mensaje 
                 // "Error en la sincronización de ventanas, intentalo más tarde".
-                Logger.getLogger(SolicitarMantenimientoController.class
+                Logger.getLogger(TusVehiculosController.class
                         .getName()).log(Level.SEVERE, null, ex);
                 new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
             }
@@ -426,5 +419,62 @@ public class PerfilController implements Initializable {
 
         // Si no hay cambios o el usuario acepta salir, devolver 'true'
         return true;
+    }
+
+    @FXML
+    private void updatePassword(ActionEvent event) {
+        // Obtener el usuario actual en sesión
+        String emailUsuarioActual = usuario.getEmail();
+
+        // Crear diálogo para pedir el email
+        TextInputDialog emailDialog = new TextInputDialog();
+        emailDialog.setTitle("Actualizar Contraseña");
+        emailDialog.setHeaderText("Introduce tu correo electrónico:");
+        emailDialog.setContentText("Correo:");
+
+        Optional<String> emailInput = emailDialog.showAndWait();
+
+        if (emailInput.isPresent() && !emailInput.get().isEmpty()) {
+            String emailIngresado = emailInput.get();
+
+            // Verificar si el correo ingresado coincide con el del usuario en sesión
+            if (!emailIngresado.equalsIgnoreCase(emailUsuarioActual)) {
+                new Alert(Alert.AlertType.ERROR, "No puedes cambiar la contraseña de otro usuario.").showAndWait();
+                return;
+            }
+
+            // Crear diálogo para pedir la nueva contraseña
+            TextInputDialog passwordDialog = new TextInputDialog();
+            passwordDialog.setTitle("Actualizar Contraseña");
+            passwordDialog.setHeaderText("Introduce tu nueva contraseña:");
+            passwordDialog.setContentText("Nueva contraseña:");
+
+            Optional<String> passwordInput = passwordDialog.showAndWait();
+
+            if (passwordInput.isPresent()) {
+                String newPassword = passwordInput.get();
+
+                // Validar la nueva contraseña
+                if (!isPasswordValid(newPassword)) {
+                    new Alert(Alert.AlertType.ERROR, "La contraseña debe tener al menos 8 caracteres y un número.").showAndWait();
+                    return;
+                }
+
+                try {
+                    // Llamar al método del cliente REST para actualizar la contraseña
+                    PersonaManagerFactory.get().updatePassword_XML(emailIngresado, newPassword);
+
+                    // Mostrar mensaje de éxito
+                    new Alert(Alert.AlertType.INFORMATION, "Contraseña actualizada exitosamente.").showAndWait();
+                } catch (ClientErrorException e) {
+                    new Alert(Alert.AlertType.ERROR, "Error al actualizar la contraseña. Verifica que el correo es correcto.").showAndWait();
+                }
+            }
+        }
+    }
+
+    private boolean isPasswordValid(String password) {
+        // Validar que la contraseña tenga al menos 8 caracteres y contenga al menos un número
+        return password.length() >= 8 && password.matches(".*\\d.*");
     }
 }

@@ -211,13 +211,13 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
             // Crear el ImageView y ajustarlo al tamaño de la ventana
             ImageView imageView = new ImageView(image);
-            imageView.setFitHeight(200);  // Ajustamos el tamaño de la imagen (más grande)
-            imageView.setFitWidth(200);   // Ajustamos el tamaño de la imagen (más grande)
+            imageView.setFitHeight(185);  // Ajustamos el tamaño de la imagen (más grande)
+            imageView.setFitWidth(185);   // Ajustamos el tamaño de la imagen (más grande)
             imageView.setPreserveRatio(true);  // Preservamos la relación de aspecto de la imagen
 
-            // Crear el Label para el nombre del vehículo y ponerlo en color negro
+            // Crear el Label para el nombre del vehículo y ponerlo en color blanco
             Label nombreLabel = new Label(nombreVehiculo);
-            nombreLabel.setStyle("-fx-text-fill: black; -fx-font-size: 14px;");  // Establecer el color del texto a negro y tamaño de fuente
+            nombreLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");  // Establecer el color del texto a blanco y tamaño de fuente
 
             // Crear un VBox que contenga la imagen y el nombre
             VBox vbox = new VBox(5);  // Espacio de 5px entre la imagen y el texto
@@ -767,22 +767,30 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             VehiculoInfoExtraManager.setVehiculo(vehiculo);
 
             // Se carga el FXML con la información de la vista
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculo.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculoTrabajador.fxml"));
             Parent root = loader.load();
 
             // Obtener el controlador
-            InformacionExtraVehiculoController controller = loader.getController();
+            InformacionExtraVehiculoControllerTrabajador controller = loader.getController();
 
             // Guardamos el objeto en la clase para que pueda ser utilizado en el controlador
             // Obtener el Stage
             Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
             stage.setTitle("Información de Vehículo");
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/InfoVehiculo.css").toExternalForm());
             stage.setScene(scene);
+
+            // Ajuste del tamaño de la ventana
+            stage.setWidth(1000);  // Ancho de la ventana
+            stage.setHeight(600); // Alto de la ventana
+
+            // Si no deseas que el tamaño sea modificable por el usuario:
+            stage.setResizable(false);
+
             stage.show();
         } catch (IOException ex) {
-            Logger.getLogger(InformacionExtraVehiculoController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(InformacionExtraVehiculoControllerTrabajador.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }

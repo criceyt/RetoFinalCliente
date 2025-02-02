@@ -12,10 +12,12 @@ import javax.ws.rs.WebApplicationException;
  * @author 2dam
  */
 public interface PersonaManager {
-    
+
     public <T> T resetPassword_XML(Class<T> responseType, String userEmail) throws WebApplicationException;
-    
+
     public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException;
+
+    public void updatePassword_XML(String email, String newPassword) throws WebApplicationException;
 
     public String countREST() throws WebApplicationException;
 
@@ -24,15 +26,13 @@ public interface PersonaManager {
     //public void edit_JSON(Object requestEntity, String id) throws WebApplicationException {
     //    webTarget.path(java.text.MessageFormat.format("{0}", new Object[]{id})).request(javax.ws.rs.core.MediaType.APPLICATION_JSON).put(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
     //}
-
     public <T> T find_XML(Class<T> responseType, String id) throws WebApplicationException;
 
     //public <T> T find_JSON(Class<T> responseType, String id) throws WebApplicationException {
     //    WebTarget resource = webTarget;
     //    resource = resource.path(java.text.MessageFormat.format("{0}", new Object[]{id}));
-     //   return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
+    //   return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     //}
-
     public <T> T findRange_XML(Class<T> responseType, String from, String to) throws WebApplicationException;
 
     //public <T> T findRange_JSON(Class<T> responseType, String from, String to) throws WebApplicationException {
@@ -40,7 +40,6 @@ public interface PersonaManager {
     //    resource = resource.path(java.text.MessageFormat.format("{0}/{1}", new Object[]{from, to}));
     //    return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     //}
-
     public void create_XML(Object requestEntity) throws WebApplicationException;
     //public void create_JSON(Object requestEntity) throws WebApplicationException {
     //    webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
@@ -52,9 +51,8 @@ public interface PersonaManager {
     //    WebTarget resource = webTarget;
     //    return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     //}
-
     public void remove(String id) throws WebApplicationException;
 
     public void close();
-    
+
 }

@@ -1,7 +1,9 @@
 package controladores;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Date;
 import java.util.Optional;
 import javafx.animation.TranslateTransition;
@@ -143,17 +145,8 @@ public class SignController implements Initializable {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             String email = emailField.getText();
 
-            try {
-                // Llamada al método findEmailPersona
-                PersonaManagerFactory.get().resetPassword_XML(Persona.class, email);
-
-            } catch (WebApplicationException e) {
-                // Maneja las excepciones relacionadas con WebApplicationException
-                System.out.println("No se encontró el correo electrónico: " + email);
-            } catch (Exception e) {
-                // Si se produce otro error inesperado
-                System.out.println("Se produjo un error inesperado: " + e.getMessage());
-            }
+            // Llamada al método findEmailPersona
+            PersonaManagerFactory.get().resetPassword_XML(Persona.class, email);
 
             if (email.isEmpty()) {
                 System.out.println("El campo de correo está vacío.");
@@ -163,8 +156,8 @@ public class SignController implements Initializable {
             }
         }
     }
-
 // Metodo Initialize
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         contextMenu = new ContextMenu();
@@ -273,7 +266,7 @@ public class SignController implements Initializable {
 
     // Meotodo al Pulsar el Boton
     @FXML
-    private void inicioSesionBtn(ActionEvent event) {
+    private void inicioSesionBtn(ActionEvent event) throws UnsupportedEncodingException {
 
         // Recoger datos de SignIn
         String login = usernameField.getText();
@@ -288,12 +281,14 @@ public class SignController implements Initializable {
             alert.showAndWait();
 
         } else {
-            //contrasena = ClienteRegistro.encriptarContraseña(contrasena);
+            contrasena = ClienteRegistro.encriptarContraseña(contrasena);
+            System.out.println(contrasena);
+            // En el cliente
+            contrasena = URLEncoder.encode(contrasena, "UTF-8");
 
             System.out.println(contrasena);
             // Llevar la Password y el login al server para que retorne una 
             Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
-
             try {
 
                 // Si la Persona es Usuario entra en este metido Sino va al Otro
@@ -304,31 +299,26 @@ public class SignController implements Initializable {
 
                     SessionManager.setUsuario((Usuario) personaLogIn);
 
-                    // Se carga el FXML con la información de la vista viewSignUp.
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
                     Parent root = loader.load();
 
-                    // Crear un ScrollPane para envolver el contenido
                     ScrollPane sc = new ScrollPane();
                     sc.setContent(root);
 
-                    // Configurar el ScrollPane para que solo permita desplazamiento vertical
-                    sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
-                    sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
-
-                    NavegacionPrincipalController controller = loader.getController();
-                    //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-                    // Llevar el Usuario a Navegacion Principal
-                    //controller.setUsuario((Usuario) personaLogIn);
-                    //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+                    sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                    sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+                    
                     // Obtener el Stage desde el nodo que disparó el evento.
                     Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                    stage.setTitle("Navegación Principal");
 
-                    stage.setTitle("Navegacion Principal");
-                    // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-                    Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-                    // Se muestra en la ventana el Scene creado.
+                    Scene scene = new Scene(sc);
+                    scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+
+                    // Establecer el tamaño de la ventana
+                    stage.setWidth(1000);  // Establecer el ancho
+                    stage.setHeight(800);  // Establecer la altura
+
                     stage.setScene(scene);
                     stage.show();
 
@@ -338,15 +328,18 @@ public class SignController implements Initializable {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
                     Parent root = loader.load();
 
+                    // Crear un ScrollPane y asignar el contenido
+                    ScrollPane scrollPane = new ScrollPane();
+                    scrollPane.setContent(root);  // Establecer el contenido de la vista cargada en el ScrollPane
+
+                    // Desactivar el desplazamiento horizontal
+                    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);  // Desactiva la barra de desplazamiento horizontal
+
+                    // Establecer el ajuste automático al ancho (solo el desplazamiento vertical está habilitado)
+                    scrollPane.setFitToWidth(true);  // Permite que el contenido se ajuste al ancho de la ventana
+                    scrollPane.setFitToHeight(true); // Permite que el contenido se ajuste a la altura de la ventana
+
                     NavegacionPrincipalTrabajadorController controler = loader.getController();
-
-                    // Crear un ScrollPane para envolver el contenido
-                    ScrollPane sc = new ScrollPane();
-                    sc.setContent(root);
-
-                    // Configurar el ScrollPane para que solo permita desplazamiento vertical
-                    sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
-                    sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
 
                     // Obtener el Stage desde el nodo que disparó el evento.
                     Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();

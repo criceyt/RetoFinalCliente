@@ -23,6 +23,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Jersey REST client generated for REST resource:PersonaFacadeREST
@@ -62,6 +64,17 @@ public class PersonaRestFull implements PersonaManager {
         System.out.println("Clase recibida: " + responseType.getName());
 
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
+    }
+
+    public void updatePassword_XML(String email, String newPassword) throws ClientErrorException {
+        String xmlData = "<updatePasswordRequest>"
+                + "<email>" + email + "</email>"
+                + "<newPassword>" + newPassword + "</newPassword>"
+                + "</updatePasswordRequest>";
+
+        webTarget.path("updatePassword")
+                .request(MediaType.APPLICATION_XML)
+                .put(Entity.entity(xmlData, MediaType.APPLICATION_XML));
     }
 
     public String countREST() throws WebApplicationException {
