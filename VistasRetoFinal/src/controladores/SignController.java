@@ -145,17 +145,8 @@ public class SignController implements Initializable {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             String email = emailField.getText();
 
-            try {
-                // Llamada al método findEmailPersona
-                PersonaManagerFactory.get().resetPassword_XML(Persona.class, email);
-
-            } catch (WebApplicationException e) {
-                // Maneja las excepciones relacionadas con WebApplicationException
-                System.out.println("No se encontró el correo electrónico: " + email);
-            } catch (Exception e) {
-                // Si se produce otro error inesperado
-                System.out.println("Se produjo un error inesperado: " + e.getMessage());
-            }
+            // Llamada al método findEmailPersona
+            PersonaManagerFactory.get().resetPassword_XML(Persona.class, email);
 
             if (email.isEmpty()) {
                 System.out.println("El campo de correo está vacío.");

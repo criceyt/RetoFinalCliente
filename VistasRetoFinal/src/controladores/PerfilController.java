@@ -5,6 +5,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
@@ -13,18 +14,32 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.DialogPane;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import logica.PersonaManagerFactory;
 import logica.SessionManager;
 import logica.UsuarioManagerFactory;
+import modelo.Persona;
 import modelo.Usuario;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
+import javafx.geometry.Insets;
+import javax.ws.rs.ClientErrorException;
+import logica.ClienteRegistro;
+
 
 /**
  * FXML Controller class
@@ -145,6 +160,9 @@ public class PerfilController implements Initializable {
         System.out.println("Ventana inicializada correctamente.");
     }
 
+
+
+
     // Abrir Ventana SignIn & SignUp
     private void abrirVentanaSignInSignUp(ActionEvent event) {
 
@@ -199,6 +217,64 @@ public class PerfilController implements Initializable {
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
+@FXML
+private void updatePassword(ActionEvent event) {
+    // Obtener el usuario actual en sesión
+    String emailUsuarioActual = usuario.getEmail();  
+
+    // Crear diálogo para pedir el email
+    TextInputDialog emailDialog = new TextInputDialog();
+    emailDialog.setTitle("Actualizar Contraseña");
+    emailDialog.setHeaderText("Introduce tu correo electrónico:");
+    emailDialog.setContentText("Correo:");
+
+    Optional<String> emailInput = emailDialog.showAndWait();
+
+    if (emailInput.isPresent() && !emailInput.get().isEmpty()) {
+        String emailIngresado = emailInput.get();
+
+        // Verificar si el correo ingresado coincide con el del usuario en sesión
+        if (!emailIngresado.equalsIgnoreCase(emailUsuarioActual)) {
+            new Alert(Alert.AlertType.ERROR, "No puedes cambiar la contraseña de otro usuario.").showAndWait();
+            return;
+        }
+
+        // Crear diálogo para pedir la nueva contraseña
+        TextInputDialog passwordDialog = new TextInputDialog();
+        passwordDialog.setTitle("Actualizar Contraseña");
+        passwordDialog.setHeaderText("Introduce tu nueva contraseña:");
+        passwordDialog.setContentText("Nueva contraseña:");
+
+        Optional<String> passwordInput = passwordDialog.showAndWait();
+
+        if (passwordInput.isPresent()) {
+            String newPassword = passwordInput.get();
+
+            // Validar la nueva contraseña
+            if (!isPasswordValid(newPassword)) {
+                new Alert(Alert.AlertType.ERROR, "La contraseña debe tener al menos 8 caracteres y un número.").showAndWait();
+                return;
+            }
+
+            try {
+                // Llamar al método del cliente REST para actualizar la contraseña
+                PersonaManagerFactory.get().updatePassword_XML(emailIngresado, newPassword);
+
+                // Mostrar mensaje de éxito
+                new Alert(Alert.AlertType.INFORMATION, "Contraseña actualizada exitosamente.").showAndWait();
+            } catch (ClientErrorException e) {
+                new Alert(Alert.AlertType.ERROR, "Error al actualizar la contraseña. Verifica que el correo es correcto.").showAndWait();
+            }
+        }
+    }
+}
+
+
+
+private boolean isPasswordValid(String password) {
+    // Validar que la contraseña tenga al menos 8 caracteres y contenga al menos un número
+    return password.length() >= 8 && password.matches(".*\\d.*");
+}
 
     // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
