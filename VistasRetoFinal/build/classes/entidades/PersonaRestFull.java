@@ -5,6 +5,7 @@
  */
 package entidades;
 
+import exceptions.SignInErrorException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -18,11 +19,6 @@ import logica.PersonaManager;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import modelo.Persona;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 
@@ -57,12 +53,19 @@ public class PersonaRestFull implements PersonaManager {
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
     }
 
-    public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException {
+    public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException, SignInErrorException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("inicioSesionPersona/{0}/{1}", new Object[]{email, contrasena}));
 
-        System.out.println("Clase recibida: " + responseType.getName());
-
+        // Realiza la solicitud y captura la respuesta
+        Response response = resource
+                .request(javax.ws.rs.core.MediaType.APPLICATION_XML)
+                .get();
+        
+        if(response.getStatus() == 404) {
+            throw new SignInErrorException();
+        }
+        
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
 
     }

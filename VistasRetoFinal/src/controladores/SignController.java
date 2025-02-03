@@ -1,6 +1,7 @@
 package controladores;
 
 import exceptions.CorreoODniRepeException;
+import exceptions.SignInErrorException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -282,89 +283,102 @@ public class SignController implements Initializable {
             alert.showAndWait();
 
         } else {
-            contrasena = ClienteRegistro.encriptarContraseña(contrasena);
-            System.out.println(contrasena);
-            // En el cliente
-            contrasena = URLEncoder.encode(contrasena, "UTF-8");
-
-            System.out.println(contrasena);
-            // Llevar la Password y el login al server para que retorne una 
-            Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
             try {
+                contrasena = ClienteRegistro.encriptarContraseña(contrasena);
+                System.out.println(contrasena);
+                // En el cliente
+                contrasena = URLEncoder.encode(contrasena, "UTF-8");
 
-                // Si la Persona es Usuario entra en este metido Sino va al Otro
-                if (personaLogIn instanceof Usuario) {
+                System.out.println(contrasena);
+                // Llevar la Password y el login al server para que retorne una
+                Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
+                try {
 
-                    String contrasenaHash = personaLogIn.getContrasena();
-                    contrasenaHash = Hash.hashText(contrasenaHash);
+                    // Si la Persona es Usuario entra en este metido Sino va al Otro
+                    if (personaLogIn instanceof Usuario) {
 
-                    SessionManager.setUsuario((Usuario) personaLogIn);
+                        String contrasenaHash = personaLogIn.getContrasena();
+                        contrasenaHash = Hash.hashText(contrasenaHash);
 
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
-                    Parent root = loader.load();
+                        SessionManager.setUsuario((Usuario) personaLogIn);
 
-                    ScrollPane sc = new ScrollPane();
-                    sc.setContent(root);
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
+                        Parent root = loader.load();
 
-                    sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-                    sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+                        ScrollPane sc = new ScrollPane();
+                        sc.setContent(root);
 
-                    // Obtener el Stage desde el nodo que disparó el evento.
-                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-                    stage.setTitle("Navegación Principal");
+                        sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                        sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-                    Scene scene = new Scene(sc);
-                    scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+                        // Obtener el Stage desde el nodo que disparó el evento.
+                        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                        stage.setTitle("Navegación Principal");
 
-                    // Establecer el tamaño de la ventana
-                    stage.setWidth(1000);  // Establecer el ancho
-                    stage.setHeight(800);  // Establecer la altura
+                        Scene scene = new Scene(sc);
+                        scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
-                    stage.setScene(scene);
-                    stage.show();
+                        // Establecer el tamaño de la ventana
+                        stage.setWidth(1000);  // Establecer el ancho
+                        stage.setHeight(800);  // Establecer la altura
 
-                } else if (personaLogIn instanceof Trabajador) {
+                        stage.setScene(scene);
+                        stage.show();
 
-                    // Se carga el FXML con la información de la vista viewSignUp.
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
-                    Parent root = loader.load();
+                    } else if (personaLogIn instanceof Trabajador) {
 
-                    // Crear un ScrollPane y asignar el contenido
-                    ScrollPane scrollPane = new ScrollPane();
-                    scrollPane.setContent(root);  // Establecer el contenido de la vista cargada en el ScrollPane
+                        // Se carga el FXML con la información de la vista viewSignUp.
+                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
+                        Parent root = loader.load();
 
-                    // Desactivar el desplazamiento horizontal
-                    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);  // Desactiva la barra de desplazamiento horizontal
+                        // Crear un ScrollPane y asignar el contenido
+                        ScrollPane scrollPane = new ScrollPane();
+                        scrollPane.setContent(root);  // Establecer el contenido de la vista cargada en el ScrollPane
 
-                    // Establecer el ajuste automático al ancho (solo el desplazamiento vertical está habilitado)
-                    scrollPane.setFitToWidth(true);  // Permite que el contenido se ajuste al ancho de la ventana
-                    scrollPane.setFitToHeight(true); // Permite que el contenido se ajuste a la altura de la ventana
+                        // Desactivar el desplazamiento horizontal
+                        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);  // Desactiva la barra de desplazamiento horizontal
 
-                    NavegacionPrincipalTrabajadorController controler = loader.getController();
+                        // Establecer el ajuste automático al ancho (solo el desplazamiento vertical está habilitado)
+                        scrollPane.setFitToWidth(true);  // Permite que el contenido se ajuste al ancho de la ventana
+                        scrollPane.setFitToHeight(true); // Permite que el contenido se ajuste a la altura de la ventana
 
-                    // Obtener el Stage desde el nodo que disparó el evento.
-                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                        NavegacionPrincipalTrabajadorController controler = loader.getController();
 
-                    stage.setTitle("Navegacion Principal Trabajador");
-                    // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-                    Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
-                    // Se muestra en la ventana el Scene creado.
-                    stage.setScene(scene);
-                    stage.show();
-                } else {
-                    new Alert(Alert.AlertType.ERROR, "ERROR: No estas registrado ni como Usuario ni como Tarbajador", ButtonType.OK).showAndWait();
+                        // Obtener el Stage desde el nodo que disparó el evento.
+                        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
+                        stage.setTitle("Navegacion Principal Trabajador");
+                        // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+                        Scene scene = new Scene(root);
+                        scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+                        // Se muestra en la ventana el Scene creado.
+                        stage.setScene(scene);
+                        stage.show();
+                    } else {
+                        new Alert(Alert.AlertType.ERROR, "ERROR: No estas registrado ni como Usuario ni como Tarbajador", ButtonType.OK).showAndWait();
+
+                    }
+
+                } catch (IOException ex) {
+                    // Si salta una IOException significa que ha habido algún
+                    // problema al cargar el FXML o al intentar llamar a la nueva
+                    // ventana, por lo que se mostrará un Alert con el mensaje
+                    // "Error en la sincronización de ventanas, intentalo más tarde".
+                    Logger.getLogger(NavegacionPrincipalController.class
+                            .getName()).log(Level.SEVERE, null, ex);
+                    new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
                 }
+            } catch (WebApplicationException ex) {
+                Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SignInErrorException ex) {
+                Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex.getMessage());
 
-            } catch (IOException ex) {
-                // Si salta una IOException significa que ha habido algún 
-                // problema al cargar el FXML o al intentar llamar a la nueva 
-                // ventana, por lo que se mostrará un Alert con el mensaje 
-                // "Error en la sincronización de ventanas, intentalo más tarde".
-                Logger.getLogger(NavegacionPrincipalController.class
-                        .getName()).log(Level.SEVERE, null, ex);
-                new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+                // Crear y mostrar una alerta en JavaFX
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Error de inicio de sesión");
+                alert.setHeaderText(null); // No se muestra encabezado
+                alert.setContentText("El usuario no existe o los datos son incorrectos. Por favor, verifica e intenta nuevamente.");
+                alert.showAndWait();
             }
         }
 

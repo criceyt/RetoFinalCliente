@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package controladores;
 
 import javafx.scene.input.MouseEvent;
@@ -91,6 +86,9 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
 
     @FXML
     private MenuItem gestionMantenimientos;
+    
+    @FXML
+    private TextField barraBusqueda;
 
     @FXML
     public void mostrarFiltroKilometraje(MouseEvent event) {
@@ -180,9 +178,31 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
         gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
         restablecerBtn.setOnMouseClicked(this::restablecerFiltros);
+        
+        barraBusqueda.textProperty().addListener((observable, oldValue, newValue) -> filtrarVehiculosBarra(newValue));
 
         cargarVehiculos();
 
+    }
+
+    private void filtrarVehiculosBarra(String filtro) {
+        // Si la barra está vacía, mostramos todos los vehículos
+        if (filtro == null || filtro.trim().isEmpty()) {
+            actualizarVistaConVehiculos(vehi); // Mostrar todos los vehículos originales
+            return;
+        }
+
+        // Crear una variable local final para evitar el error
+        final String filtroLower = filtro.toLowerCase();
+
+        // Filtramos la lista original
+        List<Vehiculo> vehiFiltrados = vehi.stream()
+                .filter(v -> v.getMarca().toLowerCase().contains(filtroLower)
+                || v.getModelo().toLowerCase().contains(filtroLower))
+                .collect(Collectors.toList());
+
+        // Actualizar la vista con los vehículos filtrados
+        actualizarVistaConVehiculos(vehiFiltrados);
     }
 
     private void cargarVehiculos() {
@@ -268,12 +288,12 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             Image image = new Image(getClass().getResource(rutaCoche).toExternalForm());
             String nombreVehiculo = vehiculo.getMarca() + " " + vehiculo.getModelo();
             ImageView imageView = new ImageView(image);
-            imageView.setFitHeight(185);
-            imageView.setFitWidth(185);
+            imageView.setFitHeight(200);
+            imageView.setFitWidth(200);
             imageView.setPreserveRatio(true);
 
             Label nombreLabel = new Label(nombreVehiculo);
-            nombreLabel.setStyle("-fx-text-fill: black; -fx-font-size: 14px;");
+            nombreLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
 
             VBox vbox = new VBox(5);
             vbox.getChildren().addAll(imageView, nombreLabel);

@@ -5,6 +5,7 @@
  */
 package logica;
 
+import exceptions.SignInErrorException;
 import javax.ws.rs.WebApplicationException;
 
 /**
@@ -15,7 +16,7 @@ public interface PersonaManager {
 
     public <T> T resetPassword_XML(Class<T> responseType, String userEmail) throws WebApplicationException;
 
-    public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException;
+    public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException, SignInErrorException;
 
     public void updatePassword_XML(String email, String newPassword) throws WebApplicationException;
 

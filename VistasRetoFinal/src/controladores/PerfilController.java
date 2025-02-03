@@ -196,7 +196,7 @@ public class PerfilController implements Initializable {
 
     }
 
-// Boton HOME para volver atras
+    // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
 
         if (verificarCambiosNoGuardados()) {

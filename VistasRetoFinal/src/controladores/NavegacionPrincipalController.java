@@ -67,6 +67,9 @@ public class NavegacionPrincipalController implements Initializable {
 
     @FXML
     private Button cerrarSesionBtn;
+    
+    @FXML
+    private TextField barraBusqueda;
 
     @FXML
     public void mostrarFiltroKilometraje(MouseEvent event) {
@@ -183,6 +186,8 @@ public class NavegacionPrincipalController implements Initializable {
         tusVehiculosBtn.setOnAction(this::abrirVentanaTusVehiculos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
         restablecerBtn.setOnMouseClicked(this::restablecerFiltros);
+        
+        barraBusqueda.textProperty().addListener((observable, oldValue, newValue) -> filtrarVehiculosBarra(newValue));
 
         cargarVehiculos();
 
@@ -842,5 +847,25 @@ public class NavegacionPrincipalController implements Initializable {
             vehiMostrar = filtrarPorModelo(comboBoxModelos.getSelectionModel().getSelectedItem());
         }
         actualizarVistaConVehiculos(vehiMostrar);
+    }
+
+    private void filtrarVehiculosBarra(String filtro) {
+        // Si la barra está vacía, mostramos todos los vehículos
+        if (filtro == null || filtro.trim().isEmpty()) {
+            actualizarVistaConVehiculos(vehi); // Mostrar todos los vehículos originales
+            return;
+        }
+
+        // Crear una variable local final para evitar el error
+        final String filtroLower = filtro.toLowerCase();
+
+        // Filtramos la lista original
+        List<Vehiculo> vehiFiltrados = vehi.stream()
+                .filter(v -> v.getMarca().toLowerCase().contains(filtroLower)
+                || v.getModelo().toLowerCase().contains(filtroLower))
+                .collect(Collectors.toList());
+
+        // Actualizar la vista con los vehículos filtrados
+        actualizarVistaConVehiculos(vehiFiltrados);
     }
 }

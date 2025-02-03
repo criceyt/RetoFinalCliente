@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,6 +23,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -52,6 +54,7 @@ public class TusVehiculosController implements Initializable {
 
     @FXML
     private GridPane gridPane;
+    
 
     // Metodo Initialize
     @Override
@@ -173,7 +176,7 @@ public class TusVehiculosController implements Initializable {
 
         try {
             // Se carga el FXML con la información de la vista viewSignUp.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SolicitarMantenimiento.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TusVehiculos.fxml"));
             Parent root = loader.load();
 
             TusVehiculosController controler = loader.getController();
@@ -181,7 +184,7 @@ public class TusVehiculosController implements Initializable {
             // Obtener el Stage desde el nodo que disparó el evento.
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
-            stage.setTitle("Solicitar Mantenimiento");
+            stage.setTitle("Tus Vehiculos");
             // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
@@ -250,7 +253,7 @@ public class TusVehiculosController implements Initializable {
                 button.setMaxHeight(Double.MAX_VALUE); // Hacer que el botón ocupe todo el espacio disponible en su celda
 
                 // Agregar el listener de clic al botón
-                button.setOnAction(event -> abrirVentanaInformacionVehiculo(null, vehiculoDeUser));
+                button.setOnAction(event -> abrirVentanaInformacionVehiculo(null, vehiculoDeUser, compra.getMatricula()));
 
                 // Añadir el botón al GridPane en la fila y columna correspondiente
                 gridPane.add(button, columna, fila);
@@ -266,8 +269,39 @@ public class TusVehiculosController implements Initializable {
         }
     }
 
-    private void abrirVentanaInformacionVehiculo(Object object, Vehiculo vehiculo) {
+    private void abrirVentanaInformacionVehiculo(Object object, Vehiculo vehiculo, String matricula) {
+        try {
 
+            VehiculoInfoExtraManager.setVehiculo(vehiculo);
+
+            // Se carga el FXML con la información de la vista
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/InformacionExtraVehiculoTusVehiculos.fxml"));
+            Parent root = loader.load();
+
+            // Obtener el controlador
+            InformacionExtraVehiculoControllerTusVehiculos controller = loader.getController();
+            
+            InformacionExtraVehiculoControllerTusVehiculos.setMatricula(matricula);
+
+            // Guardamos el objeto en la clase para que pueda ser utilizado en el controlador
+            // Obtener el Stage
+            Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
+            stage.setTitle("Información de Tu Vehículo");
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/InfoVehiculo.css").toExternalForm());
+            stage.setScene(scene);
+
+            // Ajuste del tamaño de la ventana
+            stage.setWidth(1000);  // Ancho de la ventana
+            stage.setHeight(600); // Alto de la ventana
+
+            // Si no deseas que el tamaño sea modificable por el usuario:
+            stage.setResizable(false);
+
+            stage.show();
+        } catch (IOException ex) {
+            Logger.getLogger(InformacionExtraVehiculoControllerTusVehiculos.class.getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+        }
     }
-
 }

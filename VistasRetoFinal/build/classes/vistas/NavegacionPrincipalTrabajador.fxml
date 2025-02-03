@@ -72,11 +72,11 @@
     <center>
         <VBox fx:id="centerArea" spacing="10" styleClass="center-area" style="-fx-padding: 20;">
             <!-- Barra de búsqueda -->
-            <TextField promptText="Buscar..." style="-fx-background-color: #fff; -fx-border-color: #888;" />
+            <TextField promptText="Buscar..." fx:id="barraBusqueda" style="-fx-background-color: #fff; -fx-border-color: #888; -fx-text-fill: black;" />
             <!-- Grid para los vehículos -->
 
-            <GridPane fx:id="gridPane" hgap="20" vgap="20">
-                <children>
+            <GridPane fx:id="gridPane" hgap="20" vgap="20" >
+                <children >
                     <!-- Primer botón con imagen -->
                 </children>
                 <columnConstraints>
