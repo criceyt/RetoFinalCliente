@@ -268,8 +268,8 @@ public class NavegacionPrincipalTrabajadorController implements Initializable {
             Image image = new Image(getClass().getResource(rutaCoche).toExternalForm());
             String nombreVehiculo = vehiculo.getMarca() + " " + vehiculo.getModelo();
             ImageView imageView = new ImageView(image);
-            imageView.setFitHeight(200);
-            imageView.setFitWidth(200);
+            imageView.setFitHeight(185);
+            imageView.setFitWidth(185);
             imageView.setPreserveRatio(true);
 
             Label nombreLabel = new Label(nombreVehiculo);

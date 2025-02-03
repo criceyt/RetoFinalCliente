@@ -5,12 +5,15 @@
  */
 package entidades;
 
+import exceptions.CorreoODniRepeException;
 import java.util.List;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import logica.UsuarioManager;
 import modelo.Usuario;
 
@@ -52,7 +55,6 @@ public class UsuarioRestFull implements UsuarioManager {
     //public void edit_JSON(Object requestEntity, String id) throws ClientErrorException {
     //    webTarget.path(java.text.MessageFormat.format("{0}", new Object[]{id})).request(javax.ws.rs.core.MediaType.APPLICATION_JSON).put(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
     //}
-
     public <T> T find_XML(Class<T> responseType, String id) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("{0}", new Object[]{id}));
@@ -64,7 +66,6 @@ public class UsuarioRestFull implements UsuarioManager {
     //    resource = resource.path(java.text.MessageFormat.format("{0}", new Object[]{id}));
     //    return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     //}
-
     public <T> T findRange_XML(Class<T> responseType, String from, String to) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("{0}/{1}", new Object[]{from, to}));
@@ -76,22 +77,30 @@ public class UsuarioRestFull implements UsuarioManager {
     //    resource = resource.path(java.text.MessageFormat.format("{0}/{1}", new Object[]{from, to}));
     //    return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     //}
-
     public <T> T mostrarDatosUser(Class<T> responseType, String idPersona) throws WebApplicationException {
         WebTarget resource = webTarget;
         resource = resource.path(java.text.MessageFormat.format("idPersona/{0}", new Object[]{idPersona}));
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
     }
 
-    public void create_XML(Object requestEntity) throws WebApplicationException {
+    public void create_XML(Object requestEntity) throws CorreoODniRepeException, WebApplicationException {
         System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
-        webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_XML).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_XML));
+        //webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_XML).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_XML));
+        WebTarget resource = webTarget;
+
+        Response response = resource
+                .request(javax.ws.rs.core.MediaType.APPLICATION_XML)
+                .post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_XML));
+        
+        if(response.getStatus() == 406) {
+            throw new CorreoODniRepeException();
+        }
+        
     }
 
     //public void create_JSON(Object requestEntity) throws ClientErrorException {
     //    webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
     //}
-
     public <T> List<T> findAll_XML(GenericType<List<T>> responseType) throws WebApplicationException {
         WebTarget resource = webTarget;
         return resource.request(MediaType.APPLICATION_XML).get(responseType);
@@ -101,7 +110,6 @@ public class UsuarioRestFull implements UsuarioManager {
     //    WebTarget resource = webTarget;
     //    return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
     //}
-
     public void remove(String id) throws WebApplicationException {
         webTarget.path(java.text.MessageFormat.format("{0}", new Object[]{id})).request().delete(Usuario.class);
     }
@@ -109,5 +117,5 @@ public class UsuarioRestFull implements UsuarioManager {
     public void close() {
         client.close();
     }
-    
+
 }

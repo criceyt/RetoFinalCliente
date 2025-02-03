@@ -5,7 +5,9 @@
  */
 package logica;
 
+import exceptions.CorreoODniRepeException;
 import java.util.List;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.GenericType;
 
@@ -39,7 +41,7 @@ public interface UsuarioManager {
 
     public <T> T mostrarDatosUser(Class<T> responseType, String idPersona) throws WebApplicationException;
 
-    public void create_XML(Object requestEntity) throws WebApplicationException;
+    public void create_XML(Object requestEntity) throws CorreoODniRepeException, WebApplicationException;
     
     //public void create_JSON(Object requestEntity) throws ClientErrorException {
     //    webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));

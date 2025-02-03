@@ -64,6 +64,7 @@ public class PersonaRestFull implements PersonaManager {
         System.out.println("Clase recibida: " + responseType.getName());
 
         return resource.request(javax.ws.rs.core.MediaType.APPLICATION_XML).get(responseType);
+
     }
 
     public void updatePassword_XML(String email, String newPassword) throws ClientErrorException {

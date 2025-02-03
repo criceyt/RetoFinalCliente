@@ -1,5 +1,6 @@
 package controladores;
 
+import exceptions.CorreoODniRepeException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -307,7 +308,7 @@ public class SignController implements Initializable {
 
                     sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
                     sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
-                    
+
                     // Obtener el Stage desde el nodo que disparó el evento.
                     Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
                     stage.setTitle("Navegación Principal");
@@ -460,21 +461,35 @@ public class SignController implements Initializable {
     // Refactoriracion
     private void refactorizacionDeCreacionDeUser(Usuario usuarioNuevo) {
 
-        // Mandar el Usuario al Server (suponiendo que tienes el método adecuado para esto)
-        UsuarioManagerFactory.get().create_XML(usuarioNuevo);
+        try {
+            // Mandar el Usuario al Server (suponiendo que tienes el método adecuado para esto)
+            UsuarioManagerFactory.get().create_XML(usuarioNuevo);
 
-        // Panel informativo de éxito
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("¡Te has registrado!");
-        alert.setHeaderText(null);
-        alert.setContentText("Bienvenido a Nuestro Concesionario ¡Inicia Sesion y no te Pierdas nada!");
+            // Panel informativo de éxito
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("¡Te has registrado!");
+            alert.setHeaderText(null);
+            alert.setContentText("Bienvenido a Nuestro Concesionario ¡Inicia Sesion y no te Pierdas nada!");
 
-        // Mostrar el alert
-        alert.showAndWait();
+            // Mostrar el alert
+            alert.showAndWait();
 
-        registerPane.setVisible(false);
-        loginPane.setVisible(true);
-        usernameField.setText(usuarioNuevo.getEmail());
+            registerPane.setVisible(false);
+            loginPane.setVisible(true);
+            usernameField.setText(usuarioNuevo.getEmail());
+        } catch (CorreoODniRepeException ex) {
+            // Log del error
+            Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex.getMessage());
+
+            // Crear un alert de tipo ERROR para mostrar que el correo ya existe
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error de registro");
+            alert.setHeaderText("Correo electrónico o DNI ya registrado");
+            alert.setContentText("El correo o el DNI que has introducido ya existe en la base de datos. Por favor, utiliza otro correo o DNI.");
+
+            // Mostrar el alert
+            alert.showAndWait();
+        }
 
     }
 
