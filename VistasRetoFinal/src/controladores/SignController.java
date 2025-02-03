@@ -1,8 +1,11 @@
 package controladores;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Date;
+import java.util.Optional;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -24,17 +27,22 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
+import javax.ws.rs.WebApplicationException;
+import logica.ClienteRegistro;
 import logica.SessionManager;
 import logica.PersonaManagerFactory;
 import logica.UsuarioManagerFactory;
 import modelo.Persona;
 import modelo.Trabajador;
 import modelo.Usuario;
+import logica.Hash;
 
 public class SignController implements Initializable {
 
@@ -117,9 +125,39 @@ public class SignController implements Initializable {
     // Atributos
     private ContextMenu contextMenu;
     private boolean isDarkTheme = true;
-    private boolean datosCorrectos = true;
 
-    // Metodo Initialize
+    public void forgotPassword(ActionEvent event) {
+        // Crear un cuadro de diálogo
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Recuperar Contraseña");
+        alert.setHeaderText("Introduce tu correo electrónico");
+        alert.setContentText(null);
+
+        // Personalizar el contenido del diálogo
+        TextField emailField = new TextField();
+        emailField.setPromptText("Correo electrónico");
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setContent(emailField);
+
+        // Mostrar el diálogo y capturar el resultado
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            String email = emailField.getText();
+
+            // Llamada al método findEmailPersona
+            PersonaManagerFactory.get().resetPassword_XML(Persona.class, email);
+
+            if (email.isEmpty()) {
+                System.out.println("El campo de correo está vacío.");
+            } else {
+                System.out.println("Correo ingresado: " + email);
+                // Aquí puedes agregar la lógica para enviar el correo de recuperación
+            }
+        }
+    }
+// Metodo Initialize
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         contextMenu = new ContextMenu();
@@ -228,12 +266,12 @@ public class SignController implements Initializable {
 
     // Meotodo al Pulsar el Boton
     @FXML
-    private void inicioSesionBtn(ActionEvent event) {
+    private void inicioSesionBtn(ActionEvent event) throws UnsupportedEncodingException {
 
         // Recoger datos de SignIn
         String login = usernameField.getText();
         String contrasena = passwordField.getText();
-        
+
         if (login.isEmpty() || contrasena.isEmpty()) {
             // Alerta que indica que los datos no son correctos
             Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -241,36 +279,46 @@ public class SignController implements Initializable {
             alert.setHeaderText("Campos Incorrectos");
             alert.setContentText("Ni el campo Login ni el Campo Contraseña pueden estar vacios");
             alert.showAndWait();
-        } else {
 
+        } else {
+            contrasena = ClienteRegistro.encriptarContraseña(contrasena);
+            System.out.println(contrasena);
+            // En el cliente
+            contrasena = URLEncoder.encode(contrasena, "UTF-8");
+
+            System.out.println(contrasena);
             // Llevar la Password y el login al server para que retorne una 
             Persona personaLogIn = PersonaManagerFactory.get().inicioSesionPersona(Persona.class, login, contrasena);
-
             try {
 
                 // Si la Persona es Usuario entra en este metido Sino va al Otro
                 if (personaLogIn instanceof Usuario) {
 
+                    String contrasenaHash = personaLogIn.getContrasena();
+                    contrasenaHash = Hash.hashText(contrasenaHash);
 
                     SessionManager.setUsuario((Usuario) personaLogIn);
 
-                    // Se carga el FXML con la información de la vista viewSignUp.
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
                     Parent root = loader.load();
 
-                    NavegacionPrincipalController controller = loader.getController();
-                    //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-                    // Llevar el Usuario a Navegacion Principal
-                    //controller.setUsuario((Usuario) personaLogIn);
-                    //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+                    ScrollPane sc = new ScrollPane();
+                    sc.setContent(root);
+
+                    sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                    sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+                    
                     // Obtener el Stage desde el nodo que disparó el evento.
                     Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                    stage.setTitle("Navegación Principal");
 
-                    stage.setTitle("Navegacion Principal");
-                    // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-                    Scene scene = new Scene(root);
-                    scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-                    // Se muestra en la ventana el Scene creado.
+                    Scene scene = new Scene(sc);
+                    scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+
+                    // Establecer el tamaño de la ventana
+                    stage.setWidth(1000);  // Establecer el ancho
+                    stage.setHeight(800);  // Establecer la altura
+
                     stage.setScene(scene);
                     stage.show();
 
@@ -279,6 +327,17 @@ public class SignController implements Initializable {
                     // Se carga el FXML con la información de la vista viewSignUp.
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
                     Parent root = loader.load();
+
+                    // Crear un ScrollPane y asignar el contenido
+                    ScrollPane scrollPane = new ScrollPane();
+                    scrollPane.setContent(root);  // Establecer el contenido de la vista cargada en el ScrollPane
+
+                    // Desactivar el desplazamiento horizontal
+                    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);  // Desactiva la barra de desplazamiento horizontal
+
+                    // Establecer el ajuste automático al ancho (solo el desplazamiento vertical está habilitado)
+                    scrollPane.setFitToWidth(true);  // Permite que el contenido se ajuste al ancho de la ventana
+                    scrollPane.setFitToHeight(true); // Permite que el contenido se ajuste a la altura de la ventana
 
                     NavegacionPrincipalTrabajadorController controler = loader.getController();
 
@@ -294,6 +353,7 @@ public class SignController implements Initializable {
                     stage.show();
                 } else {
                     new Alert(Alert.AlertType.ERROR, "ERROR: No estas registrado ni como Usuario ni como Tarbajador", ButtonType.OK).showAndWait();
+
                 }
 
             } catch (IOException ex) {
@@ -301,7 +361,8 @@ public class SignController implements Initializable {
                 // problema al cargar el FXML o al intentar llamar a la nueva 
                 // ventana, por lo que se mostrará un Alert con el mensaje 
                 // "Error en la sincronización de ventanas, intentalo más tarde".
-                Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(NavegacionPrincipalController.class
+                        .getName()).log(Level.SEVERE, null, ex);
                 new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
             }
         }
@@ -312,21 +373,30 @@ public class SignController implements Initializable {
     @FXML
     private void registroBtn() {
 
-        if (datosCorrectos) {
+        // Sacamos todos los datos y los metemos en variables
+        String nombreApellido = nombreyApellidoField.getText();//
+        String dni = dniField.getText();
+        String email = emailField.getText();
+        String direccion = direccionField.getText();//
+        // Tel
+        String telefonoStr = telefonoField.getText();//
+        // CP
+        String codigoPostalStr = codigoPostalField.getText();//
 
-            // Sacamos todos los datos y los metemos en variables
-            String nombreApellido = nombreyApellidoField.getText();
-            String dni = dniField.getText();
-            String email = emailField.getText();
-            String direccion = direccionField.getText();
-            // Tel
-            String telefonoStr = telefonoField.getText();
+        // Obtener la contraseña
+        String password = registerPasswordField.getText();
+        String confirmPassword = confirmPasswordField.getText();
+
+        if (!nombreyApellidoField.getText().isEmpty() && validarSoloLetrasNombre(nombreApellido) && !direccionField.getText().isEmpty() && validarDireccion(direccion) && !telefonoField.getText().isEmpty() && esTelefonoCorrecto(telefonoStr) && !codigoPostalField.getText().isEmpty() && esPostalCorrecto(codigoPostalStr) && !dniField.getText().isEmpty() && validarDni(dni) && !emailField.getText().isEmpty() && esCorreoValido(email) && !registerPasswordField.getText().isEmpty() && !confirmPasswordField.getText().isEmpty() && password.equalsIgnoreCase(confirmPassword)) {
+
             Integer telefono = Integer.parseInt(telefonoStr);
-            // CP
-            String codigoPostalStr = codigoPostalField.getText();
             Integer codigoPostal = Integer.parseInt(codigoPostalStr);
 
-            String password = registerPasswordField.getText();
+            // Encriptar la contraseña antes de guardarla
+            String encryptedPassword = ClienteRegistro.encriptarContraseña(password);
+
+            System.out.println(encryptedPassword);
+
             boolean esPremium = activoCheckBox.isSelected();
             Date fechaRegistro = new Date();
 
@@ -339,24 +409,37 @@ public class SignController implements Initializable {
             usuarioNuevo.setDireccion(direccion);
             usuarioNuevo.setTelefono(telefono);
             usuarioNuevo.setCodigoPostal(codigoPostal);
-            usuarioNuevo.setContrasena(password);
+            usuarioNuevo.setContrasena(encryptedPassword);  // Asignar la contraseña encriptada
             usuarioNuevo.setFechaRegistro(fechaRegistro);
             usuarioNuevo.setPremium(esPremium);
 
-            // Mandar el Usuario al Server
-            UsuarioManagerFactory.get().create_XML(usuarioNuevo);
+            if (esPremium == true) {
+                // Si el usuario está marcando el campo como premium
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Confirmación de Premium");
+                alert.setHeaderText("¿Estás seguro de que deseas hacerte Premium?");
+                alert.setContentText("Esta opción puede cambiarse desde la opción de Perfil.");
 
-            // Panel informativo de éxito
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("¡Te has registrado!");
-            alert.setHeaderText(null);
-            alert.setContentText("Bienvenido a Nuestro Concesionario ¡Inicia Sesion y no te Pierdas nada!");
+                // Crear un botón personalizado de "Cancelar"
+                ButtonType cancelButton = new ButtonType("Cancelar");
 
-            // Mostrar el alert
-            alert.showAndWait();
+                // Agregar el botón personalizado al Alert (además de los botones OK y Cancel)
+                alert.getButtonTypes().setAll(ButtonType.OK, cancelButton);
 
-            registerPane.setVisible(false);
-            loginPane.setVisible(true);
+                // Mostrar el alert y esperar la respuesta del usuario
+                alert.showAndWait().ifPresent(response -> {
+                    if (response == ButtonType.OK) {
+                        // Acción si el usuario confirma ser Premium
+                        refactorizacionDeCreacionDeUser(usuarioNuevo); // Continúa con la lógica de creación de usuario
+                    } else if (response == cancelButton) {
+                        // Acción si el usuario cancela
+                        System.out.println("El usuario ha cancelado la opción Premium.");
+                        // Puedes añadir aquí la lógica que desees cuando el usuario cancela
+                    }
+                });
+            } else {
+                refactorizacionDeCreacionDeUser(usuarioNuevo); // Continúa con la lógica de creación de usuario
+            }
 
         } else {
             // Crear un alert para indicar que los datos no son correctos
@@ -371,6 +454,27 @@ public class SignController implements Initializable {
             // Mostrar el alert
             alert.showAndWait();
         }
+
+    }
+
+    // Refactoriracion
+    private void refactorizacionDeCreacionDeUser(Usuario usuarioNuevo) {
+
+        // Mandar el Usuario al Server (suponiendo que tienes el método adecuado para esto)
+        UsuarioManagerFactory.get().create_XML(usuarioNuevo);
+
+        // Panel informativo de éxito
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("¡Te has registrado!");
+        alert.setHeaderText(null);
+        alert.setContentText("Bienvenido a Nuestro Concesionario ¡Inicia Sesion y no te Pierdas nada!");
+
+        // Mostrar el alert
+        alert.showAndWait();
+
+        registerPane.setVisible(false);
+        loginPane.setVisible(true);
+        usernameField.setText(usuarioNuevo.getEmail());
 
     }
 
@@ -493,13 +597,25 @@ public class SignController implements Initializable {
 
     private static void changeTheme(String themeFile, Scene scene) {
         scene.getStylesheets().clear();
-        scene.getStylesheets().add(SignController.class.getResource(themeFile).toExternalForm());
+        scene
+                .getStylesheets().add(SignController.class
+                        .getResource(themeFile).toExternalForm());
     }
 
     /////////////////////////////////////////  VALIDACIONES DE REGISTRO  ///////////////////////////////////////////////////////////////
     // Validacion para que solo Pueda introducir Letras
     public boolean validarSoloLetrasNombre(String nombreyApellidos) {
-        return nombreyApellidos.matches("[a-zA-Z\\s]+");  // Permite letras y espacios
+        return nombreyApellidos.matches("[a-zA-Z\\s]+");
+    }
+
+    public boolean esContrasenaValida(String registerPasswordField) {
+        // Asegura que la contraseña tenga al menos 8 caracteres y al menos una mayúscula
+        return registerPasswordField.matches("^(?=.*[A-Z]).{8,}$");  // Al menos 8 caracteres, al menos una mayúscula
+    }
+
+    public boolean esConfirmarContrasenaValida(String confirmPasswordField) {
+        // Asegura que la contraseña tenga al menos 8 caracteres y al menos una mayúscula
+        return confirmPasswordField.matches("^(?=.*[A-Z]).{8,}$");  // Al menos 8 caracteres, al menos una mayúscula
     }
 
     // Validacion para que solo Pueda introducir Letras
@@ -529,66 +645,68 @@ public class SignController implements Initializable {
     }
 
     private void validateField(TextField field) {
-
         if (field == emailField) {
             if (field.getText().isEmpty() || !esCorreoValido(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
-                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
-                datosCorrectos = true;
             }
         }
 
-        if (field == nombreyApellidoField || !validarSoloLetrasNombre(field.getText())) {
-            if (field.getText().isEmpty()) {
+        if (field == nombreyApellidoField) {
+            if (field.getText().isEmpty() || !validarSoloLetrasNombre(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
-                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
-                datosCorrectos = true;
             }
         }
 
-        if (field == telefonoField || !esTelefonoCorrecto(field.getText())) {
-            if (field.getText().isEmpty()) {
+        if (field == telefonoField) {
+            if (field.getText().isEmpty() || !esTelefonoCorrecto(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
-                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
-                datosCorrectos = true;
             }
         }
 
         if (field == dniField) {
             if (field.getText().isEmpty() || !validarDni(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
-                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
-                datosCorrectos = true;
             }
         }
 
         if (field == codigoPostalField) {
             if (field.getText().isEmpty() || !esPostalCorrecto(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
-                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
-                datosCorrectos = true;
             }
         }
 
         if (field == direccionField) {
             if (field.getText().isEmpty() || !validarDireccion(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
-                datosCorrectos = false;
             } else {
                 field.setStyle("-fx-border-color: transparent;");
-                datosCorrectos = true;
+            }
+        }
+
+        if (field == registerPasswordField) {
+            if (field.getText().isEmpty() || !esContrasenaValida(field.getText())) {
+                field.setStyle("-fx-border-color: red;");
+            } else {
+                field.setStyle("-fx-border-color: transparent;");
+            }
+        }
+
+        if (field == confirmPasswordField) {
+            if (field.getText().isEmpty() || !esConfirmarContrasenaValida(field.getText())) {
+                field.setStyle("-fx-border-color: red;");
+            } else {
+                field.setStyle("-fx-border-color: transparent;");
             }
         }
     }
-
 }

@@ -6,6 +6,7 @@
 package modelo;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -41,5 +42,4 @@ public class Usuario extends Persona implements Serializable {
     public void setCompras(Set<Compra> compras) {
         this.compras = compras;
     }
-
 }

@@ -7,6 +7,10 @@ package controladores;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,11 +24,16 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Stage;
+import javax.ws.rs.core.GenericType;
+import logica.CompraManagerFactory;
+import logica.SessionManager;
+import modelo.Compra;
+import modelo.CompraId;
+import modelo.Usuario;
 import modelo.Vehiculo;
 
 /**
@@ -59,16 +68,13 @@ public class InformacionExtraVehiculoController implements Initializable {
     private Button cerrarSesionBtn;
 
     @FXML
+    private Button comprarBtn;
+
+    @FXML
     private Button homeBtn;
 
     @FXML
-    private MenuItem gestionVehiculos;
-
-    @FXML
-    private MenuItem gestionProveedores;
-
-    @FXML
-    private MenuItem gestionMantenimientos;
+    private Button tusVehiculosBtn;
 
     @FXML
     private ImageView imageView;
@@ -81,9 +87,8 @@ public class InformacionExtraVehiculoController implements Initializable {
         // Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
-        gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
-        gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
-        gestionMantenimientos.setOnAction(this::abrirVentanaGestionMantenimientos);
+        comprarBtn.setOnAction(this::comprarVehiculo);
+        tusVehiculosBtn.setOnAction(this::abrirVentanaTusVehiculos);
 
         // Recogemos el Vehiculo y sacamos toda su info
         this.vehiculo = VehiculoInfoExtraManager.getVehiculo();
@@ -110,64 +115,92 @@ public class InformacionExtraVehiculoController implements Initializable {
 
     }
 
-    // Abrir Ventana SignIn & SignUp
-    private void abrirVentanaSignInSignUp(ActionEvent event) {
-
+    @FXML
+    private void abrirPerfilBtn(javafx.scene.input.MouseEvent event) {
         try {
-            // Se carga el FXML con la información de la vista viewSignUp.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/Perfil.fxml"));
             Parent root = loader.load();
 
-            SignController controler = loader.getController();
+            PerfilController controller = loader.getController();
 
-            // Obtener el Stage desde el nodo que disparó el evento.
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+            // Obtener el Stage
+            Stage stage = (Stage) homeBtn.getScene().getWindow();
+            stage.setTitle("Perfil de Usuario");
 
-            stage.setTitle("SignIn & SignUp");
-            // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+            // Crear la nueva escena y establecer el tamaño
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/Perfil.css").toExternalForm());
 
-            // Se muestra en la ventana el Scene creado.
+            stage.setWidth(1000);  // Establecer el ancho
+            stage.setHeight(800);  // Establecer la altura
+
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TablaProveedoresController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
-    // Boton HOME para volver atras
+    private void abrirVentanaSignInSignUp(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Cerrar sesión");
+        alert.setHeaderText("¿Estás seguro de que deseas cerrar sesión?");
+        alert.setContentText("Perderás cualquier cambio no guardado.");
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
+                    Parent root = loader.load();
+
+                    SignController controler = loader.getController();
+
+                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                    stage.setTitle("SignIn & SignUp");
+
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
+
+                    // Establecer el tamaño de la ventana
+                    stage.setWidth(1000);  // Establecer el ancho
+                    stage.setHeight(800);  // Establecer la altura
+
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException ex) {
+                    Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
+                    new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
+                }
+            } else {
+                System.out.println("Cancelado, no se cierra la sesión.");
+            }
+        });
+    }
+
     private void irAtras(ActionEvent event) {
         try {
-            // Cargar el FXML
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
             Parent root = loader.load();
 
-            // Crear un ScrollPane para envolver el contenido
             ScrollPane sc = new ScrollPane();
             sc.setContent(root);
 
-            // Configurar el ScrollPane para que solo permita desplazamiento vertical
-            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
-            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
+            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-            // Configurar el Scene
             Stage stage = (Stage) homeBtn.getScene().getWindow();
-            stage.setTitle("Navegación Principal Trabajador");
+            stage.setTitle("Navegación Principal");
 
-            // Crear la nueva escena con el ScrollPane
             Scene scene = new Scene(sc);
             scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
-            // Establecer la escena y mostrarla
+            // Establecer el tamaño de la ventana
+            stage.setWidth(1000);  // Establecer el ancho
+            stage.setHeight(800);  // Establecer la altura
+
             stage.setScene(scene);
             stage.show();
-
         } catch (IOException ex) {
             Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
@@ -175,84 +208,132 @@ public class InformacionExtraVehiculoController implements Initializable {
     }
 
     // Abrir Ventana Solicitar Mantenimiento
-    private void abrirVentanaSolicitarMantenimiento(ActionEvent event) {
+    private void abrirVentanaTusVehiculos(ActionEvent event) {
 
         try {
             // Se carga el FXML con la información de la vista viewSignUp.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SolicitarMantenimiento.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TusVehiculos.fxml"));
             Parent root = loader.load();
 
-            SolicitarMantenimientoController controler = loader.getController();
+            TusVehiculosController controler = loader.getController();
 
             // Obtener el Stage desde el nodo que disparó el evento.
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
-            stage.setTitle("Solicitar Mantenimiento");
+            stage.setTitle("Tus Vehiculos");
             // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+            
+            // Establecer el tamaño de la ventana
+            stage.setWidth(1000);  // Establecer el ancho
+            stage.setHeight(800);  // Establecer la altura
 
             // Se muestra en la ventana el Scene creado.
             stage.setScene(scene);
             stage.show();
+
         } catch (IOException ex) {
             // Si salta una IOException significa que ha habido algún 
             // problema al cargar el FXML o al intentar llamar a la nueva 
             // ventana, por lo que se mostrará un Alert con el mensaje 
             // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(SolicitarMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TusVehiculosController.class
+                    .getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
-    private void abrirVentanaGestionVehiculos(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TablaVehiculos.fxml"));
-            Parent root = loader.load();
+    // Metodo que se Activa cuando se le da a Comprar (Button)
+    private void comprarVehiculo(ActionEvent event) {
 
-            Stage stage = (Stage) homeBtn.getScene().getWindow();
-            stage.setTitle("Gestión de Vehículos");
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
+        boolean compradoYa = false;
+        // Crear un nuevo objeto Compra
+        Compra compra = new Compra();
+
+        // Obtener el usuario y el vehículo
+        Usuario usuario = SessionManager.getUsuario();
+        Vehiculo vehiculo = VehiculoInfoExtraManager.getVehiculo();
+
+        // Crear y establecer el id compuesto de Compra (CompraId)
+        CompraId compraId = new CompraId();
+        compraId.setIdPersona(usuario.getIdPersona());
+        compraId.setIdVehiculo(vehiculo.getIdVehiculo());
+        compra.setIdCompra(compraId);  // Establecer la clave primaria compuesta
+
+        // Generar la matrícula y establecerla
+        String matriculaNueva = generarMatricula();
+        compra.setMatricula(matriculaNueva);
+
+        // Establecer la fecha de compra
+        Date date = new Date();
+        compra.setFechaCompra(date);
+
+        // Ahora la valdadera vuelta
+        List<Compra> compras = CompraManagerFactory.get().findAll_XML(new GenericType<List<Compra>>() {
+        });
+
+        for (Compra c : compras) {
+            if (c.getIdCompra().getIdPersona().equals(usuario.getIdPersona()) && c.getIdCompra().getIdVehiculo().equals(vehiculo.getIdVehiculo())) {
+                System.out.println("Vehiculo Comprado");
+                compradoYa = true;
+            }
+
         }
+
+        if (!compradoYa) {
+            // Mostrar una alerta de confirmación para asegurarse de que el usuario quiere comprar el coche
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirmación");
+            alert.setHeaderText("¿Estás seguro de que deseas comprar este vehículo?");
+            alert.setContentText("Una vez comprada, la compra no podrá ser revertida.");
+
+            // Mostrar la alerta y esperar la respuesta
+            Optional<ButtonType> result = alert.showAndWait();
+
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                // Si el usuario confirma la compra (presiona "OK")
+                // Llamada al método de gestión de compras (presumiblemente para persistir la compra)
+                CompraManagerFactory.get().create_XML(compra);
+
+                // Se inserta el Usuario y el Vehiculo
+                compraId.setIdPersona(usuario.getIdPersona());
+                String parseado = String.valueOf(usuario.getIdPersona());
+
+                compra.setUsuario(usuario);
+                compra.setVehiculo(vehiculo);
+
+                CompraManagerFactory.get().edit_XML(compra, parseado);
+            } else {
+                // Si el usuario cancela la operación, no hace nada (o puedes mostrar otro mensaje)
+                System.out.println("Compra cancelada.");
+            }
+        } else {
+            // Mostrar un mensaje de alerta si el coche ya fue comprado
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Error");
+            alert.setHeaderText(null);  // No tiene cabecera
+            alert.setContentText("Este coche ya lo has comprado.");
+
+            // Mostrar la alerta
+            alert.showAndWait();
+        }
+
     }
 
-    private void abrirVentanaGestionProveedores(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TablaProveedores.fxml"));
-            Parent root = loader.load();
+    // Generador de Matricula Aleatoria
+    public static String generarMatricula() {
+        Random rand = new Random();
 
-            Stage stage = (Stage) homeBtn.getScene().getWindow();
-            stage.setTitle("Gestión de Proveedores");
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
-        }
-    }
+        // Generar los 4 dígitos aleatorios
+        int numeros = rand.nextInt(9000) + 1000;  // Asegura que siempre sean 4 dígitos (1000-9999)
 
-    private void abrirVentanaGestionMantenimientos(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TablaMantenimiento.fxml"));
-            Parent root = loader.load();
+        // Generar las 3 letras aleatorias
+        char letra1 = (char) (rand.nextInt(26) + 'A'); // Letras entre A-Z
+        char letra2 = (char) (rand.nextInt(26) + 'A');
+        char letra3 = (char) (rand.nextInt(26) + 'A');
 
-            Stage stage = (Stage) homeBtn.getScene().getWindow();
-            stage.setTitle("Gestión de Mantenimientos");
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
-        }
+        // Devolver la matrícula en el formato "1234 ABC"
+        return String.format("%d %c%c%c", numeros, letra1, letra2, letra3);
     }
 }

@@ -1,3 +1,4 @@
+
 #backgroundImage {
     -fx-image: url("/img/fondoClaro.jpg");
     -fx-background-size: cover; /* Asegura que la imagen cubra todo el área */
@@ -61,4 +62,27 @@
 }
 .custom-checkbox .text {
     -fx-fill: #555555; 
+}
+/* Estilo para el botón "He olvidado mi contraseña" en modo claro */
+.button-forgot {
+    -fx-background-color: #dddddd; /* Color claro consistente con otros botones */
+    -fx-text-fill: #555555; /* Color de texto oscuro */
+    -fx-font-weight: bold; /* Negrita para el texto */
+    -fx-background-radius: 10; /* Bordes redondeados */
+    -fx-pref-width: 250; /* Ancho preferido más grande */
+    -fx-min-width: 250; /* Ancho mínimo */
+    -fx-max-width: 300; /* Ancho máximo */
+    -fx-border-color: #bbbbbb; /* Borde ligero para mejor visibilidad */
+    -fx-border-width: 1; /* Grosor del borde */
+}
+
+/* Hover y comportamiento interactivo para el botón */
+.button-forgot:hover {
+    -fx-background-color: #eeeeee; /* Color más claro al pasar el ratón */
+    -fx-border-color: #aaaaaa; /* Borde más oscuro en hover */
+}
+
+.button-forgot:pressed {
+    -fx-background-color: #cccccc; /* Color más oscuro al presionar */
+    -fx-border-color: #999999; /* Borde más pronunciado al presionar */
 }
