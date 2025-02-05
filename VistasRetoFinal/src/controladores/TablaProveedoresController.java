@@ -155,6 +155,7 @@ public class TablaProveedoresController implements Initializable {
 
             // Establecer los datos en la tabla
             tableView.setItems(proveedoresDataFiltro);
+
         });
 
         // Configuración de las columnas de la tabla.

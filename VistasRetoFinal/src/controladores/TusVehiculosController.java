@@ -54,7 +54,6 @@ public class TusVehiculosController implements Initializable {
 
     @FXML
     private GridPane gridPane;
-    
 
     // Metodo Initialize
     @Override
@@ -280,7 +279,7 @@ public class TusVehiculosController implements Initializable {
 
             // Obtener el controlador
             InformacionExtraVehiculoControllerTusVehiculos controller = loader.getController();
-            
+
             InformacionExtraVehiculoControllerTusVehiculos.setMatricula(matricula);
 
             // Guardamos el objeto en la clase para que pueda ser utilizado en el controlador

@@ -278,7 +278,6 @@ public class InformacionExtraVehiculoController implements Initializable {
                 System.out.println("Vehiculo Comprado");
                 compradoYa = true;
             }
-
         }
 
         if (!compradoYa) {

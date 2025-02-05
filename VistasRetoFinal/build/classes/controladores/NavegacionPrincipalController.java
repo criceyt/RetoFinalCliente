@@ -67,7 +67,7 @@ public class NavegacionPrincipalController implements Initializable {
 
     @FXML
     private Button cerrarSesionBtn;
-    
+
     @FXML
     private TextField barraBusqueda;
 
@@ -186,7 +186,7 @@ public class NavegacionPrincipalController implements Initializable {
         tusVehiculosBtn.setOnAction(this::abrirVentanaTusVehiculos);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
         restablecerBtn.setOnMouseClicked(this::restablecerFiltros);
-        
+
         barraBusqueda.textProperty().addListener((observable, oldValue, newValue) -> filtrarVehiculosBarra(newValue));
 
         cargarVehiculos();
@@ -396,7 +396,9 @@ public class NavegacionPrincipalController implements Initializable {
         int fila = 0;
         int columna = 0;
 
-        for (Vehiculo vehiculo : vehi) {
+        for (int i = 0; i < vehi.size(); i++) {  // Usar índice para asignar un id único
+            Vehiculo vehiculo = vehi.get(i);
+
             // Ruta de la Imagen
             String rutaCoche = vehiculo.getRuta();
             System.out.println(rutaCoche);
@@ -413,13 +415,13 @@ public class NavegacionPrincipalController implements Initializable {
 
             // Crear el ImageView y ajustarlo al tamaño de la ventana
             ImageView imageView = new ImageView(image);
-            imageView.setFitHeight(185);  // Ajustamos el tamaño de la imagen (más grande)
-            imageView.setFitWidth(185);   // Ajustamos el tamaño de la imagen (más grande)
+            imageView.setFitHeight(185);  // Ajustamos el tamaño de la imagen
+            imageView.setFitWidth(185);   // Ajustamos el tamaño de la imagen
             imageView.setPreserveRatio(true);  // Preservamos la relación de aspecto de la imagen
 
             // Crear el Label para el nombre del vehículo y ponerlo en color blanco
             Label nombreLabel = new Label(nombreVehiculo);
-            nombreLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");  // Establecer el color del texto a blanco y tamaño de fuente
+            nombreLabel.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");  // Establecer el color del texto a blanco
 
             // Crear un VBox que contenga la imagen y el nombre
             VBox vbox = new VBox(5);  // Espacio de 5px entre la imagen y el texto

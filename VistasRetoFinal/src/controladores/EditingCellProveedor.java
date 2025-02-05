@@ -213,7 +213,14 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
                 // Validación: la nombre no puede ser mayor a 50 caracteres
                 if (((String) newValue).length() > 50) {
                     Platform.runLater(() -> {
-                        new Alert(Alert.AlertType.WARNING, "El Nombre ni Especialidad no puede tener más de 50 caracteres.", ButtonType.OK).showAndWait();
+                        // Crear un alert de tipo confirmación
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Error al colocar el Nombre o Especialidad");
+                        alert.setContentText("El Nombre ni Especialidad no puede tener más de 50 caracteres");
+
+                        // Mostrar el alert
+                        alert.showAndWait();  // Esto es necesario para que el alert se muestre y espere a que el usuario lo cierre
                     });
                     cancelEdit();
                     return; // Cancela la edición si la descripción es inválida
@@ -234,11 +241,20 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
                 // Validación: la fecha de finalización no puede ser menor a la fecha actual
                 if (fechaFinalizacion.after(fechaActual)) {
                     Platform.runLater(() -> {
-                        new Alert(Alert.AlertType.WARNING, "La ultima Actividad no puede ser en el FUTURO", ButtonType.OK).showAndWait();
+                        // Crear un alert de tipo confirmación
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+                        alert.setTitle("Error");
+                        alert.setHeaderText("Error al colocar la Fecha");
+                        alert.setContentText("La fecha no puede ponerse en el FUTURO");
+
+                        // Mostrar el alert
+                        alert.showAndWait();  // Esto es necesario para que el alert se muestre y espere a que el usuario lo cierre
                     });
+
                     cancelEdit();
                     return; // Cancela la edición si la fecha es inválida
                 }
+
                 proveedores.setUltimaActividad((Date) newValue);
 
             } else if (newValue instanceof Enum) {

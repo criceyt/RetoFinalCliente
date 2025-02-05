@@ -1,15 +1,16 @@
 package test;
 
 import controladores.ApplicationClientTrabajador;
-import java.util.logging.Level;
-import javafx.fxml.FXMLLoader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import javafx.scene.Node;
 import javafx.scene.control.TableView;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
-import jxl.common.Logger;
 import modelo.Proveedor;
+import modelo.TipoVehiculo;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -31,9 +32,12 @@ public class TestTablaProveedor extends ApplicationTest {
     }
 
     private TableView<Proveedor> tableView;
+    LocalDate today = LocalDate.now();
+    String hoy = today.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 
     @Test
     public void a_testTablaProveedores() {
+
         // TEST DE PROVEEDOR TABLA
         clickOn("#desplegableGestion");
         clickOn("#gestionProveedores");
@@ -44,71 +48,98 @@ public class TestTablaProveedor extends ApplicationTest {
         verifyThat("#addRowButton", isVisible());
         verifyThat("#datePickerFiltro", isVisible());
 
-        // Aquí se asegura de que la tabla esté correctamente inicializada
+        // Insercion del Objeto Proveedor 
         tableView = lookup("#tableView").query();
-
-        // Verificamos que la tabla no sea null
         assertNotNull(tableView);
-
-        try {
-            Thread.sleep(600);
-        } catch (InterruptedException ex) {
-            System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaa");
-        }
-
-        // Verificamos cuántas filas tiene la tabla antes de la acción
+        esperar();
         int contadorRowAntes = tableView.getItems().size();
-
-        try {
-            Thread.sleep(600);
-        } catch (InterruptedException ex) {
-            System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaa");
-        }
-
-        // Simulamos el clic en el botón de agregar
+        esperar();
         clickOn("#addRowButton");
-
-        try {
-            Thread.sleep(600);
-        } catch (InterruptedException ex) {
-            System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaa");
-        }
-
-        // Verificamos que el número de filas ha aumentado en 1
+        esperar();
         assertEquals(contadorRowAntes + 1, tableView.getItems().size());
 
-// INTENTAMOS MODIFICAR EL PROVEEDOR
+        // Edicion del Objeto Proveedor 
         int rowCount = tableView.getItems().size();
 
-// Modificar el nombre
-// Aquí seleccionamos la primera columna (índice 0) de la última fila
-        Node cell = lookup(".table-cell").nth((rowCount - 1) * tableView.getColumns().size() + 1).query();
-
-// Hacemos doble clic en la celda seleccionada
-        doubleClickOn(cell);
-
-// Hacemos clic para asegurarnos de que la celda está activa
-        clickOn(cell);
-
-// Simulamos borrar el contenido de la celda hacia atrás (usando BACK_SPACE)
-        for (int i = 0; i < 10; i++) {
+        // Modificar el nombre
+        Node celda = lookup(".table-cell").nth((rowCount - 1) * tableView.getColumns().size() + 1).query();
+        doubleClickOn(celda);
+        clickOn(celda);
+        for (int i = 0; i < 25; i++) {
             push(KeyCode.BACK_SPACE);  // Borra el contenido hacia atrás, 10 veces
             push(KeyCode.DELETE);  // Borra el contenido hacia adelante, 10 veces
         }
 
-// Escribimos "Diablo" en la celda seleccionada
         write("Diablo");
-
-// Presionamos ENTER para confirmar el cambio
         push(KeyCode.ENTER);
-
-// Verificamos que el nombre se haya modificado en el modelo
         assertEquals("Diablo", tableView.getItems().get(rowCount - 1).getNombreProveedor());
 
+        // Modificar el TipoVehiculo
+        celda = lookup(".table-cell").nth((rowCount - 1) * tableView.getColumns().size() + 2).query();
+        doubleClickOn(celda);
+        clickOn(celda);
+        Node choiceBox = lookup(".choice-box").query();
+        clickOn(choiceBox);
+        clickOn("CAMION");
+        push(KeyCode.ENTER);
+        assertEquals(TipoVehiculo.CAMION, tableView.getItems().get(rowCount - 1).getTipoVehiculo());
+
+        // Modificamos la Especilidad (Igual que Nombre)
+        celda = lookup(".table-cell").nth((rowCount - 1) * tableView.getColumns().size() + 3).query();
+        doubleClickOn(celda);
+        clickOn(celda);
+        for (int i = 0; i < 25; i++) {
+            push(KeyCode.BACK_SPACE);  // Borra el contenido hacia atrás, 10 veces
+            push(KeyCode.DELETE);  // Borra el contenido hacia adelante, 10 veces
+        }
+        write("Motos de Carretera");
+        push(KeyCode.ENTER);
+        assertEquals("Motos de Carretera", tableView.getItems().get(rowCount - 1).getEspecialidad());
+
+        // Modificamos la Ultima Actividad (DatePicker)
+        celda = lookup(".table-cell").nth((rowCount - 1) * tableView.getColumns().size() + 4).query();
+        doubleClickOn(celda);
+        clickOn(celda);
+        write("05/02/2026");
+        push(KeyCode.ENTER);
+        esperar();
+        push(KeyCode.ENTER);
+        write("Aceptar");
+
+        // Borrado del Objeto Proveedor
+        esperar();
+        int contadorRow = tableView.getItems().size();
+        Node row = lookup(".table-row-cell").nth(contadorRow - 1).query();
+        clickOn(row);
+        clickOn("#deleteButton");
+        clickOn("Aceptar");
+        assertEquals(contadorRow - 1, tableView.getItems().size());
+
+        // Filtrado Tabla DatePicker (Sin Datos Coincidan)
+        rowCount = tableView.getItems().size();
+        clickOn("#datePickerFiltro");
+        write("05/02/2026");
+        push(KeyCode.ENTER);
+        assertEquals(0, tableView.getItems().size());
+        esperar();
+        // Filtrado Tabla DatePicker (Con Datos Coincidan)
+        rowCount = tableView.getItems().size();
+        clickOn("#datePickerFiltro");
+        for (int i = 0; i < 25; i++) {
+            push(KeyCode.BACK_SPACE);  // Borra el contenido hacia atrás, 10 veces
+            push(KeyCode.DELETE);  // Borra el contenido hacia adelante, 10 veces
+        }
+        write("1/02/2025");
+        push(KeyCode.ENTER);
+        assertEquals(1, tableView.getItems().size());
     }
 
-    @Test
-    public void test_CrearProveedor() {
+    // Metodo que hace un Sleep
+    public void esperar() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException ex) {
+            System.out.println("Error al intetar Hacer el Sleep");
+        }
     }
-
 }
