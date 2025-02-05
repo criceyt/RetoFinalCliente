@@ -5,14 +5,17 @@
  */
 package entidades;
 
+import exceptions.BorradoException;
 import logica.ProveedorManager;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import modelo.Proveedor;
 
 /**
@@ -32,7 +35,7 @@ public class ProveedorRestFull implements ProveedorManager {
 
     private WebTarget webTarget;
     private Client client;
-    private static final String BASE_URI = "http://localhost:8080/WebApplicationSample/webresources";
+    private static final String BASE_URI = ResourceBundle.getBundle("entidades.Ruta").getString("RUTA");
 
 
     public ProveedorRestFull() {
@@ -104,6 +107,8 @@ public class ProveedorRestFull implements ProveedorManager {
 
     public void remove(String id) throws WebApplicationException {
         webTarget.path(java.text.MessageFormat.format("{0}", new Object[]{id})).request().delete(Proveedor.class);
+        
+        
     }
 
     public void close() {

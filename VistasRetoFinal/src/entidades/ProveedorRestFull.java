@@ -8,6 +8,7 @@ package entidades;
 import exceptions.BorradoException;
 import logica.ProveedorManager;
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
@@ -34,7 +35,7 @@ public class ProveedorRestFull implements ProveedorManager {
 
     private WebTarget webTarget;
     private Client client;
-    private static final String BASE_URI = "http://localhost:8080/WebApplicationSample/webresources";
+    private static final String BASE_URI = ResourceBundle.getBundle("entidades.Ruta").getString("RUTA");
 
 
     public ProveedorRestFull() {

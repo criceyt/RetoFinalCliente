@@ -22,7 +22,6 @@ public class VehiculoInfoExtraManager {
 
     // Método para establecer el usuario
     public static void setVehiculo(Vehiculo vehiculo) {
-        System.out.println(vehiculo.getColor());
         VehiculoInfoExtraManager.vehiculo = vehiculo;
     }
 }

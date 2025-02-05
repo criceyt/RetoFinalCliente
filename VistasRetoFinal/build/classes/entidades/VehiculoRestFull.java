@@ -6,6 +6,7 @@
 package entidades;
 
 import java.util.List;
+import java.util.ResourceBundle;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.WebTarget;
@@ -31,7 +32,7 @@ public class VehiculoRestFull implements VehiculoManager {
 
     private WebTarget webTarget;
     private Client client;
-    private static final String BASE_URI = "http://localhost:8080/WebApplicationSample/webresources";
+    private static final String BASE_URI = ResourceBundle.getBundle("entidades.Ruta").getString("RUTA");
 
     public VehiculoRestFull() {
         client = javax.ws.rs.client.ClientBuilder.newClient();
