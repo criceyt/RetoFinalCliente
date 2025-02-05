@@ -33,10 +33,10 @@ import modelo.Vehiculo;
  */
 public class InformacionExtraVehiculoControllerTusVehiculos implements Initializable {
     
-    private static String matricula;  // Hacer la variable estática
+    private static String matriculaPoner;  // Hacer la variable estática
 
     public static void setMatricula(String matricula) {
-        InformacionExtraVehiculoControllerTusVehiculos.matricula = matricula;  // Acceder a la variable estática
+        InformacionExtraVehiculoControllerTusVehiculos.matriculaPoner = matricula;  // Acceder a la variable estática
     }
 
 
@@ -99,7 +99,7 @@ public class InformacionExtraVehiculoControllerTusVehiculos implements Initializ
         kmLabel.setText(String.valueOf(vehiculo.getKm()));
         precioLabel.setText(String.valueOf(vehiculo.getPrecio()));
         tipoVehiculoLabel.setText(vehiculo.getTipoVehiculo().toString());
-        matriculaLabel.setText(matricula);
+        matriculaLabel.setText(matriculaPoner);
 
         // Cargar la imagen
         String rutaImagen = vehiculo.getRuta(); // Obtener la ruta de la imagen desde el vehiculo
