@@ -45,8 +45,8 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.view.JasperViewer;
 
 public class TablaMantenimientoController implements Initializable {
+// Botones de navegación y menú
 
-    // Botones de navegación y menú
     @FXML
     private Button homeBtn;
     @FXML
@@ -58,7 +58,7 @@ public class TablaMantenimientoController implements Initializable {
     @FXML
     private MenuItem gestionMantenimientos;
 
-    // Tabla y columnas
+// Tabla y columnas
     @FXML
     private TableView<Mantenimiento> tableView;
     @FXML
@@ -85,7 +85,7 @@ public class TablaMantenimientoController implements Initializable {
     @FXML
     private DatePicker datePickerFiltro;
 
-    // Declaraciones
+// Declaraciones
     private Logger LOGGER = Logger.getLogger(TablaMantenimientoController.class.getName());
     private Mantenimiento mantenimientoVacio;
 
@@ -125,7 +125,7 @@ public class TablaMantenimientoController implements Initializable {
             tableView.setItems(mantenimientoDataFiltro);
         });
 
-        // Le inidicamos a cada Columna que atributo tiene
+        // Le indicamos a cada Columna qué atributo tiene
         idMantenimientoColumn.setCellValueFactory(new PropertyValueFactory<>("idMantenimiento"));
         descripcionColumn.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
         mantenimientoExitosoColumn.setCellValueFactory(new PropertyValueFactory<>("mantenimientoExitoso"));
@@ -135,7 +135,7 @@ public class TablaMantenimientoController implements Initializable {
         // Configurar tabla como editable
         tableView.setEditable(true);
 
-        // Configurar la columna de descripción para usar EditingCell
+        // Configurar las columnas de la tabla para ser editables
         descripcionColumn.setCellFactory(column -> new EditingCellMantenimiento());
         mantenimientoExitosoColumn.setCellFactory(column -> new EditingCellMantenimiento());
         fechaFinalizacionColumn.setCellFactory(column -> new EditingCellMantenimiento());
@@ -143,6 +143,7 @@ public class TablaMantenimientoController implements Initializable {
 
         // Borrado
         btnBorrar.setDisable(true);
+
         // Listener para habilitar o deshabilitar el botón de borrado según la selección
         tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -283,7 +284,7 @@ public class TablaMantenimientoController implements Initializable {
         }
     }
 
-    // Metodo que borra el Mantenimiento de la tabla y de la base de datos
+// Metodo que borra el Mantenimiento de la tabla y de la base de datos
     private void borrarMantenimiento(ActionEvent event) {
         Mantenimiento mantenimientoSeleccionado = tableView.getSelectionModel().getSelectedItem();
 
@@ -319,10 +320,9 @@ public class TablaMantenimientoController implements Initializable {
             new Alert(Alert.AlertType.WARNING, "Por favor, selecciona un mantenimiento para eliminar.", ButtonType.OK).showAndWait();
         }
     }
+// Metodo del Boton Refresh para cargar los elementos en la tabla
 
-    // Metodo del Boton Refresh para cargar los elementos en la tabla
     private void cargarDatosTabla(ActionEvent event) {
-
         // Limpiar la tabla antes de introducir los Items
         tableView.getItems().clear();
 
@@ -339,13 +339,12 @@ public class TablaMantenimientoController implements Initializable {
 
     private void insertarMantenimiento(ActionEvent event) {
         try {
-
             // Calcula el siguiente ID disponible
             Long siguienteId = obtenerSiguienteIdMantenimiento();
 
             // Crea un nuevo objeto Mantenimiento vacío (con valores predeterminados)
             mantenimientoVacio = new Mantenimiento();
-            mantenimientoVacio.setIdMantenimiento(siguienteId); //Carga el siguiente id
+            mantenimientoVacio.setIdMantenimiento(siguienteId); // Carga el siguiente id
             mantenimientoVacio.setDescripcion("Introduzca aqui la descripcion del mantenimiento");
             mantenimientoVacio.setMantenimientoExitoso(false);  // Valor predeterminado para mantenimientoExitoso
             mantenimientoVacio.setFechaFinalizacion(new java.util.Date());
@@ -356,11 +355,9 @@ public class TablaMantenimientoController implements Initializable {
 
             // Actualizar la vista de la tabla
             tableView.refresh();
-
         } catch (Exception e) {
             // Manejo de cualquier excepción, como por ejemplo problemas en la adición de datos
             new Alert(Alert.AlertType.ERROR, "Error al crear fila");
-            // LOGGER.log(Level.SEVERE, "Error al añadir fila: {0}", e.getMessage());
         }
     }
 
@@ -402,11 +399,9 @@ public class TablaMantenimientoController implements Initializable {
         }
     }
 
-    // Metodo que crea el informe
+// Metodo que crea el informe
     private void crearInforme(ActionEvent event) {
-
         try {
-
             JasperReport report = JasperCompileManager.compileReport("src/informes/InformeMantenimiento.jrxml");
 
             JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Mantenimiento>) this.tableView.getItems());
@@ -420,7 +415,6 @@ public class TablaMantenimientoController implements Initializable {
             jasperViewer.setVisible(true);
 
         } catch (JRException e) {
-
             LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
 
             // Crear un Alert de tipo ERROR
@@ -432,7 +426,5 @@ public class TablaMantenimientoController implements Initializable {
             // Mostrar el Alert
             alert.showAndWait();
         }
-
     }
-
 }

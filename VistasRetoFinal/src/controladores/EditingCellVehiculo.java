@@ -30,6 +30,14 @@ import modelo.Vehiculo;
  *
  * @author urkiz
  */
+/**
+ * Clase que representa una celda editable personalizada para la clase
+ * {@link Vehiculo}. Esta clase permite la edición de celdas con diferentes
+ * tipos de controles gráficos, como {@link TextField}, {@link DatePicker} y
+ * {@link ChoiceBox}, dependiendo del tipo de dato de la celda.
+ *
+ * @param <T> El tipo de dato de la celda (String, Date, Enum, Integer).
+ */
 public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
 
     // Atributos para los controles de edición: TextField, DatePicker, ChoiceBox
@@ -37,11 +45,18 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
     private DatePicker datePicker;
     private ChoiceBox<TipoVehiculo> choiceBox;
 
-    // Constructor por defecto
+    /**
+     * Constructor por defecto de la clase {@link EditingCellVehiculo}.
+     */
     public EditingCellVehiculo() {
     }
 
-    // Método para comenzar la edición de la celda
+    /**
+     * Método que se ejecuta para comenzar la edición de la celda. Dependiendo
+     * del tipo de dato de la celda, se crea y muestra el control de edición
+     * correspondiente (TextField, DatePicker, ChoiceBox, o TextField para
+     * enteros).
+     */
     @Override
     public void startEdit() {
         if (!isEmpty()) { // Asegura que no esté vacío
@@ -64,7 +79,7 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
             } else if (item instanceof Integer) {
                 createTextFieldInteger();
                 textField.setText(getString());
-                setGraphic(textField); // Muestra el TextField
+                setGraphic(textField); // Muestra el TextField para enteros
             } else {
                 setText(getString());
                 setGraphic(null); // Solo muestra el texto sin controles gráficos
@@ -74,7 +89,10 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
         }
     }
 
-    // Método para cancelar la edición
+    /**
+     * Método que cancela la edición de la celda, restaurando el valor original
+     * del texto y eliminando el control gráfico de edición.
+     */
     @Override
     public void cancelEdit() {
         super.cancelEdit();
@@ -83,7 +101,15 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
         setContentDisplay(ContentDisplay.TEXT_ONLY); // Solo muestra el texto
     }
 
-    // Método para actualizar el contenido de la celda cuando se cambia el valor
+    /**
+     * Método que actualiza el contenido de la celda cuando se cambia el valor.
+     * Si la celda está en modo de edición, muestra el control gráfico
+     * correspondiente (TextField, DatePicker, ChoiceBox), de lo contrario,
+     * muestra el texto de la celda.
+     *
+     * @param item El nuevo valor de la celda.
+     * @param empty Indica si la celda está vacía.
+     */
     @Override
     public void updateItem(T item, boolean empty) {
         super.updateItem(item, empty);
@@ -114,21 +140,37 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
                 setContentDisplay(ContentDisplay.TEXT_ONLY); // Solo texto
             }
         }
+
     }
 
-    // Método para crear el DatePicker y habilitar su edición
+    /**
+     * Método para crear el {@link DatePicker} y habilitar su edición. Este
+     * método inicializa el DatePicker con el valor actual de la celda, lo
+     * convierte en una instancia {@link LocalDate} y establece la acción para
+     * confirmar la edición al seleccionar una fecha. Además, permite cancelar
+     * la edición si se presiona la tecla ESC.
+     */
     private void createDatePicker() {
         datePicker = new DatePicker();
+        // Establece el valor inicial del DatePicker basado en el valor de la celda
         datePicker.setValue(((Date) getItem()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
-        datePicker.setOnAction(event -> commitEdit((T) Date.from(datePicker.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()))); // Al seleccionar fecha, se confirma la edición
+        // Establece la acción que confirma la edición al seleccionar una fecha
+        datePicker.setOnAction(event -> commitEdit((T) Date.from(datePicker.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant())));
+        // Si se presiona ESC, cancela la edición
         datePicker.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
-                cancelEdit(); // Si presionamos ESC, cancela la edición
+                cancelEdit(); // Cancela la edición al presionar ESC
             }
         });
     }
 
-    // Método para crear un TextField y habilitar su edición
+    /**
+     * Método para crear un {@link TextField} y habilitar su edición. Este
+     * método inicializa un TextField con el valor actual de la celda, ajusta su
+     * tamaño y establece las acciones para confirmar la edición al presionar
+     * Enter o cuando el foco se pierde. Además, permite cancelar la edición si
+     * se presiona la tecla ESC.
+     */
     private void createTextField() {
         textField = new TextField(getString());
         textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2); // Ajusta el tamaño del TextField
@@ -136,7 +178,8 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
         // Bandera para controlar si se canceló la edición al presionar ESC
         final BooleanProperty presionarEsc = new SimpleBooleanProperty(false);
 
-        textField.setOnAction(event -> commitEdit((T) textField.getText())); // Al presionar enter se confirma la edición
+        // Al presionar Enter, se confirma la edición
+        textField.setOnAction(event -> commitEdit((T) textField.getText()));
 
         // Detecta cuando el foco se pierde para confirmar la edición
         textField.focusedProperty().addListener((ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) -> {
@@ -161,7 +204,15 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
         });
     }
 
-    // Método para crear un TextField y habilitar su edición (Integer)
+    /**
+     * Método para crear un {@link TextField} y habilitar su edición para
+     * valores de tipo {@link Integer}. Este método inicializa un TextField con
+     * el valor actual de la celda y ajusta su tamaño. Cuando el usuario
+     * presiona Enter, se intenta convertir el texto en un número entero y, si
+     * es válido, se confirma la edición. Si el texto no es un número entero
+     * válido, se muestra una alerta. Además, permite cancelar la edición al
+     * presionar la tecla ESC.
+     */
     private void createTextFieldInteger() {
         textField = new TextField(getString());
         textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2); // Ajusta el tamaño del TextField
@@ -169,8 +220,8 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
         // Bandera para controlar si se canceló la edición al presionar ESC
         final BooleanProperty presionarEsc = new SimpleBooleanProperty(false);
 
+        // Al presionar Enter, se intenta convertir el texto a Integer y confirmar la edición si es válido
         textField.setOnAction(event -> {
-            // Intentar convertir el texto a Integer, si no es posible mostrar la alerta
             try {
                 Integer newValue = Integer.parseInt(textField.getText());
                 commitEdit((T) newValue); // Al presionar enter se confirma la edición
@@ -179,9 +230,9 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
                     new Alert(Alert.AlertType.WARNING, "Por favor, ingrese un número entero válido.", ButtonType.OK).showAndWait();
                 });
             }
-        }); // Al presionar enter se confirma la edición
+        });
 
-        // Detecta cuando el foco se pierde para confirmar la edición
+        // Detecta cuando el foco se pierde para confirmar la edición si el texto es válido
         textField.focusedProperty().addListener((ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) -> {
             if (!arg2 && !presionarEsc.get()) {
                 try {
@@ -211,7 +262,14 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
         });
     }
 
-    // Método para crear el ChoiceBox y habilitar su edición
+    /**
+     * Método para crear un {@link ChoiceBox} y habilitar su edición para
+     * valores de tipo {@link TipoVehiculo}. Este método inicializa un ChoiceBox
+     * con los valores del enum {@link TipoVehiculo}, lo llena con las opciones
+     * disponibles y permite confirmar la edición cuando el usuario selecciona
+     * una opción. También permite cancelar la edición al presionar la tecla
+     * ESC.
+     */
     private void createChoiceBox() {
         choiceBox = new ChoiceBox<>();
         choiceBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2); // Ajusta el tamaño del ChoiceBox
@@ -237,6 +295,7 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
                 }
             });
 
+            // Si se presiona ESC, cancela la edición
             choiceBox.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ESCAPE) {
                     cancelEdit();  // Si presionamos ESC, cancela la edición
@@ -245,11 +304,27 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
         }
     }
 
-    // Método para obtener el valor de la celda como cadena de texto
+    /**
+     * Método para obtener el valor de la celda como una cadena de texto. Si el
+     * valor de la celda es nulo, se devuelve una cadena vacía. De lo contrario,
+     * se devuelve el valor de la celda convertido a cadena.
+     *
+     * @return El valor de la celda como una cadena de texto.
+     */
     private String getString() {
         return getItem() == null ? "" : getItem().toString();
     }
 
+    /**
+     * Método para confirmar la edición de un valor en una celda de la tabla.
+     * Dependiendo del tipo de valor editado, se realiza la actualización
+     * correspondiente en el objeto {@link Vehiculo}. El valor puede ser de tipo
+     * String, Integer, Date o Enum. Si se edita un valor de tipo {@link Date},
+     * se valida que no sea una fecha futura. Después de modificar el vehículo,
+     * intenta guardar los cambios en el servidor.
+     *
+     * @param newValue El nuevo valor que se ha editado en la celda.
+     */
     @Override
     public void commitEdit(Object newValue) {
 
@@ -318,4 +393,5 @@ public class EditingCellVehiculo<T> extends TableCell<Vehiculo, T> {
 
         super.commitEdit((T) newValue); // Finaliza la edición
     }
+
 }

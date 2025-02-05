@@ -13,18 +13,20 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.control.Label?>
-<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controladores.NavegacionPrincipalController">
+<BorderPane xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controladores.NavegacionPrincipalController"
+            minWidth="1000" minHeight="800">
     <!-- Barra Superior -->
     <top>
         <HBox alignment="CENTER" spacing="20" style="-fx-background-color: #5b1e1e; -fx-padding: 10;">
-            <Button fx:id="homeBtn" style="-fx-text-fill: black; -fx-font-weight: bold;" text="HOME" />
-            <Button fx:id="solicitarMantenimientoBtn" style="-fx-text-fill: black; -fx-font-weight: bold;" text="SOLICITAR MANTENIMIENTO" />
-            <Button fx:id="cerrarSesionBtn" style="-fx-text-fill: black; -fx-font-weight: bold;" text="CERRAR SESIÓN" />
+            <Button fx:id="homeBtn" style="-fx-text-fill: white: -fx-font-weight: bold;" text="HOME" />
+            <Button fx:id="tusVehiculosBtn" style="-fx-text-fill: white: -fx-font-weight: bold;" text="TUS VEHICULOS" />
+            <Button fx:id="cerrarSesionBtn" style="-fx-text-fill: white: -fx-font-weight: bold;" text="CERRAR SESIÓN" />
         </HBox>
     </top>
 
     <left>
-        <VBox spacing="20"  prefWidth="220" style="-fx-background-color: #2e1a1a; -fx-padding: 20; -fx-border-color: #004fff; -fx-border-width: 2; -fx-border-radius: 5;" BorderPane.alignment="CENTER">
+        <VBox spacing="20" prefWidth="220" style="-fx-background-color: #2e1a1a; -fx-padding: 20; -fx-border-color: #004fff; -fx-border-width: 2; -fx-border-radius: 5;" BorderPane.alignment="CENTER">
             <!-- Contenedor para centrar la imagen horizontalmente -->
             <HBox alignment="CENTER" style="-fx-background-color: transparent;">
                 <!-- Imagen en la barra superior -->
@@ -34,23 +36,43 @@
                     </image>
                 </ImageView>
             </HBox>
-
+            
             <!-- Label para los filtros -->
             <Label text="Filtros" style="-fx-text-fill: white; -fx-font-weight: bold;" />
-
+            
             <!-- Botones debajo de la imagen -->
             <Button prefWidth="300" prefHeight="40" text="Kilometraje" onMouseClicked="#mostrarFiltroKilometraje" />
             <Button prefWidth="300" prefHeight="40" text="Color" onMouseClicked="#mostrarFiltroColor" />
             <Button prefWidth="300" prefHeight="40" text="Precio" onMouseClicked="#mostrarFiltroPrecio" />
             <Button prefWidth="300" prefHeight="40" text="Marca" onMouseClicked="#mostrarFiltroMarca" />
             <Button prefWidth="300" prefHeight="40" text="Modelo" onMouseClicked="#mostrarFiltroModelo" />
+            
+            <!-- Espaciador usando un Label vacío -->
+            <Label prefHeight="40" style="-fx-background-color: transparent;" />
+           
+
+            <!-- Nuevo botón Restablecer Filtros con imagen más grande y alineada -->
+            <HBox alignment="CENTER" spacing="10">
+                <Button fx:id="restablecerBtn" prefWidth="250" prefHeight="30" style="-fx-background-color: #4caf50; -fx-text-fill: white; -fx-font-weight: bold;" onMouseClicked="#restablecerFiltros">
+                    <graphic>
+                        <VBox alignment="CENTER" spacing="5">
+                            <Label text="Restablecer" style="-fx-text-fill: white; -fx-font-size: 14px;" />
+                            <Label text="Filtros" style="-fx-text-fill: white; -fx-font-size: 14px;" />
+                        </VBox>
+                    </graphic>               
+                </Button>
+                <!-- Imagen alineada con el botón y más grande -->
+                <ImageView fitHeight="30" fitWidth="30" pickOnBounds="true" preserveRatio="true">
+                    <Image url="@/img/icon-reset.png" />
+                </ImageView>
+            </HBox>
         </VBox>
     </left>
 
     <center>
         <VBox fx:id="centerArea" spacing="10" styleClass="center-area" style="-fx-padding: 20;">
             <!-- Barra de búsqueda -->
-            <TextField promptText="Buscar..." style="-fx-background-color: #fff; -fx-border-color: #888; -fx-text-fill: black;" />
+            <TextField promptText="Buscar..." fx:id="barraBusqueda" style="-fx-background-color: #fff; -fx-border-color: #888; -fx-text-fill: black;" />
 
             <!-- Grid para los vehículos -->
             <GridPane fx:id="gridPane" hgap="20" vgap="20">

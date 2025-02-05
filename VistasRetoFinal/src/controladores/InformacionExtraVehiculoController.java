@@ -40,9 +40,15 @@ import modelo.Vehiculo;
  *
  * @author 2dam
  */
+/**
+ * Controlador que maneja la vista de información extra de un vehículo. Se
+ * encarga de mostrar los detalles del vehículo, como marca, modelo, color,
+ * potencia, precio, entre otros, así como gestionar las acciones de navegación
+ * y compra.
+ */
 public class InformacionExtraVehiculoController implements Initializable {
 
-    // Elementos de la Ventana
+    // Elementos de la ventana
     @FXML
     private Label marcaLabel;
 
@@ -74,26 +80,34 @@ public class InformacionExtraVehiculoController implements Initializable {
     private Button homeBtn;
 
     @FXML
-    private Button tuGarajeBtn;
+    private Button tusVehiculosBtn;
 
     @FXML
     private ImageView imageView;
 
-    // Atributo
+    // Atributo para almacenar el vehículo mostrado
     private Vehiculo vehiculo;
 
+    /**
+     * Método que se ejecuta cuando la vista se inicializa. Se configura la
+     * interfaz, incluyendo la carga de la información del vehículo y la
+     * asignación de los listeners para los botones de la ventana.
+     *
+     * @param location URL de la vista FXML cargada.
+     * @param resources Recursos adicionales relacionados con la vista FXML.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
         comprarBtn.setOnAction(this::comprarVehiculo);
-        tuGarajeBtn.setOnAction(this::abrirTuGaraje);
+        tusVehiculosBtn.setOnAction(this::abrirVentanaTusVehiculos);
 
-        // Recogemos el Vehiculo y sacamos toda su info
+        // Recuperamos el Vehículo y mostramos toda su información.
         this.vehiculo = VehiculoInfoExtraManager.getVehiculo();
 
-        // Cargar los datos del Vehiculo
+        // Cargar los datos del Vehículo en las etiquetas correspondientes
         marcaLabel.setText(vehiculo.getMarca());
         modeloLabel.setText(vehiculo.getModelo());
         colorLabel.setText(vehiculo.getColor());
@@ -102,35 +116,43 @@ public class InformacionExtraVehiculoController implements Initializable {
         precioLabel.setText(String.valueOf(vehiculo.getPrecio()));
         tipoVehiculoLabel.setText(vehiculo.getTipoVehiculo().toString());
 
-        // Cargar la imagen
-        String rutaImagen = vehiculo.getRuta(); // Obtener la ruta de la imagen desde el vehiculo
+        // Cargar la imagen asociada al vehículo
+        String rutaImagen = vehiculo.getRuta(); // Obtener la ruta de la imagen desde el vehículo
 
         if (rutaImagen == null || rutaImagen.isEmpty()) {
-            rutaImagen = "/img/sinImagen.jpg";
+            rutaImagen = "/img/sinImagen.jpg";  // Ruta predeterminada si no se especifica ninguna
         }
 
-        // Usar getClass().getResource() para acceder a la imagen desde el classpath
+        // Usamos getClass().getResource() para acceder a la imagen desde el classpath
         Image image = new Image(getClass().getResource(rutaImagen).toExternalForm());
         imageView.setImage(image);
-
     }
 
-    // Abrir perfil mediante ImageView
+    /**
+     * Método que se ejecuta cuando el usuario hace clic en el botón para abrir
+     * su perfil. Este método carga la ventana del perfil de usuario.
+     *
+     * @param event El evento generado por el clic en el botón.
+     */
     @FXML
     private void abrirPerfilBtn(javafx.scene.input.MouseEvent event) {
         try {
-            // Se carga el FXML con la información de la vista
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/Perfil.fxml"));
             Parent root = loader.load();
 
-            // Obtener el controlador
             PerfilController controller = loader.getController();
 
-            // Obtener el Stage
-            Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
+            // Obtener el Stage de la ventana actual
+            Stage stage = (Stage) homeBtn.getScene().getWindow();
             stage.setTitle("Perfil de Usuario");
+
+            // Crear la nueva escena y establecer el tamaño de la ventana
             Scene scene = new Scene(root);
             scene.getStylesheets().add(getClass().getResource("/css/Perfil.css").toExternalForm());
+
+            stage.setWidth(1000);  // Establecer el ancho
+            stage.setHeight(800);  // Establecer la altura
+
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {
@@ -139,105 +161,147 @@ public class InformacionExtraVehiculoController implements Initializable {
         }
     }
 
-    // Abrir Ventana SignIn & SignUp
+    /**
+     * Método que se ejecuta cuando el usuario hace clic en el botón de cerrar
+     * sesión. Muestra una alerta de confirmación antes de proceder con el
+     * cierre de sesión. Si el usuario confirma, se abre la ventana de inicio de
+     * sesión y registro.
+     *
+     * @param event El evento generado por el clic en el botón.
+     */
     private void abrirVentanaSignInSignUp(ActionEvent event) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Cerrar sesión");
+        alert.setHeaderText("¿Estás seguro de que deseas cerrar sesión?");
+        alert.setContentText("Perderás cualquier cambio no guardado.");
 
-        try {
-            // Se carga el FXML con la información de la vista viewSignUp.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
-            Parent root = loader.load();
+        alert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
+                    Parent root = loader.load();
 
-            SignController controler = loader.getController();
+                    SignController controler = loader.getController();
 
-            // Obtener el Stage desde el nodo que disparó el evento.
-            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                    Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                    stage.setTitle("SignIn & SignUp");
 
-            stage.setTitle("SignIn & SignUp");
-            // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
+                    Scene scene = new Scene(root);
+                    scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
 
-            // Se muestra en la ventana el Scene creado.
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
-        }
+                    // Establecer el tamaño de la ventana
+                    stage.setWidth(1000);  // Establecer el ancho
+                    stage.setHeight(800);  // Establecer la altura
+
+                    stage.setScene(scene);
+                    stage.show();
+                } catch (IOException ex) {
+                    Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
+                    new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
+                }
+            } else {
+                System.out.println("Cancelado, no se cierra la sesión.");
+            }
+        });
     }
 
-    // Boton HOME para volver atras
+    /**
+     * Método que maneja la acción de ir hacia atrás en la interfaz. Carga la
+     * vista principal de navegación y la establece en una nueva ventana.
+     *
+     * @param event El evento generado por la acción del usuario al hacer clic
+     * en el botón.
+     */
     private void irAtras(ActionEvent event) {
         try {
-            // Cargar el FXML
+            // Se carga la vista FXML para la pantalla principal de navegación
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
             Parent root = loader.load();
 
-            // Crear un ScrollPane para envolver el contenido
+            // Se coloca la vista cargada en un ScrollPane
             ScrollPane sc = new ScrollPane();
             sc.setContent(root);
 
-            // Configurar el ScrollPane para que solo permita desplazamiento vertical
-            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
-            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
+            // Configuración del comportamiento de las barras de desplazamiento
+            sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-            // Configurar el Scene
+            // Obtener el Stage de la ventana actual
             Stage stage = (Stage) homeBtn.getScene().getWindow();
             stage.setTitle("Navegación Principal");
 
-            // Crear la nueva escena con el ScrollPane
+            // Crear la nueva escena con la vista cargada y asignar la hoja de estilos
             Scene scene = new Scene(sc);
             scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
-            // Establecer la escena y mostrarla
+            // Establecer las dimensiones de la ventana
+            stage.setWidth(1000);  // Establecer el ancho
+            stage.setHeight(800);  // Establecer la altura
+
+            // Establecer la nueva escena en el Stage y mostrarla
             stage.setScene(scene);
             stage.show();
-
         } catch (IOException ex) {
+            // Si hay algún error al cargar la vista, se muestra un mensaje de error
             Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
-    // Metodo para Abrir tu Garaje
-    private void abrirTuGaraje(ActionEvent event) {
-
+    /**
+     * Método que maneja la acción de abrir la ventana "Tus Vehículos". Carga la
+     * vista correspondiente y la muestra en una nueva ventana.
+     *
+     * @param event El evento generado por la acción del usuario al hacer clic
+     * en el botón.
+     */
+    private void abrirVentanaTusVehiculos(ActionEvent event) {
         try {
-            // Se carga el FXML con la información de la vista viewSignUp.
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SolicitarMantenimiento.fxml"));
+            // Se carga la vista FXML para la pantalla de "Tus Vehículos"
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TusVehiculos.fxml"));
             Parent root = loader.load();
 
-            SolicitarMantenimientoController controler = loader.getController();
+            // Se obtiene el controlador de la nueva vista cargada
+            TusVehiculosController controler = loader.getController();
 
-            // Obtener el Stage desde el nodo que disparó el evento.
+            // Obtener el Stage desde el nodo que disparó el evento
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
-            stage.setTitle("Solicitar Mantenimiento");
-            // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            // Establecer el título de la ventana
+            stage.setTitle("Tus Vehiculos");
 
-            // Se muestra en la ventana el Scene creado.
+            // Crear la nueva escena con la vista cargada y asignar la hoja de estilos
+            Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
+
+            // Establecer las dimensiones de la ventana
+            stage.setWidth(1000);  // Establecer el ancho
+            stage.setHeight(800);  // Establecer la altura
+
+            // Establecer la nueva escena en el Stage y mostrarla
             stage.setScene(scene);
             stage.show();
+
         } catch (IOException ex) {
-            // Si salta una IOException significa que ha habido algún 
-            // problema al cargar el FXML o al intentar llamar a la nueva 
-            // ventana, por lo que se mostrará un Alert con el mensaje 
-            // "Error en la sincronización de ventanas, intentalo más tarde".
-            Logger.getLogger(SolicitarMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+            // Si hay algún error al cargar la vista, se muestra un mensaje de error
+            Logger.getLogger(TusVehiculosController.class
+                    .getName()).log(Level.SEVERE, null, ex);
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
-    // Metodo que se Activa cuando se le da a Comprar (Button)
+    /**
+     * Método que se activa cuando el usuario hace clic en el botón de "Comprar"
+     * un vehículo. Este método gestiona el proceso de compra del vehículo
+     * seleccionado, incluyendo la validación de si el usuario ya ha comprado el
+     * vehículo y la confirmación de la compra.
+     *
+     * @param event El evento generado por la acción del usuario al hacer clic
+     * en el botón de compra.
+     */
     private void comprarVehiculo(ActionEvent event) {
-
         boolean compradoYa = false;
+
         // Crear un nuevo objeto Compra
         Compra compra = new Compra();
 
@@ -259,16 +323,15 @@ public class InformacionExtraVehiculoController implements Initializable {
         Date date = new Date();
         compra.setFechaCompra(date);
 
-        // Ahora la valdadera vuelta
+        // Validar si el usuario ya ha comprado el vehículo
         List<Compra> compras = CompraManagerFactory.get().findAll_XML(new GenericType<List<Compra>>() {
         });
-
         for (Compra c : compras) {
-            if (c.getIdCompra().getIdPersona().equals(usuario.getIdPersona()) && c.getIdCompra().getIdVehiculo().equals(vehiculo.getIdVehiculo())) {
-                System.out.println("Vehiculo Comprado");
+            if (c.getIdCompra().getIdPersona().equals(usuario.getIdPersona())
+                    && c.getIdCompra().getIdVehiculo().equals(vehiculo.getIdVehiculo())) {
+                System.out.println("Vehículo Comprado");
                 compradoYa = true;
             }
-
         }
 
         if (!compradoYa) {
@@ -308,10 +371,15 @@ public class InformacionExtraVehiculoController implements Initializable {
             // Mostrar la alerta
             alert.showAndWait();
         }
-
     }
 
-    // Generador de Matricula Aleatoria
+    /**
+     * Genera una matrícula aleatoria en el formato "1234 ABC", donde los
+     * primeros 4 dígitos son números aleatorios entre 1000 y 9999, y las
+     * últimas 3 letras son aleatorias entre A y Z.
+     *
+     * @return La matrícula generada como un String en el formato "1234 ABC".
+     */
     public static String generarMatricula() {
         Random rand = new Random();
 

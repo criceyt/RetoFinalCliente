@@ -1,58 +1,120 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package logica;
 
+import exceptions.SignInErrorException;
 import javax.ws.rs.WebApplicationException;
 
 /**
- *
+ * Interfaz que define las operaciones de gestión de personas en el sistema.
+ * 
+ * <p>La interfaz <code>PersonaManager</code> proporciona los métodos necesarios para manejar operaciones relacionadas
+ * con personas, tales como inicio de sesión, recuperación de contraseñas, actualización de datos, y más. Los métodos 
+ * definen interacciones con los servicios RESTful mediante XML como formato de intercambio de datos.</p>
+ * 
  * @author 2dam
  */
 public interface PersonaManager {
 
+    /**
+     * Reinicia la contraseña de un usuario identificado por su correo electrónico.
+     * 
+     * @param responseType Tipo de respuesta esperado.
+     * @param userEmail Correo electrónico del usuario cuya contraseña se va a restablecer.
+     * @param <T> Tipo de la respuesta esperada.
+     * @return La respuesta del servicio en formato XML.
+     * @throws WebApplicationException Si ocurre un error durante la operación.
+     */
     public <T> T resetPassword_XML(Class<T> responseType, String userEmail) throws WebApplicationException;
 
-    public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException;
+    /**
+     * Realiza el inicio de sesión de una persona con su correo electrónico y contraseña.
+     * 
+     * @param responseType Tipo de respuesta esperado.
+     * @param email Correo electrónico de la persona.
+     * @param contrasena Contraseña de la persona.
+     * @param <T> Tipo de la respuesta esperada.
+     * @return La respuesta del servicio en formato XML.
+     * @throws WebApplicationException Si ocurre un error durante la operación.
+     * @throws SignInErrorException Si el inicio de sesión falla debido a credenciales incorrectas.
+     */
+    public <T> T inicioSesionPersona(Class<T> responseType, String email, String contrasena) throws WebApplicationException, SignInErrorException;
 
+    /**
+     * Actualiza la contraseña de una persona.
+     * 
+     * @param email Correo electrónico de la persona cuya contraseña será actualizada.
+     * @param newPassword Nueva contraseña.
+     * @throws WebApplicationException Si ocurre un error durante la operación.
+     */
     public void updatePassword_XML(String email, String newPassword) throws WebApplicationException;
 
+    /**
+     * Obtiene el número total de registros disponibles.
+     * 
+     * @return El número total de registros en el sistema.
+     * @throws WebApplicationException Si ocurre un error durante la operación.
+     */
     public String countREST() throws WebApplicationException;
 
+    /**
+     * Edita la información de una persona con el identificador proporcionado.
+     * 
+     * @param requestEntity Objeto que contiene los nuevos datos para la persona.
+     * @param id Identificador de la persona.
+     * @throws WebApplicationException Si ocurre un error durante la operación.
+     */
     public void edit_XML(Object requestEntity, String id) throws WebApplicationException;
 
-    //public void edit_JSON(Object requestEntity, String id) throws WebApplicationException {
-    //    webTarget.path(java.text.MessageFormat.format("{0}", new Object[]{id})).request(javax.ws.rs.core.MediaType.APPLICATION_JSON).put(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
-    //}
+    /**
+     * Busca una persona utilizando su identificador y devuelve la información en formato XML.
+     * 
+     * @param responseType Tipo de respuesta esperado.
+     * @param id Identificador de la persona.
+     * @param <T> Tipo de la respuesta esperada.
+     * @return La información de la persona en formato XML.
+     * @throws WebApplicationException Si ocurre un error durante la operación.
+     */
     public <T> T find_XML(Class<T> responseType, String id) throws WebApplicationException;
 
-    //public <T> T find_JSON(Class<T> responseType, String id) throws WebApplicationException {
-    //    WebTarget resource = webTarget;
-    //    resource = resource.path(java.text.MessageFormat.format("{0}", new Object[]{id}));
-    //   return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
-    //}
+    /**
+     * Busca un rango de personas en formato XML.
+     * 
+     * @param responseType Tipo de respuesta esperado.
+     * @param from El índice de inicio del rango.
+     * @param to El índice final del rango.
+     * @param <T> Tipo de la respuesta esperada.
+     * @return Una lista de personas en formato XML.
+     * @throws WebApplicationException Si ocurre un error durante la operación.
+     */
     public <T> T findRange_XML(Class<T> responseType, String from, String to) throws WebApplicationException;
 
-    //public <T> T findRange_JSON(Class<T> responseType, String from, String to) throws WebApplicationException {
-    //    WebTarget resource = webTarget;
-    //    resource = resource.path(java.text.MessageFormat.format("{0}/{1}", new Object[]{from, to}));
-    //    return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
-    //}
+    /**
+     * Crea una nueva persona con los datos proporcionados.
+     * 
+     * @param requestEntity Objeto que contiene los datos de la nueva persona.
+     * @throws WebApplicationException Si ocurre un error durante la operación.
+     */
     public void create_XML(Object requestEntity) throws WebApplicationException;
-    //public void create_JSON(Object requestEntity) throws WebApplicationException {
-    //    webTarget.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).post(javax.ws.rs.client.Entity.entity(requestEntity, javax.ws.rs.core.MediaType.APPLICATION_JSON));
-    //}
 
+    /**
+     * Recupera todas las personas en formato XML.
+     * 
+     * @param responseType Tipo de respuesta esperado.
+     * @param <T> Tipo de la respuesta esperada.
+     * @return Una lista de todas las personas en formato XML.
+     * @throws WebApplicationException Si ocurre un error durante la operación.
+     */
     public <T> T findAll_XML(Class<T> responseType) throws WebApplicationException;
 
-    //public <T> T findAll_JSON(Class<T> responseType) throws WebApplicationException {
-    //    WebTarget resource = webTarget;
-    //    return resource.request(javax.ws.rs.core.MediaType.APPLICATION_JSON).get(responseType);
-    //}
+    /**
+     * Elimina la persona identificada por su ID.
+     * 
+     * @param id Identificador de la persona a eliminar.
+     * @throws WebApplicationException Si ocurre un error durante la operación.
+     */
     public void remove(String id) throws WebApplicationException;
 
+    /**
+     * Cierra la conexión o sesión actual de la persona.
+     */
     public void close();
-
 }

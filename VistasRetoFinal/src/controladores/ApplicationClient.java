@@ -11,22 +11,22 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 /**
- * Clase principal de la aplicación RETO. Inicializa la aplicación JavaFX y
- * carga la pantalla de inicio de sesión.
+ * Clase principal de la aplicación RETO. Esta clase extiende {@link javafx.application.Application} 
+ * e inicializa la aplicación JavaFX cargando la pantalla de inicio de sesión.
  *
  * @author Ekain
  */
 public class ApplicationClient extends javafx.application.Application {
 
     /**
-     * Método que se llama al iniciar la aplicación.
+     * Inicia la aplicación JavaFX configurando la escena y el escenario principal.
      *
      * @param stage El escenario principal de la aplicación.
-     * @throws Exception si ocurre un error durante la carga del archivo FXML.
+     * @throws Exception Si ocurre un error durante la carga del archivo FXML.
      */
     @Override
     public void start(Stage stage) throws Exception {
-
+        
         Parent root = FXMLLoader.load(getClass().getResource("/vistas/SignInSignUp.fxml"));
 
         Scene scene = new Scene(root);
@@ -35,12 +35,13 @@ public class ApplicationClient extends javafx.application.Application {
         stage.setWidth(1000);
         stage.setHeight(800);
         stage.setResizable(false);
-
         stage.setTitle("SignIn & SignUp");
 
+        // Agregar icono a la aplicación
         stage.getIcons().add(new Image(getClass().getResourceAsStream("/img/icono.png")));
         stage.setScene(scene);
 
+        // Manejar evento de cierre de ventana con confirmación
         stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
             @Override
             public void handle(WindowEvent event) {
@@ -53,7 +54,8 @@ public class ApplicationClient extends javafx.application.Application {
     }
 
     /**
-     * Muestra una alerta de confirmación al intentar cerrar la aplicación.
+     * Muestra una alerta de confirmación cuando el usuario intenta cerrar la aplicación.
+     * Si el usuario confirma la acción, la ventana se cierra.
      *
      * @param stage El escenario principal de la aplicación.
      */
@@ -71,7 +73,7 @@ public class ApplicationClient extends javafx.application.Application {
     }
 
     /**
-     * Método principal que inicia la aplicación.
+     * Método principal que inicia la aplicación JavaFX.
      *
      * @param args Argumentos de la línea de comandos.
      */

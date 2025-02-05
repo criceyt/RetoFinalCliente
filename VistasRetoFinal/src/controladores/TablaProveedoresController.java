@@ -80,7 +80,7 @@ public class TablaProveedoresController implements Initializable {
     private MenuItem gestionMantenimientos;
 
     @FXML
-    private TableView tableView;
+    private TableView<Proveedor> tableView;
 
     @FXML
     private TableColumn<Proveedor, Long> idProveedorColumn;
@@ -118,13 +118,12 @@ public class TablaProveedoresController implements Initializable {
     @FXML
     private DatePicker datePickerFiltro;
 
-    // Declaraciones
+// Declaraciones
     private Logger LOGGER = Logger.getLogger(TablaProveedoresController.class.getName());
     private DatePicker datePicker;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
         // Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
         gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
@@ -187,9 +186,7 @@ public class TablaProveedoresController implements Initializable {
         });
     }
 
-    // Abrir Ventana SignIn & SignUp
     private void abrirVentanaSignInSignUp(ActionEvent event) {
-
         // Crear un alert de tipo confirmación
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Cerrar sesión");
@@ -199,45 +196,41 @@ public class TablaProveedoresController implements Initializable {
         // Mostrar la alerta y esperar la respuesta del usuario
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-
                 try {
-                    // Se carga el FXML con la información de la vista viewSignUp.
+                    // Cargar el FXML con la vista de SignIn/SignUp
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
                     Parent root = loader.load();
 
                     SignController controler = loader.getController();
 
-                    // Obtener el Stage desde el nodo que disparó el evento.
+                    // Obtener el Stage (ventana actual)
                     Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
+                    // Configurar el título de la ventana
                     stage.setTitle("SignIn & SignUp");
-                    // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+
+                    // Crear una nueva escena con el contenido cargado
                     Scene scene = new Scene(root);
                     scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
 
-                    // Se muestra en la ventana el Scene creado.
+                    // Cambiar la escena y mostrarla
                     stage.setScene(scene);
                     stage.show();
                 } catch (IOException ex) {
-                    // Si salta una IOException significa que ha habido algún 
-                    // problema al cargar el FXML o al intentar llamar a la nueva 
-                    // ventana, por lo que se mostrará un Alert con el mensaje 
-                    // "Error en la sincronización de ventanas, intentalo más tarde".
+                    // Si ocurre un error al cargar el FXML o cambiar la ventana
                     Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
                     new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
                 }
-                // Aquí puedes agregar el código necesario para cerrar la sesión
             } else {
-                // Lógica si el usuario cancela
+                // Si el usuario cancela el cierre de sesión
                 System.out.println("Cancelado, no se cierra la sesión.");
             }
         });
     }
 
-    // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
         try {
-            // Cargar el FXML
+            // Cargar el FXML de la vista NavegacionPrincipalTrabajador
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipalTrabajador.fxml"));
             Parent root = loader.load();
 
@@ -245,11 +238,11 @@ public class TablaProveedoresController implements Initializable {
             ScrollPane sc = new ScrollPane();
             sc.setContent(root);
 
-            // Configurar el ScrollPane para que solo permita desplazamiento vertical
+            // Configurar el ScrollPane para solo permitir desplazamiento vertical
             sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
             sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
 
-            // Configurar el Scene
+            // Obtener el Stage actual
             Stage stage = (Stage) homeBtn.getScene().getWindow();
             stage.setTitle("Navegación Principal Trabajador");
 
@@ -262,35 +255,39 @@ public class TablaProveedoresController implements Initializable {
             stage.show();
 
         } catch (IOException ex) {
+            // Manejo de excepciones si hay problemas al cargar la nueva vista
             Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
-    // Abrir Ventana Gestion Proveedores
     private void abrirVentanaGestionProveedores(ActionEvent event) {
         try {
-            // Se carga el FXML con la información de la vista
+            // Cargar el FXML de la vista de gestión de proveedores
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TablaProveedores.fxml"));
             Parent root = loader.load();
 
-            // Obtener el controlador
+            // Obtener el controlador asociado al FXML cargado
             TablaProveedoresController controller = loader.getController();
 
-            // Obtener el Stage
+            // Obtener el Stage actual
             Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
             stage.setTitle("Gestión de Proveedores");
+
+            // Crear la nueva escena con el contenido de la vista cargada
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());  // Estilo CSS para la tabla
+
+            // Cambiar la escena y mostrarla
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {
+            // Manejo de excepciones si hay problemas al cargar la vista
             Logger.getLogger(TablaProveedoresController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
-    // Abrir Ventana Gestion Mantenimiento
     private void abrirVentanaGestionMantenimientos(ActionEvent event) {
         try {
             // Se carga el FXML con la información de la vista
@@ -303,17 +300,21 @@ public class TablaProveedoresController implements Initializable {
             // Obtener el Stage
             Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
             stage.setTitle("Gestión de Mantenimientos");
+
+            // Crear la nueva escena con el contenido de la vista cargada
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());  // Estilo CSS para la tabla
+
+            // Cambiar la escena y mostrarla
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {
+            // Manejo de excepciones si hay problemas al cargar la vista
             Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
-    // Abrir Ventana Gestion Vehiculos
     private void abrirVentanaGestionVehiculos(ActionEvent event) {
         try {
             // Se carga el FXML con la información de la vista
@@ -326,20 +327,23 @@ public class TablaProveedoresController implements Initializable {
             // Obtener el Stage
             Stage stage = (Stage) homeBtn.getScene().getWindow();  // Obtener Stage desde cualquier nodo ya cargado
             stage.setTitle("Gestión de Vehículos");
+
+            // Crear la nueva escena con el contenido de la vista cargada
             Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());  // Estilo CSS para la tabla
+
+            // Cambiar la escena y mostrarla
             stage.setScene(scene);
             stage.show();
         } catch (IOException ex) {
+            // Manejo de excepciones si hay problemas al cargar la vista
             Logger.getLogger(NavegacionPrincipalController.class.getName()).log(Level.SEVERE, null, ex);
-            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
-    // Metodo del Boton Refresh para cargar los elementos en la tabla
     private void cargartDatosTabla(ActionEvent event) {
-
-        // Liampia la tabla antes de introducir los Items
+        // Limpiar la tabla antes de introducir los nuevos elementos
         tableView.getItems().clear();
 
         // Obtener la lista de proveedores desde el servidor o el origen de datos
@@ -351,12 +355,10 @@ public class TablaProveedoresController implements Initializable {
 
         // Establecer los datos en la tabla
         tableView.setItems(proveedoresData);
-
     }
 
-    // Metodo que borra al Proveedor de la tabla y de la base de datos
     private void borrarProveedor(ActionEvent event) {
-
+        // Obtener el proveedor seleccionado de la tabla
         Proveedor proveedorSeleccionado = (Proveedor) tableView.getSelectionModel().getSelectedItem();
 
         if (proveedorSeleccionado != null) {
@@ -369,14 +371,14 @@ public class TablaProveedoresController implements Initializable {
             // Mostrar la alerta y esperar la respuesta del usuario
             alert.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.OK) {
-                    // Si el usuario hace clic en "OK", borrar el mantenimiento
+                    // Si el usuario hace clic en "OK", proceder con el borrado
                     Long id = proveedorSeleccionado.getIdProveedor();
                     String idParseado = String.valueOf(id);
 
-                    // Llamada al método para borrar el mantenimiento
+                    // Llamada al método para borrar el proveedor
                     ProveedorManagerFactory.get().remove(idParseado);
 
-                    // Obtener la lista de proveedores desde el servidor o el origen de datos
+                    // Obtener la lista actualizada de proveedores
                     List<Proveedor> proveedores = ProveedorManagerFactory.get().findAll_XML(new GenericType<List<Proveedor>>() {
                     });
 
@@ -386,8 +388,8 @@ public class TablaProveedoresController implements Initializable {
                     // Establecer los datos en la tabla
                     tableView.setItems(proveedoresData);
 
-                    // Mostrar mensaje de éxito
-                    //new Alert(Alert.AlertType.INFORMATION, "Mantenimiento eliminado correctamente.", ButtonType.OK).showAndWait();
+                    // Mostrar mensaje de éxito (comentado, pero podría habilitarse si se desea)
+                    //new Alert(Alert.AlertType.INFORMATION, "Proveedor eliminado correctamente.", ButtonType.OK).showAndWait();
                 } else {
                     // Si el usuario cancela, no hacer nada
                     System.out.println("Borrado cancelado.");
@@ -396,48 +398,49 @@ public class TablaProveedoresController implements Initializable {
         }
     }
 
-    // Añadir Linea para insertar Proveedor
     private void añadirLinea(ActionEvent event) {
-
         try {
-
+            // Crear un nuevo proveedor
             Proveedor porveedorLinea = new Proveedor();
 
-            // La fecha se puede cambiar pero debe ser automatica
+            // Establecer la fecha actual automáticamente
             Date fechaAuto = new Date();
             porveedorLinea.setUltimaActividad(fechaAuto);
             porveedorLinea.setNombreProveedor("Introduce el Nombre del Nuevo Proveedor");
             porveedorLinea.setTipoVehiculo(TipoVehiculo.COCHE);
             porveedorLinea.setEspecialidad("Introduce la Especialidad del Nuevo Proveedor");
 
+            // Crear el proveedor en la base de datos
             ProveedorManagerFactory.get().create_XML(porveedorLinea);
 
+            // Recargar los datos en la tabla
             cargartDatosTabla(null);
 
         } catch (Exception e) {
-            System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
+            System.out.println("Error al añadir línea");
         }
     }
 
-    // Metodo que crea el informe
     private void crearInforme(ActionEvent event) {
-
         try {
-
+            // Compilar el informe Jasper
             JasperReport report = JasperCompileManager.compileReport("src/informes/InformeProveedor.jrxml");
 
+            // Crear una fuente de datos a partir de la tabla
             JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Proveedor>) this.tableView.getItems());
 
+            // Parámetros del informe
             Map<String, Object> parameters = new HashMap<>();
 
+            // Rellenar el informe con los datos y parámetros
             JasperPrint jasperPrint = JasperFillManager.fillReport(report, parameters, dataItems);
 
+            // Visualizar el informe
             JasperViewer jasperViewer = new JasperViewer(jasperPrint, false);
-
             jasperViewer.setVisible(true);
 
         } catch (JRException e) {
-
+            // Manejo de excepciones y errores en la generación del informe
             LOGGER.log(Level.SEVERE, "Error al generar el informe", e);
 
             // Crear un Alert de tipo ERROR
@@ -449,6 +452,5 @@ public class TablaProveedoresController implements Initializable {
             // Mostrar el Alert
             alert.showAndWait();
         }
-
     }
 }

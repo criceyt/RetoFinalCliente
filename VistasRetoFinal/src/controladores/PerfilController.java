@@ -36,12 +36,16 @@ import modelo.Usuario;
  */
 public class PerfilController implements Initializable {
 
-    // Elementos de la Ventana
+    /**
+     * Elementos de la ventana para la gestión del perfil de usuario. Define los
+     * botones y campos de texto necesarios para mostrar y editar la información
+     * del usuario.
+     */
     @FXML
     private Button homeBtn;
 
     @FXML
-    private Button solicitarMantenimientoBtn;
+    private Button tusVehiculosBtn;
 
     @FXML
     private Button cerrarSesionBtn;
@@ -76,14 +80,24 @@ public class PerfilController implements Initializable {
     @FXML
     private CheckBox chkTerms;
 
-    // Atributo para Cargar los datos del Usuario
+    /**
+     * Atributos para cargar los datos del usuario y validar la entrada de
+     * datos.
+     */
     private Usuario usuario;
     private boolean datosCorrectos;
 
-    // Metodo Initialize
+    /**
+     * Método de inicialización que se llama cuando la ventana es cargada.
+     * Establece listeners para validar los campos y configura los botones y la
+     * vista con los datos del usuario.
+     *
+     * @param location La URL de ubicación del recurso.
+     * @param resources El conjunto de recursos utilizados por la ventana.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        // Establecer listeners para validar los campos al perder el foco
         textFieldNombre.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {
                 validateField(textFieldNombre);
@@ -108,51 +122,57 @@ public class PerfilController implements Initializable {
             }
         });
 
-        //Se añaden los listeners a todos los botones.
+        // Asignar acciones a los botones
         homeBtn.setOnAction(this::irAtras);
-        solicitarMantenimientoBtn.setOnAction(this::abrirVentanaSolicitarMantenimiento);
+        tusVehiculosBtn.setOnAction(this::abrirVentanaTusVehiculos);
         volverBtn.setOnAction(this::irAtras);
         cerrarSesionBtn.setOnAction(this::abrirVentanaSignInSignUp);
         guardarBtn.setOnAction(this::guardarDatosUsuario);
 
-        // Acceder al usuario desde SessionManager
+        // Obtener el usuario actual desde SessionManager
         this.usuario = SessionManager.getUsuario();
 
-        // Deshabilitar campos DNI, Email y Fecha Registro
+        // Deshabilitar los campos DNI, Email y Fecha de registro
         textFieldDni.setDisable(true);
         textFieldEmail.setDisable(true);
         textFieldFechaRegistro.setDisable(true);
 
-        // Metemos todos los datos del Usuario en su sitios correspondiente
+        // Rellenar los campos con los datos del usuario
         textFieldDni.setText(usuario.getDni());
         textFieldEmail.setText(usuario.getEmail());
         textFieldNombre.setText(usuario.getNombreCompleto());
         textFieldDireccion.setText(usuario.getDireccion());
 
-        // Este integer necesita un Parseo
+        // Convertir el número de teléfono a String y asignarlo
         int telefonoInt = usuario.getTelefono();
         textFieldTelefono.setText(String.valueOf(telefonoInt));
 
+        // Convertir el código postal a String y asignarlo
         int codigoPostalInt = usuario.getCodigoPostal();
         textFieldCodigoPostal.setText(String.valueOf(codigoPostalInt));
 
-        // Parseo de la fecha
+        // Formatear la fecha de registro a "yyyy-MM-dd" y asignarla
         Date fechaString = usuario.getFechaRegistro();
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String fechaFormateada = sdf.format(fechaString);
-        textFieldFechaRegistro.setText(String.valueOf(fechaFormateada));
+        textFieldFechaRegistro.setText(fechaFormateada);
 
-        // ComboBox
+        // Establecer si el usuario tiene cuenta premium
         chkTerms.setSelected(usuario.isPremium());
 
         System.out.println("Ventana inicializada correctamente.");
     }
 
-    // Abrir Ventana SignIn & SignUp
+    /**
+     * Método para abrir la ventana de inicio de sesión y registro (SignIn &
+     * SignUp). Muestra un alert de confirmación antes de cerrar sesión y
+     * cambiar a la vista de inicio de sesión.
+     *
+     * @param event El evento de acción disparado por el usuario.
+     */
     private void abrirVentanaSignInSignUp(ActionEvent event) {
-
-        // Crear un alert de tipo confirmación
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        // Crear un alert de tipo confirmación antes de cerrar sesión
+        Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Cerrar sesión");
         alert.setHeaderText("¿Estás seguro de que deseas cerrar sesión?");
         alert.setContentText("Perderás cualquier cambio no guardado.");
@@ -160,122 +180,122 @@ public class PerfilController implements Initializable {
         // Mostrar la alerta y esperar la respuesta del usuario
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-
                 try {
-                    // Se carga el FXML con la información de la vista viewSignUp.
+                    // Cargar el FXML de la vista SignInSignUp
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
                     Parent root = loader.load();
 
+                    // Obtener el controlador de la vista cargada
                     SignController controler = loader.getController();
 
-                    // Obtener el Stage desde el nodo que disparó el evento.
+                    // Obtener el Stage desde el nodo que disparó el evento
                     Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
+                    // Configurar el título y escena de la ventana
                     stage.setTitle("SignIn & SignUp");
-                    // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
                     Scene scene = new Scene(root);
                     scene.getStylesheets().add(getClass().getResource("/css/stylesOscuro.css").toExternalForm());
 
-                    // Se muestra en la ventana el Scene creado.
+                    // Establecer la nueva escena y mostrarla
                     stage.setScene(scene);
                     stage.show();
                 } catch (IOException ex) {
-                    // Si salta una IOException significa que ha habido algún 
-                    // problema al cargar el FXML o al intentar llamar a la nueva 
-                    // ventana, por lo que se mostrará un Alert con el mensaje 
-                    // "Error en la sincronización de ventanas, intentalo más tarde".
+                    // Si ocurre un error al cargar la ventana, se muestra un error
                     Logger.getLogger(SignController.class.getName()).log(Level.SEVERE, null, ex);
                     new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
                 }
-                // Aquí puedes agregar el código necesario para cerrar la sesión
             } else {
-                // Lógica si el usuario cancela
+                // Si el usuario cancela el cierre de sesión
                 System.out.println("Cancelado, no se cierra la sesión.");
             }
         });
-
     }
 
-// Boton HOME para volver atras
+    /**
+     * Método para regresar a la pantalla principal desde cualquier vista.
+     * Verifica si hay cambios no guardados antes de regresar.
+     *
+     * @param event El evento de acción disparado por el usuario.
+     */
     private void irAtras(ActionEvent event) {
-
         if (verificarCambiosNoGuardados()) {
             try {
-                // Se carga el FXML con la información de la vista viewSignUp.
+                // Cargar el FXML de la vista principal
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/NavegacionPrincipal.fxml"));
                 Parent root = loader.load();
 
-                NavegacionPrincipalController controler = loader.getController();
-
-                // Crear un ScrollPane para envolver el contenido
+                // Crear un ScrollPane para la vista cargada
                 ScrollPane sc = new ScrollPane();
                 sc.setContent(root);
 
-                // Configurar el ScrollPane para que solo permita desplazamiento vertical
-                sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Desactiva la barra de desplazamiento horizontal
-                sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS); // Activa la barra de desplazamiento vertical
+                // Configurar las barras de desplazamiento
+                sc.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                sc.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
 
-                // Obtener el Stage desde el nodo que disparó el evento.
-                Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                // Obtener el Stage actual y configurar la nueva escena
+                Stage stage = (Stage) homeBtn.getScene().getWindow();
+                stage.setTitle("Navegación Principal");
 
-                stage.setTitle("Navegacion Principal");
-                // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
-                Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+                Scene scene = new Scene(sc);
+                scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
-                // Se muestra en la ventana el Scene creado.
+                // Establecer el tamaño de la ventana
+                stage.setWidth(1000);  // Establecer el ancho
+                stage.setHeight(800);  // Establecer la altura
+
+                // Mostrar la nueva escena
                 stage.setScene(scene);
                 stage.show();
-
             } catch (IOException ex) {
-                // Si salta una IOException significa que ha habido algún 
-                // problema al cargar el FXML o al intentar llamar a la nueva 
-                // ventana, por lo que se mostrará un Alert con el mensaje 
-                // "Error en la sincronización de ventanas, intentalo más tarde".
-                Logger.getLogger(NavegacionPrincipalController.class
-                        .getName()).log(Level.SEVERE, null, ex);
-                new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
+                // Manejo de errores al cargar la vista principal
+                Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
+                new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
             }
         }
     }
 
-    // Abrir Ventana Solicitar Mantenimiento
-    private void abrirVentanaSolicitarMantenimiento(ActionEvent event) {
+    /**
+     * Método para abrir la ventana "Tus Vehículos". Verifica si hay cambios no
+     * guardados antes de cambiar a la vista de los vehículos del usuario.
+     *
+     * @param event El evento de acción disparado por el usuario.
+     */
+    private void abrirVentanaTusVehiculos(ActionEvent event) {
         if (verificarCambiosNoGuardados()) {
             try {
-                // Se carga el FXML con la información de la vista viewSignUp.
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SolicitarMantenimiento.fxml"));
+                // Cargar el FXML de la vista "Tus Vehículos"
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/TusVehiculos.fxml"));
                 Parent root = loader.load();
 
-                SolicitarMantenimientoController controler = loader.getController();
+                // Obtener el controlador de la vista cargada
+                TusVehiculosController controler = loader.getController();
 
-                // Obtener el Stage desde el nodo que disparó el evento.
+                // Obtener el Stage desde el nodo que disparó el evento
                 Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
 
-                stage.setTitle("Solicitar Mantenimiento");
-                // Se crea un nuevo objeto de la clase Scene con el FXML cargado.
+                // Configurar el título y escena de la ventana
+                stage.setTitle("Tus Vehículos");
                 Scene scene = new Scene(root);
-                scene.getStylesheets().add(getClass().getResource("/css/CSSTabla.css").toExternalForm());
+                scene.getStylesheets().add(getClass().getResource("/css/NavegacionPrincipal.css").toExternalForm());
 
-                // Se muestra en la ventana el Scene creado.
+                // Establecer la nueva escena y mostrarla
                 stage.setScene(scene);
                 stage.show();
-
             } catch (IOException ex) {
-                // Si salta una IOException significa que ha habido algún 
-                // problema al cargar el FXML o al intentar llamar a la nueva 
-                // ventana, por lo que se mostrará un Alert con el mensaje 
-                // "Error en la sincronización de ventanas, intentalo más tarde".
-                Logger.getLogger(SolicitarMantenimientoController.class
-                        .getName()).log(Level.SEVERE, null, ex);
+                // Manejo de errores al cargar la vista
+                Logger.getLogger(TusVehiculosController.class.getName()).log(Level.SEVERE, null, ex);
                 new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, intentalo más tarde.", ButtonType.OK).showAndWait();
             }
         }
     }
 
-    // Guardar los datos que ha introducido el Usuario para Modificar sus datos
+    /**
+     * Método para guardar los datos modificados del usuario. Verifica que los
+     * datos sean correctos antes de actualizar la base de datos.
+     *
+     * @param event El evento de acción disparado por el usuario.
+     */
     private void guardarDatosUsuario(ActionEvent event) {
-
         // Obtener los nuevos valores desde los campos de texto
         String nuevoNombre = textFieldNombre.getText();
         String nuevaDireccion = textFieldDireccion.getText();
@@ -283,10 +303,12 @@ public class PerfilController implements Initializable {
         String nuevoCodigoPostal = textFieldCodigoPostal.getText();
         boolean isPremiumNuevo = chkTerms.isSelected();
 
+        // Validar que todos los campos tienen los datos correctos
         if (!textFieldNombre.getText().isEmpty() && validarSoloLetrasNombre(nuevoNombre) && !textFieldDireccion.getText().isEmpty() && validarDireccion(nuevaDireccion) && !textFieldTelefono.getText().isEmpty() && esTelefonoCorrecto(nuevoTelefono) && !textFieldCodigoPostal.getText().isEmpty() && esPostalCorrecto(nuevoCodigoPostal)) {
-            // Si alguno de los datos son nuevos cambiamos los datos
+            // Si alguno de los datos son nuevos, actualizamos los datos del usuario
             if (!nuevoNombre.equalsIgnoreCase(usuario.getNombreCompleto()) || !nuevaDireccion.equalsIgnoreCase(usuario.getDireccion()) || !nuevoTelefono.equalsIgnoreCase(String.valueOf(usuario.getTelefono())) || !nuevoCodigoPostal.equalsIgnoreCase(String.valueOf(usuario.getCodigoPostal()))) {
 
+                // Actualizamos los datos del usuario
                 usuario.setNombreCompleto(nuevoNombre);
                 usuario.setDireccion(nuevaDireccion);
 
@@ -301,10 +323,10 @@ public class PerfilController implements Initializable {
                 // Parseamos a string el idPersona que queremos modificar
                 String idUsuario = String.valueOf(usuario.getIdPersona());
 
-                // Llevamos al usuario modificado ala base de datos
+                // Actualizamos la base de datos con los nuevos datos del usuario
                 UsuarioManagerFactory.get().edit_XML(usuario, idUsuario);
 
-                // Panel informativo de éxito
+                // Mostrar panel informativo de éxito
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
                 alert.setTitle("¡Perfil Modificado!");
                 alert.setHeaderText(null);
@@ -314,7 +336,7 @@ public class PerfilController implements Initializable {
                 alert.showAndWait();
 
             } else {
-                // Alerta de que no ha cambiado nada
+                // Si no se ha modificado ningún dato, mostramos una alerta
                 Alert alert = new Alert(Alert.AlertType.WARNING);
                 alert.setTitle("Sin Cambios");
                 alert.setHeaderText(null);
@@ -323,7 +345,7 @@ public class PerfilController implements Initializable {
             }
 
         } else {
-            // Alerta que indica que los datos no son correctos
+            // Si los datos son incorrectos, mostramos una alerta de error
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Datos Incorrectos");
             alert.setHeaderText("Campos Incorrectos");
@@ -331,31 +353,60 @@ public class PerfilController implements Initializable {
             alert.showAndWait();
         }
     }
-
 /////////////////////////////////////////  VALIDACIONES DE REGISTRO  ///////////////////////////////////////////////////////////////
-// Validacion para que solo Pueda introducir Letras
+
+    /**
+     * Valida que el nombre y apellidos solo contengan letras.
+     *
+     * @param nombreyApellidos El nombre y apellidos a validar.
+     * @return true si solo contiene letras, false en caso contrario.
+     */
     public boolean validarSoloLetrasNombre(String nombreyApellidos) {
         return nombreyApellidos.matches("[a-zA-Z]+");
     }
 
-    // Validacion de que el Telefono sean 9 Numeros
+    /**
+     * Valida que el teléfono tenga exactamente 9 dígitos numéricos.
+     *
+     * @param telefono El número de teléfono a validar.
+     * @return true si es un número de teléfono válido (9 dígitos), false en
+     * caso contrario.
+     */
     private boolean esTelefonoCorrecto(String telefono) {
         return telefono.matches("\\d{9}");
     }
 
-    // Validacion para que solo Pueda introducir Letras y Numeros (Caracteres especiones no (&$#"@))
+    /**
+     * Valida que la dirección solo contenga letras, números, espacios, comas,
+     * puntos y guiones.
+     *
+     * @param direccion La dirección a validar.
+     * @return true si es válida, false en caso contrario.
+     */
     public boolean validarDireccion(String direccion) {
         return direccion.matches("[a-zA-Z0-9\\s,.-]+");
     }
 
-    // Validacion de que el codigo Postal sean 5 Numeros
+    /**
+     * Valida que el código postal tenga exactamente 5 dígitos numéricos.
+     *
+     * @param codigoPostal El código postal a validar.
+     * @return true si es un código postal válido (5 dígitos), false en caso
+     * contrario.
+     */
     private boolean esPostalCorrecto(String codigoPostal) {
         return codigoPostal.matches("\\d{5}");
     }
 
+    /**
+     * Método para validar el campo de texto y aplicar el estilo según si es
+     * correcto o no.
+     *
+     * @param field El campo de texto a validar.
+     */
     private void validateField(TextField field) {
 
-        // Validación para Nombre
+        // Validación para el campo "Nombre"
         if (field == textFieldNombre) {
             if (field.getText().isEmpty() || !validarSoloLetrasNombre(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
@@ -364,7 +415,7 @@ public class PerfilController implements Initializable {
             }
         }
 
-        // Validación para Teléfono
+        // Validación para el campo "Teléfono"
         if (field == textFieldTelefono) {
             if (field.getText().isEmpty() || !esTelefonoCorrecto(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
@@ -373,7 +424,7 @@ public class PerfilController implements Initializable {
             }
         }
 
-        // Validación para Código Postal
+        // Validación para el campo "Código Postal"
         if (field == textFieldCodigoPostal) {
             if (field.getText().isEmpty() || !esPostalCorrecto(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
@@ -382,7 +433,7 @@ public class PerfilController implements Initializable {
             }
         }
 
-        // Validación para Dirección
+        // Validación para el campo "Dirección"
         if (field == textFieldDireccion) {
             if (field.getText().isEmpty() || !validarDireccion(field.getText())) {
                 field.setStyle("-fx-border-color: red;");
@@ -391,8 +442,15 @@ public class PerfilController implements Initializable {
             }
         }
     }
+/////////////////////////////////////////  MÉTODOS PARA VERIFICAR CAMBIOS Y ACTUALIZAR CONTRASEÑA  ///////////////////////////////////////////////////////////////
 
-    // Comprobar si hay cambios no guardados y mostrar una alerta si es necesario
+    /**
+     * Verifica si hay cambios no guardados en los campos de texto y muestra una
+     * alerta de confirmación.
+     *
+     * @return true si no hay cambios o si el usuario confirma que desea salir
+     * sin guardar los cambios, false si el usuario cancela la operación.
+     */
     private boolean verificarCambiosNoGuardados() {
         // Obtener los valores actuales de los campos de texto
         String nuevoNombre = textFieldNombre.getText();
@@ -400,14 +458,14 @@ public class PerfilController implements Initializable {
         String nuevoTelefono = textFieldTelefono.getText();
         String nuevoCodigoPostal = textFieldCodigoPostal.getText();
 
-        // Comprobar si hay cambios
+        // Comprobar si hay cambios en los campos
         boolean hayCambios = !nuevoNombre.equalsIgnoreCase(usuario.getNombreCompleto())
                 || !nuevaDireccion.equalsIgnoreCase(usuario.getDireccion())
                 || !nuevoTelefono.equalsIgnoreCase(String.valueOf(usuario.getTelefono()))
                 || !nuevoCodigoPostal.equalsIgnoreCase(String.valueOf(usuario.getCodigoPostal()));
 
+        // Si hay cambios, mostrar una alerta para confirmar si el usuario desea salir sin guardar
         if (hayCambios) {
-            // Si hay cambios, mostrar la alerta de confirmación
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Cambios No Guardados");
             alert.setHeaderText("¿Estás seguro de que deseas salir?");
@@ -421,71 +479,86 @@ public class PerfilController implements Initializable {
             // Mostrar la alerta y esperar la respuesta del usuario
             Optional<ButtonType> result = alert.showAndWait();
 
-            // Si el usuario cancela la operación, se devuelve 'false'
+            // Si el usuario cancela, no realizar el cambio de ventana
             if (result.isPresent() && result.get() == buttonCancelar) {
                 return false;  // No cambiar de ventana
             }
         }
 
-        // Si no hay cambios o el usuario acepta salir, devolver 'true'
+        // Si no hay cambios o el usuario confirma que desea salir, devolver 'true'
         return true;
     }
+
+    /**
+     * Permite actualizar la contraseña del usuario. Solicita el correo y la
+     * nueva contraseña.
+     *
+     * @param event El evento de acción.
+     */
     @FXML
-private void updatePassword(ActionEvent event) {
-    // Obtener el usuario actual en sesión
-    String emailUsuarioActual = usuario.getEmail();  
+    private void updatePassword(ActionEvent event) {
+        // Obtener el correo electrónico del usuario actual
+        String emailUsuarioActual = usuario.getEmail();
 
-    // Crear diálogo para pedir el email
-    TextInputDialog emailDialog = new TextInputDialog();
-    emailDialog.setTitle("Actualizar Contraseña");
-    emailDialog.setHeaderText("Introduce tu correo electrónico:");
-    emailDialog.setContentText("Correo:");
+        // Crear diálogo para solicitar el correo electrónico del usuario
+        TextInputDialog emailDialog = new TextInputDialog();
+        emailDialog.setTitle("Actualizar Contraseña");
+        emailDialog.setHeaderText("Introduce tu correo electrónico:");
+        emailDialog.setContentText("Correo:");
 
-    Optional<String> emailInput = emailDialog.showAndWait();
+        Optional<String> emailInput = emailDialog.showAndWait();
 
-    if (emailInput.isPresent() && !emailInput.get().isEmpty()) {
-        String emailIngresado = emailInput.get();
+        // Si el correo es válido
+        if (emailInput.isPresent() && !emailInput.get().isEmpty()) {
+            String emailIngresado = emailInput.get();
 
-        // Verificar si el correo ingresado coincide con el del usuario en sesión
-        if (!emailIngresado.equalsIgnoreCase(emailUsuarioActual)) {
-            new Alert(Alert.AlertType.ERROR, "No puedes cambiar la contraseña de otro usuario.").showAndWait();
-            return;
-        }
-
-        // Crear diálogo para pedir la nueva contraseña
-        TextInputDialog passwordDialog = new TextInputDialog();
-        passwordDialog.setTitle("Actualizar Contraseña");
-        passwordDialog.setHeaderText("Introduce tu nueva contraseña:");
-        passwordDialog.setContentText("Nueva contraseña:");
-
-        Optional<String> passwordInput = passwordDialog.showAndWait();
-
-        if (passwordInput.isPresent()) {
-            String newPassword = passwordInput.get();
-
-            // Validar la nueva contraseña
-            if (!isPasswordValid(newPassword)) {
-                new Alert(Alert.AlertType.ERROR, "La contraseña debe tener al menos 8 caracteres y un número.").showAndWait();
+            // Verificar que el correo ingresado corresponde al usuario actual
+            if (!emailIngresado.equalsIgnoreCase(emailUsuarioActual)) {
+                new Alert(Alert.AlertType.ERROR, "No puedes cambiar la contraseña de otro usuario.").showAndWait();
                 return;
             }
 
-            try {
-                // Llamar al método del cliente REST para actualizar la contraseña
-                PersonaManagerFactory.get().updatePassword_XML(emailIngresado, newPassword);
+            // Crear un diálogo para ingresar la nueva contraseña
+            TextInputDialog passwordDialog = new TextInputDialog();
+            passwordDialog.setTitle("Actualizar Contraseña");
+            passwordDialog.setHeaderText("Introduce tu nueva contraseña:");
+            passwordDialog.setContentText("Nueva contraseña:");
 
-                // Mostrar mensaje de éxito
-                new Alert(Alert.AlertType.INFORMATION, "Contraseña actualizada exitosamente.").showAndWait();
-            } catch (ClientErrorException e) {
-                new Alert(Alert.AlertType.ERROR, "Error al actualizar la contraseña. Verifica que el correo es correcto.").showAndWait();
+            Optional<String> passwordInput = passwordDialog.showAndWait();
+
+            // Si se ingresó una nueva contraseña
+            if (passwordInput.isPresent()) {
+                String newPassword = passwordInput.get();
+
+                // Validar la nueva contraseña
+                if (!isPasswordValid(newPassword)) {
+                    new Alert(Alert.AlertType.ERROR, "La contraseña debe tener al menos 8 caracteres y un número.").showAndWait();
+                    return;
+                }
+
+                try {
+                    // Actualizar la contraseña en el sistema
+                    PersonaManagerFactory.get().updatePassword_XML(emailIngresado, newPassword);
+
+                    // Mostrar mensaje de éxito
+                    new Alert(Alert.AlertType.INFORMATION, "Contraseña actualizada exitosamente.").showAndWait();
+                } catch (ClientErrorException e) {
+                    // Si ocurre un error al intentar actualizar la contraseña
+                    new Alert(Alert.AlertType.ERROR, "Error al actualizar la contraseña. Verifica que el correo es correcto.").showAndWait();
+                }
             }
         }
     }
-}
 
-
-
-private boolean isPasswordValid(String password) {
-    // Validar que la contraseña tenga al menos 8 caracteres y contenga al menos un número
-    return password.length() >= 8 && password.matches(".*\\d.*");
-}
+    /**
+     * Valida que la contraseña cumpla con los requisitos de longitud mínima y
+     * contenga al menos un número.
+     *
+     * @param password La contraseña a validar.
+     * @return true si la contraseña es válida, false en caso contrario.
+     */
+    private boolean isPasswordValid(String password) {
+        // La contraseña debe tener al menos 8 caracteres y contener al menos un número
+        return password.length() >= 8 && password.matches(".*\\d.*");
+    }
 }

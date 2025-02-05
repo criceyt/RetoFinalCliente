@@ -34,6 +34,13 @@ import modelo.TipoVehiculo;
  *
  * @author 2dam
  */
+/**
+ * Clase personalizada para la edición de celdas en la tabla de Proveedores.
+ * Esta clase permite editar celdas que contienen diferentes tipos de datos como
+ * String, Date, y Enum (TipoVehiculo).
+ *
+ * @param <T> El tipo de dato de la celda a editar.
+ */
 public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
 
     // Atributos para los controles de edición: TextField, DatePicker, ChoiceBox
@@ -41,14 +48,20 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
     private DatePicker datePicker;
     private ChoiceBox<TipoVehiculo> choiceBox;
 
-    // Constructor por defecto
+    /**
+     * Constructor por defecto de la clase EditingCellProveedor.
+     */
     public EditingCellProveedor() {
     }
 
-    // Método para comenzar la edición de la celda
+    /**
+     * Método que inicia la edición de la celda. Dependiendo del tipo de dato de
+     * la celda, se crea y muestra el control adecuado para la edición
+     * (TextField, DatePicker, ChoiceBox).
+     */
     @Override
     public void startEdit() {
-        if (!isEmpty()) { // Asegura que no esté vacío
+        if (!isEmpty()) { // Asegura que la celda no esté vacía
             super.startEdit();
             T item = getItem();
 
@@ -70,11 +83,14 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
                 setGraphic(null); // Solo muestra el texto sin controles gráficos
                 setContentDisplay(ContentDisplay.TEXT_ONLY); // Muestra solo el texto
             }
-            setContentDisplay(ContentDisplay.GRAPHIC_ONLY); // Solo el gráfico (control de edición)
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY); // Solo muestra el gráfico (control de edición)
         }
     }
 
-    // Método para cancelar la edición
+    /**
+     * Método que cancela la edición de la celda. Restaura el valor original de
+     * la celda y elimina el control gráfico.
+     */
     @Override
     public void cancelEdit() {
         super.cancelEdit();
@@ -83,7 +99,13 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
         setContentDisplay(ContentDisplay.TEXT_ONLY); // Solo muestra el texto
     }
 
-    // Método para actualizar el contenido de la celda cuando se cambia el valor
+    /**
+     * Método que actualiza el contenido de la celda cuando se cambia el valor.
+     * Si la celda está siendo editada, se muestra el control adecuado.
+     *
+     * @param item El valor de la celda que se va a mostrar.
+     * @param empty Indica si la celda está vacía.
+     */
     @Override
     public void updateItem(T item, boolean empty) {
         super.updateItem(item, empty);
@@ -116,7 +138,12 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
         }
     }
 
-    // Método para crear un TextField y habilitar su edición
+    /**
+     * Método para crear un TextField y habilitar su edición. Este método
+     * inicializa el TextField, ajusta su tamaño y configura los eventos
+     * necesarios para confirmar o cancelar la edición al presionar teclas
+     * específicas (Enter y ESC).
+     */
     private void createTextField() {
         textField = new TextField(getString());
         textField.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2); // Ajusta el tamaño del TextField
@@ -124,7 +151,8 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
         // Bandera para controlar si se canceló la edición al presionar ESC
         final BooleanProperty presionarEsc = new SimpleBooleanProperty(false);
 
-        textField.setOnAction(event -> commitEdit((T) textField.getText())); // Al presionar enter se confirma la edición
+        // Configura el evento para confirmar la edición al presionar Enter
+        textField.setOnAction(event -> commitEdit((T) textField.getText()));
 
         // Detecta cuando el foco se pierde para confirmar la edición
         textField.focusedProperty().addListener((ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2) -> {
@@ -149,11 +177,19 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
         });
     }
 
-    // Método para crear el DatePicker y habilitar su edición
+    /**
+     * Método para crear el DatePicker y habilitar su edición. Este método
+     * inicializa el DatePicker, configura el valor inicial y los eventos
+     * necesarios para confirmar o cancelar la edición al seleccionar una fecha
+     * o presionar ESC.
+     */
     private void createDatePicker() {
         datePicker = new DatePicker();
+        // Establece el valor inicial del DatePicker a partir del valor de la celda
         datePicker.setValue(((Date) getItem()).toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate());
-        datePicker.setOnAction(event -> commitEdit((T) Date.from(datePicker.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()))); // Al seleccionar fecha, se confirma la edición
+        // Configura el evento para confirmar la edición al seleccionar una fecha
+        datePicker.setOnAction(event -> commitEdit((T) Date.from(datePicker.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant())));
+        // Configura el evento para cancelar la edición al presionar ESC
         datePicker.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ESCAPE) {
                 cancelEdit(); // Si presionamos ESC, cancela la edición
@@ -161,7 +197,12 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
         });
     }
 
-    // Método para crear el ChoiceBox y habilitar su edición
+    /**
+     * Método para crear el ChoiceBox y habilitar su edición. Este método
+     * inicializa el ChoiceBox, ajusta su tamaño, obtiene los valores del enum
+     * TipoVehiculo, y configura los eventos necesarios para confirmar o
+     * cancelar la edición al seleccionar una opción o presionar ESC.
+     */
     private void createChoiceBox() {
         choiceBox = new ChoiceBox<>();
         choiceBox.setMinWidth(this.getWidth() - this.getGraphicTextGap() * 2); // Ajusta el tamaño del ChoiceBox
@@ -178,6 +219,7 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
             // Cargar las opciones de tipo de vehículo en el ChoiceBox
             choiceBox.setItems(FXCollections.observableArrayList(tipoVehiculoEnum));
 
+            // Configura el evento para confirmar la edición al seleccionar una opción
             choiceBox.setOnAction(event -> {
                 TipoVehiculo selectedOption = choiceBox.getValue();  // Obtén el valor seleccionado
                 if (selectedOption != null && !selectedOption.equals(getItem())) {  // Si el valor seleccionado es diferente
@@ -187,6 +229,7 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
                 }
             });
 
+            // Configura el evento para cancelar la edición al presionar ESC
             choiceBox.setOnKeyPressed(event -> {
                 if (event.getCode() == KeyCode.ESCAPE) {
                     cancelEdit();  // Si presionamos ESC, cancela la edición
@@ -195,29 +238,42 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
         }
     }
 
-    // Método para obtener el valor de la celda como cadena de texto
+    /**
+     * Método para obtener el valor de la celda como cadena de texto. Si el
+     * valor de la celda es nulo, retorna una cadena vacía.
+     *
+     * @return El valor de la celda como cadena de texto.
+     */
     private String getString() {
         return getItem() == null ? "" : getItem().toString();
     }
 
-    // Método para confirmar la edición de los valores
+    /**
+     * Método para confirmar la edición de los valores de una celda.
+     * Este método valida los valores ingresados y actualiza el proveedor correspondiente
+     * en la tabla. Si el valor es válido, se realiza la actualización; si no, se muestra una alerta
+     * y se cancela la edición.
+     *
+     * @param newValue El nuevo valor para la celda.
+     */
     @Override
     public void commitEdit(Object newValue) {
 
-        // Se crea un porveedor
+        // Se crea un proveedor
         Proveedor proveedores = (Proveedor) getTableRow().getItem();
         if (proveedores != null) {
 
             // Validaciones para los valores que sean String
             if (newValue instanceof String) {
-                // Validación: la nombre no puede ser mayor a 50 caracteres
+                // Validación: el nombre no puede ser mayor a 50 caracteres
                 if (((String) newValue).length() > 50) {
                     Platform.runLater(() -> {
                         new Alert(Alert.AlertType.WARNING, "El Nombre ni Especialidad no puede tener más de 50 caracteres.", ButtonType.OK).showAndWait();
                     });
                     cancelEdit();
-                    return; // Cancela la edición si la descripción es inválida
+                    return; // Cancela la edición si el valor es inválido
                 }
+
                 System.out.println(getTableColumn().getText());
                 // Si la columna que se está editando es 'Nombre', se actualiza el nombre
                 if (getTableColumn().getText().equals("Nombre")) {
@@ -227,7 +283,7 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
                     proveedores.setEspecialidad((String) newValue);
                 }
 
-                // Validaciones para las Fechas
+            // Validaciones para las Fechas
             } else if (newValue instanceof Date) {
                 Date fechaFinalizacion = (Date) newValue;
                 Date fechaActual = new Date();
@@ -246,7 +302,7 @@ public class EditingCellProveedor<T> extends TableCell<Proveedor, T> {
             }
 
             try {
-
+                // Realiza la actualización en el servidor utilizando el ProveedorManager
                 String idParseado = String.valueOf(proveedores.getIdProveedor());
                 ProveedorManagerFactory.get().edit_XML(proveedores, idParseado);
             } catch (Exception e) {

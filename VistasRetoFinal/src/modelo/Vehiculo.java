@@ -7,10 +7,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
- *
+ * Representa un vehículo con diversos atributos como marca, modelo, color,
+ * potencia, kilometraje, precio, y fecha de alta. También puede tener mantenimientos,
+ * proveedores asociados y compras realizadas.
+ * <p>La clase <code>Vehiculo</code> contiene información detallada sobre un vehículo,
+ * así como sus relaciones con otros objetos como mantenimientos, proveedores y compras.</p>
+ * 
  * @author ekain
  */
-
 @XmlRootElement
 public class Vehiculo implements Serializable {
 
@@ -26,43 +30,70 @@ public class Vehiculo implements Serializable {
 
     private Date fechaAlta;
     private TipoVehiculo tipoVehiculo;
-    
-    
 
     private Set<Mantenimiento> mantenimientos;
 
+    /**
+     * Obtiene el conjunto de mantenimientos asociados al vehículo.
+     * 
+     * @return Un conjunto de objetos <code>Mantenimiento</code> que representan los mantenimientos realizados en el vehículo.
+     */
     public Set<Mantenimiento> getMantenimientos() {
         return mantenimientos;
     }
 
+    /**
+     * Establece el conjunto de mantenimientos asociados al vehículo.
+     * 
+     * @param mantenimientos El conjunto de mantenimientos a establecer.
+     */
     public void setMantenimientos(Set<Mantenimiento> mantenimientos) {
         this.mantenimientos = mantenimientos;
     }
 
-    
     private Set<Proveedor> proveedores;
 
+    /**
+     * Obtiene el conjunto de proveedores asociados al vehículo.
+     * 
+     * @return Un conjunto de objetos <code>Proveedor</code> que representan los proveedores asociados al vehículo.
+     */
     @XmlTransient
     public Set<Proveedor> getProveedores() {
         return proveedores;
     }
 
+    /**
+     * Establece el conjunto de proveedores asociados al vehículo.
+     * 
+     * @param proveedores El conjunto de proveedores a establecer.
+     */
     public void setProveedores(Set<Proveedor> proveedores) {
         this.proveedores = proveedores;
     }
 
     private Set<Compra> compras;
 
-    
+    /**
+     * Obtiene el conjunto de compras asociadas al vehículo.
+     * 
+     * @return Un conjunto de objetos <code>Compra</code> que representan las compras realizadas del vehículo.
+     */
     public Set<Compra> getCompras() {
         return compras;
     }
 
+    /**
+     * Establece el conjunto de compras asociadas al vehículo.
+     * 
+     * @param compras El conjunto de compras a establecer.
+     */
     public void setCompras(Set<Compra> compras) {
         this.compras = compras;
     }
 
     // Getters y Setters
+
     public Long getIdVehiculo() {
         return idVehiculo;
     }
@@ -142,6 +173,4 @@ public class Vehiculo implements Serializable {
     public void setRuta(String ruta) {
         this.ruta = ruta;
     }
-    
-    
 }

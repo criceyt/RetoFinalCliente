@@ -21,7 +21,7 @@
                 </image>
             </ImageView>
             <Button fx:id="homeBtn" style="-fx-background-color: #8b0000; -fx-text-fill: white; -fx-font-weight: bold;" text="HOME" />
-            <Button fx:id="tuGarajeBtn" style="-fx-background-color: #8b0000; -fx-text-fill: white; -fx-font-weight: bold;" text="SOLICITAR MANTENIMIENTO" />
+            <Button fx:id="tusVehiculosBtn" style="-fx-background-color: #8b0000; -fx-text-fill: white; -fx-font-weight: bold;" text="TUS VEHICULOS" />
             <Button fx:id="cerrarSesionBtn" style="-fx-background-color: #8b0000; -fx-text-fill: white; -fx-font-weight: bold;" text="CERRAR SESIÓN" />
         </HBox>
     </top>

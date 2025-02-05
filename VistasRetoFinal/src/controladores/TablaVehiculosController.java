@@ -58,76 +58,53 @@ import net.sf.jasperreports.view.JasperViewer;
  */
 public class TablaVehiculosController implements Initializable {
 
-    // Elementos de la Ventana
     @FXML
     private Button homeBtn;
-
     @FXML
     private Button cerrarSesionBtn;
-
     @FXML
     private MenuItem gestionVehiculos;
-
     @FXML
     private MenuItem gestionProveedores;
-
     @FXML
     private MenuItem gestionMantenimientos;
-
     @FXML
     private TableView tableViewVehiculo;
-
     @FXML
     private TableColumn<Vehiculo, Long> idVehiculoColum;
-
     @FXML
     private TableColumn<Vehiculo, String> modeloColum;
-
     @FXML
     private TableColumn<Vehiculo, String> marcaColum;
-
     @FXML
     private TableColumn<Vehiculo, String> colorColum;
-
     @FXML
     private TableColumn<Vehiculo, Date> fechaAltaColum;
-
     @FXML
     private TableColumn<Vehiculo, Integer> potenciaColum;
-
     @FXML
     private TableColumn<Vehiculo, Integer> kmColum;
-
     @FXML
     private TableColumn<Vehiculo, Integer> precioColum;
-
     @FXML
     private TableColumn<Vehiculo, String> tipoColum;
-
     @FXML
     private Button deleteButton;
-
     @FXML
     private Button refreshButton;
-
     @FXML
     private Button addRowButton;
-
     @FXML
     private Button printBtn;
-
     @FXML
     private DatePicker datePickerFiltro;
 
-    // Declaraciones
     private Logger LOGGER = Logger.getLogger(TablaVehiculosController.class.getName());
     private DatePicker datePicker;
 
-    // Metodo Initialize
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
-        //Se añaden los listeners a todos los botones.
+        // Se añaden los listeners a todos los botones.
         homeBtn.setOnAction(this::irAtras);
         gestionVehiculos.setOnAction(this::abrirVentanaGestionVehiculos);
         gestionProveedores.setOnAction(this::abrirVentanaGestionProveedores);
@@ -151,7 +128,7 @@ public class TablaVehiculosController implements Initializable {
         fechaAltaColum.setCellValueFactory(new PropertyValueFactory<>("fechaAlta"));
         tipoColum.setCellValueFactory(new PropertyValueFactory<>("tipoVehiculo"));
 
-        // Metodo que carga los datos de la Tabla
+        // Método que carga los datos de la Tabla
         cargarDatosTabla(null);
 
         // Filtrado de DatePicker
@@ -200,9 +177,7 @@ public class TablaVehiculosController implements Initializable {
         });
     }
 
-    // Abrir Ventana SignIn & SignUp
     private void abrirVentanaSignInSignUp(ActionEvent event) {
-
         // Crear un alert de tipo confirmación
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Cerrar sesión");
@@ -212,7 +187,6 @@ public class TablaVehiculosController implements Initializable {
         // Mostrar la alerta y esperar la respuesta del usuario
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-
                 try {
                     // Se carga el FXML con la información de la vista viewSignUp.
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/vistas/SignInSignUp.fxml"));
@@ -247,7 +221,6 @@ public class TablaVehiculosController implements Initializable {
         });
     }
 
-    // Boton HOME para volver atras
     private void irAtras(ActionEvent event) {
         try {
             // Cargar el FXML
@@ -273,14 +246,12 @@ public class TablaVehiculosController implements Initializable {
             // Establecer la escena y mostrarla
             stage.setScene(scene);
             stage.show();
-
         } catch (IOException ex) {
             Logger.getLogger(TablaMantenimientoController.class.getName()).log(Level.SEVERE, null, ex);
             new Alert(Alert.AlertType.ERROR, "Error en la sincronización de ventanas, inténtalo más tarde.", ButtonType.OK).showAndWait();
         }
     }
 
-    // Abrir Ventana Gestion Proveedores
     private void abrirVentanaGestionProveedores(ActionEvent event) {
         try {
             // Se carga el FXML con la información de la vista
@@ -305,7 +276,6 @@ public class TablaVehiculosController implements Initializable {
         }
     }
 
-    // Abrir Ventana Gestion Mantenimiento
     private void abrirVentanaGestionMantenimientos(ActionEvent event) {
         try {
             // Se carga el FXML con la información de la vista
@@ -354,7 +324,6 @@ public class TablaVehiculosController implements Initializable {
         }
     }
 
-    // Metodo que borra el Mantenimiento de la tabla y de la base de datos
     private void borrarVehiculo(ActionEvent event) {
         Vehiculo vehiculoSeleccionado = (Vehiculo) tableViewVehiculo.getSelectionModel().getSelectedItem();
 
@@ -389,59 +358,54 @@ public class TablaVehiculosController implements Initializable {
         }
     }
 
-    // Metodo paar cargar los datos de la Tabla o para hacer un Refresh
     private void cargarDatosTabla(ActionEvent event) {
 
-        // Liampia la tabla antes de introducir los Items
+        // Limpia la tabla antes de introducir los Items
         tableViewVehiculo.getItems().clear();
 
-        // Obtener la lista de proveedores desde el servidor o el origen de datos
+        // Obtener la lista de vehículos desde el servidor o el origen de datos
         List<Vehiculo> vehiculos = VehiculoManagerFactory.get().findAll_XML(new GenericType<List<Vehiculo>>() {
         });
 
-        // Convertir la lista de proveedores en ObservableList para la TableView
+        // Convertir la lista de vehículos en ObservableList para la TableView
         ObservableList<Vehiculo> vehiculosData = FXCollections.observableArrayList(vehiculos);
 
         // Establecer los datos en la tabla
         tableViewVehiculo.setItems(vehiculosData);
     }
 
-    // Metodo para Añadir un Vehiuculo Vacio
     public void añadirLinea(ActionEvent even) {
 
         try {
 
             Vehiculo vehiculoLinea = new Vehiculo();
 
-            // La fecha se puede cambiar pero debe ser automatica
+            // La fecha se puede cambiar pero debe ser automática
             Date fechaAuto = new Date();
             vehiculoLinea.setFechaAlta(fechaAuto);
 
-            // String 
+            // Asignación de datos por defecto para el nuevo vehículo
             vehiculoLinea.setMarca("Inserta la Marca");
             vehiculoLinea.setModelo("Inserta el Modelo");
             vehiculoLinea.setColor("Inserta el Color");
 
-            // Integer
+            // Propiedades numéricas
             vehiculoLinea.setKm(0);
             vehiculoLinea.setPotencia(0);
             vehiculoLinea.setPrecio(0);
             vehiculoLinea.setTipoVehiculo(TipoVehiculo.COCHE);
 
-            // Enum
-            vehiculoLinea.setTipoVehiculo(TipoVehiculo.COCHE);
-
-            // La ruta de la imagen
+            // Ruta de la imagen
             vehiculoLinea.setRuta(null);
 
-            // Mnadar el Vehiculo
+            // Enviar el nuevo vehículo a la base de datos
             VehiculoManagerFactory.get().create_XML(vehiculoLinea);
 
-            // Cargamos la tabla de nuevo
+            // Recargar la tabla de vehículos con los nuevos datos
             cargarDatosTabla(null);
 
         } catch (Exception e) {
-            System.out.println("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
+            System.out.println("Error al añadir el vehículo: " + e.getMessage());
         }
     }
 

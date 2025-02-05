@@ -21,8 +21,7 @@
 
         <!-- Botones en la barra superior -->
         <Button fx:id="homeBtn" text="HOME" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-pref-width: 150;" />
-        <Button fx:id="solicitarMantenimientoBtn" text="SOLICITAR MANTENIMIENTO" 
-                style="-fx-text-fill: white; -fx-font-weight: bold; -fx-pref-width: 200;" />
+        <Button fx:id="tusVehiculosBtn" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-pref-width: 150;" text="TUS VEHICULOS" />
         <Button fx:id="cerrarSesionBtn" text="CERRAR SESIÓN" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-pref-width: 150;" />
     </HBox>
 </top>
