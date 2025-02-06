@@ -1,0 +1,129 @@
+/* Estilo global */
+* {
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* Barra Superior */
+#topBar {
+    -fx-background-color: linear-gradient(to right, #660000, #800000); /* Degradado vino tinto */
+    -fx-padding: 15;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.5, 0, 2);
+}
+
+#homeBtn, #cerrarSesionBtn {
+    -fx-text-fill: #ffffff;  /* Blanco más brillante */
+}
+
+#homeBtn:hover, #cerrarSesionBtn:hover {
+    -fx-background-color: #ff4d4d;
+    -fx-text-fill: #ffffff;  /* Blanco en el hover */
+}
+
+/* Menú Lateral Izquierdo */
+#sideBar {
+    -fx-background-color: #1c1c1c; /* Negro oscuro */
+    -fx-padding: 20;
+    -fx-border-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.5, 0, 2);
+}
+
+#labelFiltros {
+    -fx-text-fill: #ff4d4d; /* Rojo intenso */
+    -fx-font-weight: bold;
+    -fx-underline: true;
+}
+
+#sideBar Button {
+    -fx-background-color: #660000; /* Vino tinto oscuro */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10;
+    -fx-pref-width: 180;
+    -fx-pref-height: 40;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 5, 0.3, 0, 2);
+}
+
+#sideBar Button:hover {
+    -fx-background-color: #4d0000; /* Vino tinto más oscuro */
+}
+
+/* Área Central */
+#centerArea {
+    -fx-padding: 20;
+}
+
+#searchBar {
+    -fx-background-color: #2b2b2b; /* Gris oscuro */
+    -fx-border-color: #700000; /* Bordes rojos oscuros */
+    -fx-border-radius: 10;
+    -fx-padding: 10;
+    -fx-text-fill: white;
+}
+
+#gridPane Button {
+    -fx-background-color: #660000; /* Vino tinto oscuro */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10;
+    -fx-pref-width: 100;
+    -fx-pref-height: 80;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.15), 5, 0.3, 0, 2);
+}
+
+#gridPane Button:hover {
+    -fx-background-color: #4d0000; /* Vino tinto más oscuro */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 10, 0.5, 0, 3); /* Sombra más intensa al pasar el ratón */
+}
+
+.center-area {
+    -fx-background-image: url('../img/background.jpg');
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+    -fx-background-position: center;
+}
+
+/* Botones Generales */
+Button {
+    -fx-background-color: #8b0000; /* Vino tinto más suave */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-radius: 15; /* Bordes más redondeados */
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0.5, 0, 3); /* Sombra sutil */
+    -fx-transition: background-color 0.3s ease, -fx-background-radius 0.3s ease; /* Transición suave */
+}
+
+Button:hover {
+    -fx-background-color: #6e0000; /* Rojo oscuro para hover */
+    -fx-background-radius: 20; /* Más redondeado en hover */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0.7, 0, 5); /* Sombra más intensa */
+}
+
+Button:pressed {
+    -fx-background-color: #4d0000; /* Rojo más oscuro al presionar */
+    -fx-effect: inset 0 0 10px rgba(0, 0, 0, 0.5); /* Efecto de presionar */
+}
+
+/* Campo de texto */
+TextField {
+    -fx-background-color: #212121;  /* Gris oscuro */
+    -fx-border-color: #9e9e9e;      /* Gris claro */
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #9e9e9e;  /* Gris claro para el texto */
+}
+
+/* Estilos de fuente */
+* {
+    -fx-font-family: "Arial", sans-serif;
+    -fx-font-size: 14px;
+}
+
+VBox {
+    -fx-spacing: 15px;
+}
+
+HBox {
+    -fx-spacing: 20px;
+}

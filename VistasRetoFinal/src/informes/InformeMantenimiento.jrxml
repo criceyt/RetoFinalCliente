@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="MantenimientoReport"
+              pageWidth="595"
+              pageHeight="842"
+              columnWidth="535"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20"
+              uuid="e93fe3a8-0f7e-43c4-b5b9-751c3e12ed4c">
+
+    <!-- Propiedades de iReport -->
+    <property name="ireport.zoom" value="1.9487171000000014"/>
+    <property name="ireport.x" value="0"/>
+    <property name="ireport.y" value="0"/>
+
+    <!-- Definición de campos -->
+    <field name="idMantenimiento" class="java.lang.Long"/>
+    <field name="descripcion" class="java.lang.String"/>
+    <field name="fechaFinalizacion" class="java.util.Date"/>
+    <field name="mantenimientoExitoso" class="java.lang.Boolean"/>
+    <field name="idVehiculo" class="java.lang.Long"/>
+
+    <!-- Título del reporte -->
+    <title>
+        <band height="50" splitType="Stretch">
+            <staticText>
+                <reportElement x="200" y="10" width="200" height="30" uuid="40dad876-27b5-42ce-94ef-a4ccf9370059"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Reporte de Mantenimiento]]></text>
+            </staticText>
+        </band>
+    </title>
+
+    <!-- Encabezado de columnas -->
+    <columnHeader>
+        <band height="30" splitType="Stretch">
+            <staticText>
+                <reportElement x="10" y="0" width="53" height="30" uuid="265241f0-e619-4a3a-b354-99f324833275"/>
+                <text><![CDATA[ID Mantenimiento]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="63" y="0" width="100" height="30" uuid="af339de9-d514-4903-86b9-d44271a92596"/>
+                <text><![CDATA[Descripción]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="163" y="0" width="99" height="30" uuid="fa7d9140-d67a-4a39-b611-2dc5c593a7bc"/>
+                <text><![CDATA[Fecha Finalización]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="262" y="0" width="80" height="30" uuid="7fceaff0-0c92-4a5f-8ff3-0171404bc539"/>
+                <text><![CDATA[Mantenimiento Exitoso]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="342" y="0" width="148" height="30" uuid="e3a11b29-6a4a-49b3-a6ba-72b5a8a8a6d9"/>
+                <text><![CDATA[ID Vehículo]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- Detalle de los datos -->
+    <detail>
+        <band height="20" splitType="Stretch">
+            <textField>
+                <reportElement x="10" y="0" width="53" height="20" uuid="039654da-24cf-4dc6-b13b-9a6ba6043a38"/>
+                <textFieldExpression><![CDATA[$F{idMantenimiento}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="63" y="0" width="100" height="20" uuid="070d9246-5488-45d8-b788-17e761f40e0c"/>
+                <textFieldExpression><![CDATA[$F{descripcion}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="163" y="0" width="99" height="20" uuid="2a9f57f6-7bc2-4409-aa4b-8ef541cf5684"/>
+                <textFieldExpression><![CDATA[$F{fechaFinalizacion}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="262" y="0" width="80" height="20" uuid="ba62a254-e57b-43f1-8a99-c0788870733f"/>
+                <textFieldExpression><![CDATA[$F{mantenimientoExitoso}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="342" y="0" width="148" height="20" uuid="37a1b41b-69e4-4df9-80e2-d8d04af4a294"/>
+                <textFieldExpression><![CDATA[$F{idVehiculo}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+</jasperReport>
