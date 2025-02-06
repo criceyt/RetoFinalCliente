@@ -73,6 +73,7 @@ public class TestTablaProveedor extends ApplicationTest {
         write("Diablo");
         push(KeyCode.ENTER);
         assertEquals("Diablo", tableView.getItems().get(rowCount - 1).getNombreProveedor());
+        
 
         // Modificar el TipoVehiculo
         celda = lookup(".table-cell").nth((rowCount - 1) * tableView.getColumns().size() + 2).query();
@@ -88,7 +89,7 @@ public class TestTablaProveedor extends ApplicationTest {
         celda = lookup(".table-cell").nth((rowCount - 1) * tableView.getColumns().size() + 3).query();
         doubleClickOn(celda);
         clickOn(celda);
-        for (int i = 0; i < 25; i++) {
+        for (int i = 0; i < 30; i++) {
             push(KeyCode.BACK_SPACE);  // Borra el contenido hacia atrás, 10 veces
             push(KeyCode.DELETE);  // Borra el contenido hacia adelante, 10 veces
         }
@@ -96,6 +97,8 @@ public class TestTablaProveedor extends ApplicationTest {
         push(KeyCode.ENTER);
         assertEquals("Motos de Carretera", tableView.getItems().get(rowCount - 1).getEspecialidad());
 
+        esperar();
+  
         // Modificamos la Ultima Actividad (DatePicker)
         celda = lookup(".table-cell").nth((rowCount - 1) * tableView.getColumns().size() + 4).query();
         doubleClickOn(celda);
