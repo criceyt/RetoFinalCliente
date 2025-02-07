@@ -401,7 +401,7 @@ public class TablaMantenimientoController implements Initializable {
 // Metodo que crea el informe
     private void crearInforme(ActionEvent event) {
         try {
-            JasperReport report = JasperCompileManager.compileReport("src/informes/InformeMantenimiento.jrxml");
+            JasperReport report = JasperCompileManager.compileReport(getClass().getResourceAsStream("/informes/InformeMantenimiento.jrxml"));
 
             JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Mantenimiento>) this.tableView.getItems());
 

@@ -414,7 +414,7 @@ public class TablaVehiculosController implements Initializable {
 
         try {
 
-            JasperReport report = JasperCompileManager.compileReport("src/informes/InformeVehiculo.jrxml");
+            JasperReport report = JasperCompileManager.compileReport(getClass().getResourceAsStream("/informes/InformeVehiculo.jrxml"));
 
             JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Vehiculo>) this.tableViewVehiculo.getItems());
 

@@ -424,7 +424,7 @@ public class TablaProveedoresController implements Initializable {
     private void crearInforme(ActionEvent event) {
         try {
             // Compilar el informe Jasper
-            JasperReport report = JasperCompileManager.compileReport("src/informes/InformeProveedor.jrxml");
+                JasperReport report = JasperCompileManager.compileReport(getClass().getResourceAsStream("/informes/InformeProveedor.jrxml"));
 
             // Crear una fuente de datos a partir de la tabla
             JRBeanCollectionDataSource dataItems = new JRBeanCollectionDataSource((Collection<Proveedor>) this.tableView.getItems());
