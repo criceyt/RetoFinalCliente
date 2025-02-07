@@ -20,6 +20,10 @@ TRABAJADOR:
 - Correo: admin1@example.com
 - Password: Abcd*1234
 
+URL SERVIDOR:
+
+Ubicacion = Paquete entidades
+
 
 TESTS:
 Para que los tests se ejecuten de manera correcta, es necesario borrar los datos de la tabla hasta que se visualicen correctamente. (Los tests no pueden utilizar la barra de desplazamiento, por lo que la tabla debe ser completamente visible).
